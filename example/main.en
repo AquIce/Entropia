@@ -1,0 +1,15 @@
+use sysio as io
+
+// This is a simple example for the Entropia Language.
+
+fn add(int32 a, int32 b) : int32 {
+	return a + b
+}
+
+fn main() {
+	let a: int32 = 1
+	let b: int32 = 2
+	let c: int32 = add(a, b)
+	io::println(c)
+	return 0
+}
