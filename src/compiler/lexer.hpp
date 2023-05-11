@@ -10,6 +10,7 @@ namespace Entropia {
 	enum TokenType {
 		TYPE,
 		OPERATOR,
+		ASSIGN,
 		BOOLEAN,
 		BITWISE,
 		LOOP,
@@ -29,9 +30,10 @@ namespace Entropia {
 		private:
 			std::string source;
 			std::vector<std::pair<std::vector<std::string>, TokenType>> tokens = {
-				{{"int8", "int16", "int32", "int64", "int128", "double", "byte", "char", "bool", "str", "const", "auto", "udf", "void"}, TokenType::TYPE},
-				{{"+", "-", "*", "/", "%", "**", "<<", "++", "--"}, TokenType::OPERATOR},
-				{{"and", "or", "not", "xor"}, TokenType::BOOLEAN},
+				{"^(int|double|byte|char|bool|str|auto|void)$", TokenType::TYPE},
+				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
+				{"^(=|)$", TokenType::ASSIGN},
+				"^(and|or|not|xor)$", TokenType::BOOLEAN},
 				{{"&", "|", "~", "^"}, TokenType::BITWISE},
 				{{"loop", "for", "while", "do", "break", "continue"}, TokenType::LOOP},
 				{{"if", "elsif", "else", "switch", "case", "default", "==", "!="}, TokenType::STATEMENT},
