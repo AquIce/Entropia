@@ -4,43 +4,61 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <regex>
 
 namespace Entropia {
 
 	enum TokenType {
 		TYPE,
+		OWNERSHIP,
 		OPERATOR,
+		COMPARISON,
 		ASSIGN,
 		BOOLEAN,
 		BITWISE,
-		LOOP,
 		STATEMENT,
+		GOTO,
 		OOP,
 		ERROR,
 		FUNCTION,
-		SPACE,
-		IDENTIFIER,
-		NUMBER,
-		STRING,
-		CHAR,
-		UNKNOWN
+		IMPORT,
+		ASYNC,
+		COMMENT,
+		ARROW,
+		VALUE_DEC,
+		VALUE_HEX,
+		VALUE_BIN,
+		VALUE_OCT,
+		VALUE_STR,
+		VALUE_CHAR,
 	};
 
 	class Lexer {
 		private:
 			std::string source;
 			std::vector<std::pair<std::vector<std::string>, TokenType>> tokens = {
-				{"^(int|double|byte|char|bool|str|auto|void)$", TokenType::TYPE},
+				{"^(int|double|byte|char|bool|str|auto|fn)$", TokenType::TYPE},
+				{"^(mut|&)$", TokenType::OWNERSHIP},
 				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
-				{"^(=|)$", TokenType::ASSIGN},
-				"^(and|or|not|xor)$", TokenType::BOOLEAN},
-				{{"&", "|", "~", "^"}, TokenType::BITWISE},
-				{{"loop", "for", "while", "do", "break", "continue"}, TokenType::LOOP},
-				{{"if", "elsif", "else", "switch", "case", "default", "==", "!="}, TokenType::STATEMENT},
-				{{"class", "typedef", "public", "protected", "private", "self", "super"}, TokenType::OOP},
-				{{"try", "catch", "even", "raise"}, TokenType::ERROR},
-				{{"fn", "return", "yield"}, TokenType::FUNCTION},
-				{{"codespace", "use"}, TokenType::SPACE}
+				{"^(==|!=|>=|<=)$", TokenType::COMPARISON},
+				{"^(\\+|\\-|\\*|\\/|\\*\\*|%)?=$", TokenType::ASSIGN},
+				{"^(and|or|not|xor)$", TokenType::BOOLEAN},
+				{"^(&|\\||~|\\^|<<|>>)$", TokenType::BITWISE},
+				{"^(loop|for|in|while|do|if|elif|else)$", TokenType::STATEMENT},
+				{"^(break|continue)$", TokenType::GOTO},
+				{"^(class|extends|public|protected|private|self|this|super|static)$", TokenType::OOP},
+				{"^(try|catch|even|throw)$", TokenType::ERROR},
+				{"^(return|yield)$", TokenType::FUNCTION},
+				{"^(codespace|use)$", TokenType::IMPORT},
+				{"^(async|await)$", TokenType::ASYNC},
+				{"^(\\/\\/|\\/\\*|\\*\\/)$", TokenType::COMMENT},
+				{"^(->)$", TokenType::ARROW},
+				{"^((0d)?[0-9]*.[0-9]+)$", TokenType::VALUE_DEC},
+				{"^(0x([0-9]|[a-h])+)$", TokenType::VALUE_HEX},
+				{"^(0b[0-1]+)$", TokenType::VALUE_BIN},
+				{"^(0o[0-7]+)$", TokenType::VALUE_OCT},
+				{"^(\"((\\\\['abfnrtv\\\\])|([^\\\\\"]))*\")$", TokenType::VALUE_STR},
+				{"^(('\\\\['tnr\\\\]')|('[^\\\\']'))$", TokenType::VALUE_CHAR},
 			};
 		public:
 			Lexer(std::string source);
@@ -48,19 +66,5 @@ namespace Entropia {
 			std::vector<std::string> lex();
 	};
 }
-
-keywords = {
-            "int", "double", "byte", "char", "bool", "str", "const", "auto", "udf", // Types
-            "+", "-", "*", "/", "%", "**", "<<", "++", "--", // Operators
-            "and", "or", "not", "xor", // Booleans operators
-            "&", "|", "~", "^", // Bitwise operators
-            "loop", "for", "while", "do", "break", "continue", // Loops
-            "if", "elsif", "else", "switch", "case", "default", "==", "!=", // Statements
-            "class", "typedef", "public", "protected", "private", "self", "super", // Object Oriented
-            "try", "catch", "even", "raise", // Errors
-            "fn", "return", "yield", // Functions
-            "codespace", "use" // Spaces and Imports
-            // https://www.programiz.com/cpp-programming/keywords-identifiers
-        };
 
 #endif // __LEXER_HPP__
