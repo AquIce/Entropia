@@ -10,7 +10,7 @@ namespace Entropia {
 
 	enum TokenType {
 		TYPE,
-		OWNERSHIP,
+		MUTABLE,
 		OPERATOR,
 		COMPARISON,
 		ASSIGN,
@@ -36,9 +36,9 @@ namespace Entropia {
 	class Lexer {
 		private:
 			std::string source;
-			std::vector<std::pair<std::vector<std::string>, TokenType>> tokens = {
+			std::vector<std::pair<std::string, TokenType>> tokens = {
 				{"^(int|double|byte|char|bool|str|auto|fn)$", TokenType::TYPE},
-				{"^(mut|&)$", TokenType::OWNERSHIP},
+				{"^(mut)$", TokenType::MUTABLE},
 				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
 				{"^(==|!=|>=|<=)$", TokenType::COMPARISON},
 				{"^(\\+|\\-|\\*|\\/|\\*\\*|%)?=$", TokenType::ASSIGN},
