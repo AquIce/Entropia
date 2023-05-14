@@ -12,5 +12,4 @@ fn main() {
 	let f: str = "Hello World!";
 	let g: auto = 1;
 	io::println(typing::typeof(g));
-	return 0;
 }

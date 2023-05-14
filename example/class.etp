@@ -1,0 +1,42 @@
+use sysio as io;
+
+// This is a simple example for the Entropia Language class
+
+class Example {
+	@private
+	value: int;
+
+	@public
+	// Constructor
+	Example(value: int) {
+		this.value = value;
+	}
+	// Destructor
+	-Example() {
+	}
+	// Set and get methods
+	fn set(value: int) {
+		this.value = value;
+	}
+	int get() {
+		return this.value;
+	}
+}
+
+class InheritedExample extends Example {
+	@public
+	// Set the value to 0
+	fn zero() {
+		this.value = 0;
+	}
+}
+
+fn main() {
+	let a: Example = Example(5);
+	a.set(10);
+	io::println(a.get());
+
+	let b: InheritedExample = InheritedExample(5);
+	b.zero();
+	io::println(b.get());
+}

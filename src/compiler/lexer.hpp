@@ -46,7 +46,7 @@ namespace Entropia {
 				{"^(&|\\||~|\\^|<<|>>)$", TokenType::BITWISE},
 				{"^(loop|for|in|while|do|if|elif|else)$", TokenType::STATEMENT},
 				{"^(break|continue)$", TokenType::GOTO},
-				{"^(class|extends|public|protected|private|self|this|super|static)$", TokenType::OOP},
+				{"^(class|extends|@public|@protected|@private|self|this|super|static)$", TokenType::OOP},
 				{"^(try|catch|even|throw)$", TokenType::ERROR},
 				{"^(return|yield)$", TokenType::FUNCTION},
 				{"^(codespace|use)$", TokenType::IMPORT},

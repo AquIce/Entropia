@@ -13,6 +13,4 @@ fn main() {
 	let b3: int = own::borrow(a3); // a3 is still accessible (but as immutable) beacause it is copied as immutable
 	let mut a4: int = 4;
 	let b4: int = own::borow(mut a4); // a3 is not accessible anymore beacause it is copied as mutable
-
-	return 0
 }

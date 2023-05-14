@@ -1,0 +1,18 @@
+use sysio as io;
+use context as ctx;
+
+codespace foo {
+	ctx::Context get_context() {
+		return ctx::Context.get();
+	}
+}
+
+fn main() {
+	let context = foo::get_context();
+	io::println(context);
+	/*
+		Output is :
+		foo::get_context() -> ctx::Context
+		codespace::fn
+	*/
+}

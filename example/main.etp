@@ -4,5 +4,4 @@ use sysio as io;
 
 fn main() {
 	io::println("Hello World!");
-	return 0;
 }
