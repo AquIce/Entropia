@@ -8,12 +8,11 @@ class Example {
 
 	@public
 	// Constructor
-	Example(value: int) {
+	constructor(value: int) {
 		this.value = value;
 	}
 	// Destructor
-	-Example() {
-	}
+	destructor() {}
 	// Set and get methods
 	fn set(value: int) {
 		this.value = value;
