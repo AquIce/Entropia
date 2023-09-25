@@ -45,6 +45,22 @@ namespace Entropia {
 		VALUE_CHAR,
 	};
 
+	class Scope {
+	private:
+		Scope* parent;
+		std::vector<Scope*> children;
+
+	public:
+		Scope(Scope* parent) {
+			this.parent = parent;
+			this.parent.AddChild(this);
+		}
+		AddChild(Scope* child) {
+			children.push_back(child);
+		}
+		GetChildren() { return children; }
+	}
+
 	class Lexer {
 		private:
 			std::string source;
