@@ -54,7 +54,7 @@ namespace Entropia {
 				{"^(\\/\\/|\\/\\*|\\*\\/)$", TokenType::COMMENT},
 				{"^(->)$", TokenType::ARROW},
 				{"^((0d)?[0-9]*.[0-9]+)$", TokenType::VALUE_DEC},
-				{"^(0x([0-9]|[a-h])+)$", TokenType::VALUE_HEX},
+				{"^(0x([0-9]|[a-f])+)$", TokenType::VALUE_HEX},
 				{"^(0b[0-1]+)$", TokenType::VALUE_BIN},
 				{"^(0o[0-7]+)$", TokenType::VALUE_OCT},
 				{"^(\"((\\\\['abfnrtv\\\\])|([^\\\\\"]))*\")$", TokenType::VALUE_STR},
