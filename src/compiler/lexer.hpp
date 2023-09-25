@@ -40,7 +40,7 @@ namespace Entropia {
 				{"^(int|double|byte|char|bool|str|auto|fn)$", TokenType::TYPE},
 				{"^(mut)$", TokenType::MUTABLE},
 				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
-				{"^(=|!|>|<)=$", TokenType::COMPARISON},
+				{"^((=|!|>|<)=)|(<|>)$", TokenType::COMPARISON},
 				{"^(\\+|\\-|\\*|\\/|\\*\\*|%)?=$", TokenType::ASSIGN},
 				{"^(and|or|not|xor)$", TokenType::BOOLEAN},
 				{"^(&|\\||~|\\^|<<|>>)$", TokenType::BITWISE},
