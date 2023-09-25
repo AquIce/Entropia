@@ -1,8 +1,8 @@
 #include "lexer.hpp"
 
 Entropia::Scope::Scope(Scope* parent) {
-	this.parent = parent;
-	this.parent.AddChild(this);
+	this->parent = parent;
+	this->parent.AddChild(this);
 }
 Entropia::Scope::AddChild(Scope* child) {
 	children.push_back(child);
