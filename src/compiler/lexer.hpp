@@ -9,8 +9,6 @@
 namespace Entropia {
 
 	enum TokenType {
-		SCOPE_IN,
-		SCOPE_OUT,
 		TYPE,
 		MUTABLE,
 		OPERATOR,
@@ -47,14 +45,23 @@ namespace Entropia {
 		VALUE_CHAR,
 	};
 
-	class Scope {
+	class UpperScope {
 	private:
-		Scope* parent;
-		std::vector<Scope*> children;
+		std::vector<UpperScope*> children;
 
 	public:
-		Scope(Scope*);
-		AddChild(Scope*);
+		UpperScope();
+		AddChild(UpperScope*);
+		GetChildren();
+	}
+	class Scope : UpperScope {
+	private:
+		UpperScope* parent;
+		std::vector<UpperScope*> children;
+
+	public:
+		Scope(UpperScope*);
+		AddChild(UpperScope*);
 		GetChildren();
 	}
 
@@ -62,8 +69,6 @@ namespace Entropia {
 		private:
 			std::string source;
 			std::vector<std::pair<std::string, TokenType>> tokens = {
-				{"^{$", TokenType::SCOPE_IN},
-				{"^}$", TokenType::SCOPE_OUT},
 				{"^(int|double|byte|char|bool|str|auto|fn)$", TokenType::TYPE},
 				{"^(mut)$", TokenType::MUTABLE},
 				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
@@ -104,6 +109,21 @@ namespace Entropia {
 			~Lexer();
 			std::vector<std::string> lex();
 	};
+}
+
+namespace std {
+
+	void trim(std::string s) {
+		char lst = ' ';
+		std::string str = "";
+		for(char ch : *s) {
+			if((ch == ' ' && lst == ' ') || ch == '\n' || ch == '\t') { continue; }
+			str += ch;
+			lst = ch;
+		}
+		return str;
+	}
+
 }
 
 #endif // __LEXER_HPP__

@@ -10,9 +10,18 @@ Entropia::Scope::AddChild(Scope* child) {
 Entropia::Scope::GetChildren() { return children; }
 
 Entropia::Lexer::Lexer(std::string source) {
-	this->source = source;
+	this->source = std::trim(source);
 }
 Entropia::Lexer::~Lexer() {}
-std::vector<std::string> Entropia::Lexer::lex() {
-	
+Entropia::Scope Entropia::Lexer::lex() {
+	Entropia::Scope main = new Entropia::Scope();
+
+	std::vector<Entropia::TokenType> tokens;
+	for(std::string word : this->source.split(" ")) {
+		if(regex_match(word, regex("^{$")))
+		if(regex_match(word, regex("^}$")))
+		for(std::pair <std::string, Entropia::TokenType> pair : this->tokens) {
+			if(regex_match(word, regex(pair.first))) { tokens.push_back(pair.second); }
+		}
+	}
 }
