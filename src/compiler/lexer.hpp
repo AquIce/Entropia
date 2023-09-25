@@ -57,7 +57,7 @@ namespace Entropia {
 				{"^(0x([0-9]|[a-f])+)$", TokenType::VALUE_HEX},
 				{"^(0b[0-1]+)$", TokenType::VALUE_BIN},
 				{"^(0o[0-7]+)$", TokenType::VALUE_OCT},
-				{"^\"([^\\]|(\\(t|b|n|r|f|d|'|\"|\\)))*\"$", TokenType::VALUE_STR},
+				{"^\'([^\\]|(\\(t|b|n|r|f|d|'|\"|\\)))\'$", TokenType::VALUE_STR},
 				{"^(('\\\\['tnr\\\\]')|('[^\\\\']'))$", TokenType::VALUE_CHAR},
 			};
 		public:
