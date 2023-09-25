@@ -9,6 +9,8 @@
 namespace Entropia {
 
 	enum TokenType {
+		SCOPE_IN,
+		SCOPE_OUT,
 		TYPE,
 		MUTABLE,
 		OPERATOR,
@@ -60,6 +62,8 @@ namespace Entropia {
 		private:
 			std::string source;
 			std::vector<std::pair<std::string, TokenType>> tokens = {
+				{"^{$", TokenType::SCOPE_IN},
+				{"^}$", TokenType::SCOPE_OUT},
 				{"^(int|double|byte|char|bool|str|auto|fn)$", TokenType::TYPE},
 				{"^(mut)$", TokenType::MUTABLE},
 				{"^(\\+|\\-|\\*|\\/|\\%|\\*\\*|\\+\\+|\\-\\-)$", TokenType::OPERATOR},
