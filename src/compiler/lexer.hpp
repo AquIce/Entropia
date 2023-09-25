@@ -51,14 +51,9 @@ namespace Entropia {
 		std::vector<Scope*> children;
 
 	public:
-		Scope(Scope* parent) {
-			this.parent = parent;
-			this.parent.AddChild(this);
-		}
-		AddChild(Scope* child) {
-			children.push_back(child);
-		}
-		GetChildren() { return children; }
+		Scope(Scope*);
+		AddChild(Scope*);
+		GetChildren();
 	}
 
 	class Lexer {
@@ -101,7 +96,7 @@ namespace Entropia {
 				{"^\'([^\\]|(\\(t|b|n|r|f|d|'|\"|\\)))\'$", TokenType::VALUE_CHAR},
 			};
 		public:
-			Lexer(std::string source);
+			Lexer(std::string);
 			~Lexer();
 			std::vector<std::string> lex();
 	};
