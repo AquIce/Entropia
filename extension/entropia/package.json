@@ -1,0 +1,25 @@
+{
+  "name": "entropia",
+  "displayName": "Entropia",
+  "description": "Language support for the Entropia Programming Language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "entropia",
+      "aliases": ["Entropia", "entropia"],
+      "extensions": [".etp",".eth"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "entropia",
+      "scopeName": "main.etp",
+      "path": "./syntaxes/entropia.tmLanguage.json"
+    }]
+  }
+}
