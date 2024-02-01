@@ -2,6 +2,6 @@ use sysio as io;
 
 // This is a simple example for the Entropia Language Hello World
 
-fn main() {
+fn main() { // Assumed as main(): void
 	io::println("Hello World!");
 }

@@ -1,16 +1,16 @@
 use sysio as io;
 use ownership as own;
 
-// This is a simple example for the Entropia Language Hello World
+// This is a simple example for the Entropia Language Ownership
 
 fn main() {
 	let a1: int = 1;
-	let b1: int = own::borrow(a1); // a1 is not accessible anymore
+	let b1: int = own::mut_borrow(a1); // a1 is not accessible anymore
 	let a2: int = 2;
 	let b2 = a2; // a2 is still accessible
 
 	let mut a3: int = 3; // a3 is mutable
 	let b3: int = own::borrow(a3); // a3 is still accessible (but as immutable) beacause it is copied as immutable
 	let mut a4: int = 4;
-	let b4: int = own::borow(mut a4); // a3 is not accessible anymore beacause it is copied as mutable
+	let b4: int = own::mut_borrow(a4); // a3 is not accessible anymore beacause it is copied as mutable
 }

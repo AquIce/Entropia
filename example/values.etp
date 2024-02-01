@@ -1,19 +1,18 @@
 use sysio as io;
 
 fn main() {
-	let a: int = 0d12;
-	a = 1;
-	io::println(a.to_str()); // 1
+	let a = 0d12; // Same as let a = 12;
+	io::println(a.to_str()); // 12
 
-	let b: int = 0x0f;
+	let b = 0x0f;
 	io::println(b.to_str()); // 15
 
-	let c: int = 0b1010;
+	let c = 0b1010;
 	io::println(c.to_str()); // 10
 
-	let d: int = 0o12;
+	let d = 0o12;
 	io::println(d.to_str()); // 10
 
-	let e: int = 0b1010_1010;
+	let e = 0b1010_1010;
 	io::println(e.to_str()); // 170
 }

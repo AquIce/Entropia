@@ -1,9 +1,9 @@
 use sysio as io;
 use context as ctx;
 
-codespace foo {
-	ctx::Context get_context() {
-		return ctx::Context.get();
+codespace foo uses ctx { // ctx::example -> example
+	Context get_context() {
+		return Context.get();
 	}
 }
 

@@ -5,10 +5,8 @@ fn main() {
 	try {
 		let a: int = 12 / 0;
 		io::println(a.to_str());
-	} catch {
-		ErrH::print_err();
-	} even {
-		io::println("Done!");
+	} catch(err) {
+		ErrH::printerr(err);
 	}
 
 	throw(ErrH::new_err("CustomError", "This is a custom error message!"));
