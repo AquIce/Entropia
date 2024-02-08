@@ -5,7 +5,7 @@ use typing;
 
 fn main() {
 	let a: int = 1;
-	let b: double = 2.0;
+	let b: float = 2.0;
 	let c: byte = 3;
 	let d: char = 'd';
 	let e: bool = true;

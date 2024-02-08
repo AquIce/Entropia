@@ -4,4 +4,9 @@ use sysio as io;
 
 fn main() { // Assumed as main(): void
 	io::println("Hello World!");
+	if(true) {
+		io::println("This is true");
+	} else {
+		io::println("This is false");
+	}
 }

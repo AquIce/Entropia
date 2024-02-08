@@ -32,10 +32,10 @@ class InheritedExample extends Example {
 
 fn main() {
 	let a: Example = Example(5);
-	a.set(10);
-	io::println(a.get());
+	a.set_value(10);
+	io::println(a.get_value());
 
 	let b: InheritedExample = InheritedExample(5);
 	b.zero();
-	io::println(b.get());
+	io::println(b.get_value());
 }

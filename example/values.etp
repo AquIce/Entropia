@@ -13,6 +13,6 @@ fn main() {
 	let d = 0o12;
 	io::println(d.to_str()); // 10
 
-	let e = 0b1010_1010;
+	let e = 0b10101010;
 	io::println(e.to_str()); // 170
 }
