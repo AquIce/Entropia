@@ -6,7 +6,7 @@
 
 int main() {
 	std::string src = "1 + 2 * 3";
-	std::vector<ent_type_token> tokens = ent_front_lex(src);
+	std::vector<ent::type::token> tokens = ent::front::lex(src);
 	printf("Tokens:\n");
 	for(int i = 0; i < tokens.size(); i++) {
 		std::cout << tokens[i].pretty_print() << std::endl;

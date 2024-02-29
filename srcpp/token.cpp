@@ -1,27 +1,27 @@
 #include "token.hpp"
 
-ent_type_token::ent_type_token(enum ent_type_token_type type, std::string value) {
+ent::type::token::token(enum token_type type, std::string value) {
 	this->type = type;
 	this->value = value;
 }
-ent_type_token::ent_type_token() {
+ent::type::token::token() {
 	this->type = OPERATOR;
 	this->value = "";
 }
-enum ent_type_token_type ent_type_token::get_type() {
+enum ent::type::token_type ent::type::token::get_type() {
 	return this->type;
 }
-std::string ent_type_token::get_value() {
+std::string ent::type::token::get_value() {
 	return this->value;
 }
-void ent_type_token::set_type(enum ent_type_token_type type) {
+void ent::type::token::set_type(enum ent::type::token_type type) {
 	this->type = type;
 }
-void ent_type_token::set_value(std::string value) {
+void ent::type::token::set_value(std::string value) {
 	this->value = value;
 }
 
-std::string ent_type_token::pretty_print() {
+std::string ent::type::token::pretty_print() {
 	std::string type = "";
 	switch(this->type) {
 		case OPERATOR:
