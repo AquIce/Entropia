@@ -21,23 +21,23 @@ code \
 std::cout << "\n"; \
 indent--;
 
-#define ASSERT_EQUAL(name, a, b) if(a != b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") != " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_EQUAL(name, a, b) if((a) != (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") != " << #b << "(" << b << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_NOT_EQUAL(name, a, b) if(a == b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") == " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_NOT_EQUAL(name, a, b) if((a) == (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") == " << #b << "(" << (b) << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_TRUE(name, a) if(!a) { \
+#define ASSERT_TRUE(name, a) if(!(a)) { \
 	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << " is false" << reset << std::endl; \
 	failed++; \
 } else { \
@@ -45,7 +45,7 @@ indent--;
 	passed++; \
 }
 
-#define ASSERT_FALSE(name, a) if(a) { \
+#define ASSERT_FALSE(name, a) if((a)) { \
 	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << " is true" << reset << std::endl; \
 	failed++; \
 } else { \
@@ -53,7 +53,7 @@ indent--;
 	passed++; \
 }
 
-#define ASSERT_NULL(name, a) if(a != nullptr) { \
+#define ASSERT_NULL(name, a) if((a) != nullptr) { \
 	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << " is not null" << reset << std::endl; \
 	failed++; \
 } else { \
@@ -61,7 +61,7 @@ indent--;
 	passed++; \
 }
 
-#define ASSERT_NOT_NULL(name, a) if(a == nullptr) { \
+#define ASSERT_NOT_NULL(name, a) if((a) == nullptr) { \
 	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << " is null" << reset << std::endl; \
 	failed++; \
 } else { \
@@ -70,7 +70,7 @@ indent--;
 }
 
 #define ASSERT_THROW(name, a) try { \
-	a; \
+	(a); \
 	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << " did not throw an exception" << reset << std::endl; \
 	failed++; \
 } catch(...) { \
@@ -79,7 +79,7 @@ indent--;
 }
 
 #define ASSERT_NO_THROW(name, a) try { \
-	a; \
+	(a); \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 } catch(...) { \
@@ -87,48 +87,48 @@ indent--;
 	failed++; \
 }
 
-#define ASSERT_NEAR(name, a, b, epsilon) if(a < b - epsilon || a > b + epsilon) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is not near " << #b << "(" << b << ") with epsilon " << epsilon << reset << std::endl; \
+#define ASSERT_NEAR(name, a, b, epsilon) if((a) < (b) - epsilon || (a) > (b) + epsilon) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is not near " << #b << "(" << (b) << ") with epsilon " << epsilon << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_NOT_NEAR(name, a, b, epsilon) if(a >= b - epsilon && a <= b + epsilon) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is near " << #b << "(" << b << ") with epsilon " << epsilon << reset << std::endl; \
+#define ASSERT_NOT_NEAR(name, a, b, epsilon) if((a) >= (b) - epsilon && (a) <= (b) + epsilon) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is near " << #b << "(" << (b) << ") with epsilon " << epsilon << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_LESS(name, a, b) if(a >= b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is not less than " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_LESS(name, a, b) if((a) >= (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is not less than " << #b << "(" << (b) << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_LESS_EQUAL(name, a, b) if(a > b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is not less than or equal to " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_LESS_EQUAL(name, a, b) if((a) > (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is not less than or equal to " << #b << "(" << (b) << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_GREATER(name, a, b) if(a <= b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is not greater than " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_GREATER(name, a, b) if((a) <= (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is not greater than " << #b << "(" << (b) << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
 	passed++; \
 }
 
-#define ASSERT_GREATER_EQUAL(name, a, b) if(a < b) { \
-	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << a << ") is not greater than or equal to " << #b << "(" << b << ")" << reset << std::endl; \
+#define ASSERT_GREATER_EQUAL(name, a, b) if((a) < (b)) { \
+	std::cerr << std::string(indent, '\t') << red << prefix << reset << " Test \"" << name << "\" failed: " << #a << "(" << (a) << ") is not greater than or equal to " << #b << "(" << (b) << ")" << reset << std::endl; \
 	failed++; \
 } else { \
 	std::cout << std::string(indent, '\t') << green << prefix << reset << " Test \"" << name << "\" passed" << reset << std::endl; \
