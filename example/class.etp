@@ -14,10 +14,10 @@ class Example {
 	// Destructor
 	destructor() {}
 	// Set and get value methods
-	fn set_value(value: int) {
+	fn set_value(value: int) { // Equivalent to set_value(value: int): void
 		this.value = value;
 	}
-	int get_value() {
+	fn get_value(): int {
 		return this.value;
 	}
 }

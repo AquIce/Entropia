@@ -3,7 +3,7 @@ use context as ctx;
 use mycodespace from './mycodespace.etp' as MyCodespace;
 
 codespace foo uses ctx { // ctx::example -> example
-	Context get_context() {
+	fn get_context(): Context {
 		return Context.get();
 	}
 }
