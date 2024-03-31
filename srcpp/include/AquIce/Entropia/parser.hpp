@@ -20,6 +20,17 @@ namespace ent {
 				return tk;
 			}
 
+			ent::front::ast::Expression* parse_identifier() {
+				if(tks.front().get_type() == ent::type::IDENTIFIER) {
+					std::string value = tks.front().get_value();
+					(void)eat();
+					return new ent::front::ast::Identifier(value);
+				}
+				std::cerr << "Expected identifier, got " << tks.front().get_value() << std::endl;
+
+				return nullptr;
+			}
+
 			ent::front::ast::Expression* parse_numeric_expression() {
 				// If the current token is a number
 				if(tks.front().get_type() == ent::type::NUMBER) {
@@ -29,9 +40,7 @@ namespace ent {
 					// Return the numeric expression
 					return new ent::front::ast::NumericExpression(value);
 				} else {
-					// If the current token is not a number, throw an error
-					std::cerr << "Unexpected token: " << tks.front().get_value() << std::endl;
-					throw std::runtime_error("Unexpected token");
+					return parse_identifier();
 				}
 				return nullptr;
 			}

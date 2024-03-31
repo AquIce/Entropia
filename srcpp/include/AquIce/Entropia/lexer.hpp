@@ -34,8 +34,11 @@ namespace ent {
 				} else if(src[0] == '+' || src[0] == '-' || src[0] == '*' || src[0] == '/') { // If the current character is an operator
 					tokens.push_back(ent::type::token(ent::type::OPERATOR, shift(src)));
 				} else {
-					std::cout << "Unknown character" << src[0] << std::endl;
-					return std::vector<ent::type::token>();
+					std::string identifier = "";
+					while(isalnum(src[0])) {
+						identifier += shift(src);
+					}
+					tokens.push_back(ent::type::token(ent::type::IDENTIFIER, identifier));
 				}
 			}
 			// Add an EOF token to the end of the list

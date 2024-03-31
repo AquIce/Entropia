@@ -12,6 +12,7 @@ namespace ent {
                 program,
                 binaryExpression,
                 numericExpression,
+				identifier
             };
 
             class Statement {
@@ -51,6 +52,21 @@ namespace ent {
 					}
 					virtual std::string type_id() override {
 						return "Expression";
+					}
+			};
+
+			class Identifier: public Expression {
+				public:
+					enum NodeType type = NodeType::identifier;
+					std::string name;
+					Identifier(std::string name) {
+						this->name = name;
+					}
+					virtual std::string pretty_print(int indent = 0) override {
+						return std::string(indent, '\t') + "Identifier(" + this->name + ")";
+					}
+					virtual std::string type_id() override {
+						return "Identifier";
 					}
 			};
 

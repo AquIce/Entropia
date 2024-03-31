@@ -14,6 +14,8 @@ namespace ent {
 
 			NUMBER,
 
+			IDENTIFIER,
+
 			EOF_TOKEN,
 		};
 
@@ -56,6 +58,9 @@ namespace ent {
 						break;
 					case NUMBER:
 						type = "NUMBER";
+						break;
+					case IDENTIFIER:
+						type = "IDENTIFIER";
 						break;
 					case EOF_TOKEN:
 						type = "EOF_TOKEN";
