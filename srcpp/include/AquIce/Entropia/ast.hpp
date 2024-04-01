@@ -17,6 +17,9 @@ namespace ent {
 
             class Statement {
                 public:
+					virtual NodeType get_type() {
+						return NodeType::program;
+					}
                     virtual std::string pretty_print(int indent = 0) {
 						return std::string(indent, '\t') + "Statement";
 					}
@@ -31,6 +34,10 @@ namespace ent {
                     std::vector<ent::front::ast::Statement*> body;
                     Program(std::vector<ent::front::ast::Statement*> body) {
 						this->body = body;
+						this->type = NodeType::program;
+					}
+					virtual NodeType get_type() override {
+						return NodeType::program;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
 						std::string pretty = std::string(indent, '\t') + "Program(\n";
@@ -45,15 +52,7 @@ namespace ent {
 					}
             };
 
-            class Expression: public Statement {
-				public:
-					virtual std::string pretty_print(int indent = 0) override {
-						return std::string(indent, '\t') + "Expression";
-					}
-					virtual std::string type_id() override {
-						return "Expression";
-					}
-			};
+            class Expression: public Statement {};
 
 			class Identifier: public Expression {
 				public:
@@ -61,6 +60,10 @@ namespace ent {
 					std::string name;
 					Identifier(std::string name) {
 						this->name = name;
+						this->type = NodeType::identifier;
+					}
+					virtual NodeType get_type() override {
+						return NodeType::identifier;
 					}
 					virtual std::string pretty_print(int indent = 0) override {
 						return std::string(indent, '\t') + "Identifier(" + this->name + ")";
@@ -76,6 +79,10 @@ namespace ent {
                     float value;
                     NumericExpression(float value) {
 						this->value = value;
+						this->type = NodeType::numericExpression;
+					}
+					virtual NodeType get_type() override {
+						return NodeType::numericExpression;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
 						return std::string(indent, '\t') + "NumericExpression(" + std::to_string(this->value) + ")";
@@ -95,6 +102,10 @@ namespace ent {
 						this->left = left;
 						this->operator_symbol = operator_symbol;
 						this->right = right;
+						this->type = NodeType::binaryExpression;
+					}
+					virtual NodeType get_type() override {
+						return NodeType::binaryExpression;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
 						return std::string(indent, '\t') + "BinaryExpression(\n" + this->left->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->right->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";

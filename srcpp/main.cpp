@@ -5,6 +5,7 @@
 #include <AquIce/Entropia/token.hpp>
 #include <AquIce/Entropia/parser.hpp>
 #include <AquIce/Entropia/ast.hpp>
+#include <AquIce/Entropia/interpreter.hpp>
 
 #include <AquIce/unit/assert.hpp>
 
@@ -83,6 +84,15 @@ int main() {
 			});
 		});
 
+	});
+
+	// Test interpreter
+
+	ent::runtime::RuntimeValue* result = ent::runtime::interpreter::interpret(&program)[0];
+
+	ASSERT_BLOCK("INTERPRETER", {
+		ASSERT_EQUAL("Result is a NumberValue", result->type(), ent::runtime::ValueType::NUMBER);
+		ASSERT_EQUAL("Result's value is 6.5", ((ent::runtime::NumberValue*)result)->get_value(), 6.5);
 	});
 	
 	print_results();
