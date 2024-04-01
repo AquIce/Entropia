@@ -11,7 +11,8 @@ namespace ent {
             enum NodeType {
                 program,
                 binaryExpression,
-                numericExpression,
+                integerExpression,
+				floatExpression,
 				identifier
             };
 
@@ -73,24 +74,43 @@ namespace ent {
 					}
 			};
 
-            class NumericExpression: public Expression {
+            class IntegerExpression: public Expression {
                 public:
-                    enum NodeType type = NodeType::numericExpression;
-                    float value;
-                    NumericExpression(float value) {
+                    enum NodeType type = NodeType::integerExpression;
+                    int value;
+                    IntegerExpression(int value) {
 						this->value = value;
-						this->type = NodeType::numericExpression;
+						this->type = NodeType::integerExpression;
 					}
 					virtual NodeType get_type() override {
-						return NodeType::numericExpression;
+						return NodeType::integerExpression;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
-						return std::string(indent, '\t') + "NumericExpression(" + std::to_string(this->value) + ")";
+						return std::string(indent, '\t') + "IntegerExpression(" + std::to_string(this->value) + ")";
 					}
 					virtual std::string type_id() override {
-						return "NumericExpression";
+						return "IntegerExpression";
 					}
             };
+
+			class FloatExpression: public Expression {
+				public:
+					enum NodeType type = NodeType::floatExpression;
+					float value;
+					FloatExpression(float value) {
+						this->value = value;
+						this->type = NodeType::floatExpression;
+					}
+					virtual NodeType get_type() override {
+						return NodeType::floatExpression;
+					}
+					virtual std::string pretty_print(int indent = 0) override {
+						return std::string(indent, '\t') + "FloatExpression(" + std::to_string(this->value) + ")";
+					}
+					virtual std::string type_id() override {
+						return "FloatExpression";
+					}
+			};
 
             class BinaryExpression: public Expression {
                 public:

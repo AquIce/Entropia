@@ -8,7 +8,8 @@ namespace ent {
 
 		enum ValueType {
 			NULL_VAL,
-			NUMBER,
+			INTEGER,
+			FLOAT,
 		};
 
 		class RuntimeValue {
@@ -30,16 +31,36 @@ namespace ent {
 				return "null";
 			}
 		};
-		
-		class NumberValue: public RuntimeValue {
+
+		class NumberValue: public RuntimeValue {};
+
+		class IntegerValue: public NumberValue {
 		private:
-			float value;
+			int value;
 		public:
-			NumberValue(float value) {
+			IntegerValue(int value) {
 				this->value = value;
 			}
 			virtual ValueType type() override {
-				return ValueType::NUMBER;
+				return ValueType::INTEGER;
+			}
+			int get_value() {
+				return this->value;
+			}
+			virtual std::string pretty_print() override {
+				return std::to_string(this->value);
+			}
+		};
+
+		class FloatValue: public NumberValue {
+		private:
+			float value;
+		public:
+			FloatValue(float value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::FLOAT;
 			}
 			float get_value() {
 				return this->value;

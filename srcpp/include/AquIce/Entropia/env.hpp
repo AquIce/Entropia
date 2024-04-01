@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "values.hpp"
+#include "errors.hpp"
 
 namespace ent {
 	namespace runtime {
@@ -18,14 +19,23 @@ namespace ent {
 				this->values = std::unordered_map<std::string, RuntimeValue*>();
 			}
 
+			bool has(std::string key) {
+				return this->values.find(key) != this->values.end();
+			}
 			void set(std::string key, RuntimeValue* value) {
+				if(this->has(key)) {
+					throw_err(Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key));
+				}
 				this->values[key] = value;
+			}
+			void init(std::string key, RuntimeValue* value) {
+				if(this->has(key)) {
+					throw_err(Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key));
+				}
+				this->set(key, value);
 			}
 			RuntimeValue* get(std::string key) {
 				return this->values[key];
-			}
-			bool has(std::string key) {
-				return this->values.find(key) != this->values.end();
 			}
 		};
 	}

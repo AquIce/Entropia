@@ -5,6 +5,7 @@
 
 #include "ast.hpp"
 #include "env.hpp"
+#include "errors.hpp"
 
 namespace ent {
 	namespace runtime {
@@ -13,34 +14,63 @@ namespace ent {
 				if(env->has(identifier->name)) {
 					return env->get(identifier->name);
 				} else {
-					// Invalid identifier
-					throw std::runtime_error("Invalid identifier: " + identifier->name);
-					return nullptr;
+					throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid identifier: " + identifier->name));
 				}
 			}
 
-			RuntimeValue* evaluateNumericExpression(ent::front::ast::NumericExpression* numericExpression) {
-				return new NumberValue(numericExpression->value);
+			RuntimeValue* evaluateIntegerExpression(ent::front::ast::IntegerExpression* numericExpression) {
+				return new IntegerValue(numericExpression->value);
+			}
+
+			RuntimeValue* evaluateFloatExpression(ent::front::ast::FloatExpression* numericExpression) {
+				return new FloatValue(numericExpression->value);
+			}
+
+			RuntimeValue* evaluateTwoIntegerBinaryExpression(IntegerValue* left, IntegerValue* right, char op) {
+				switch(op) {
+					case '+':
+						return new IntegerValue(left->get_value() + right->get_value());
+						break;
+					case '-':
+						return new IntegerValue(left->get_value() - right->get_value());
+						break;
+					case '*':
+						return new IntegerValue(left->get_value() * right->get_value());
+						break;
+					case '/':
+						return new IntegerValue(left->get_value() / right->get_value());
+						break;
+					default:
+						throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op));
+				}
+			}
+
+			RuntimeValue* evaluateTwoFloatBinaryExpression(FloatValue* left, FloatValue* right, char op) {
+				switch(op) {
+					case '+':
+						return new FloatValue(left->get_value() + right->get_value());
+						break;
+					case '-':
+						return new FloatValue(left->get_value() - right->get_value());
+						break;
+					case '*':
+						return new FloatValue(left->get_value() * right->get_value());
+						break;
+					case '/':
+						return new FloatValue(left->get_value() / right->get_value());
+						break;
+					default:
+						throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op));
+				}
 			}
 
 			RuntimeValue* evaluateTwoNumberBinaryExpression(NumberValue* left, NumberValue* right, char op) {
-				switch(op) {
-					case '+':
-						return new NumberValue(left->get_value() + right->get_value());
-						break;
-					case '-':
-						return new NumberValue(left->get_value() - right->get_value());
-						break;
-					case '*':
-						return new NumberValue(left->get_value() * right->get_value());
-						break;
-					case '/':
-						return new NumberValue(left->get_value() / right->get_value());
-						break;
-					default:
-						// Invalid operator
-						throw std::runtime_error("Invalid operator: " + op);
-						return nullptr;
+				if(left->type() == ent::runtime::ValueType::INTEGER && right->type() == ent::runtime::ValueType::INTEGER) {
+					return evaluateTwoIntegerBinaryExpression((IntegerValue*)left, (IntegerValue*)right, op);
+				} else if(left->type() == ent::runtime::ValueType::FLOAT && right->type() == ent::runtime::ValueType::FLOAT) {
+					return evaluateTwoFloatBinaryExpression((FloatValue*)left, (FloatValue*)right, op);
+				} else {
+					throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid operands: " + left->pretty_print() + " " + op + " " + right->pretty_print()));
 				}
 			}
 
@@ -51,16 +81,17 @@ namespace ent {
 				RuntimeValue* right = evaluateStatement(binaryExpression->right, env);
 
 				// Both operands are numbers
-				if(left->type() == ent::runtime::ValueType::NUMBER || right->type() == ent::runtime::ValueType::NUMBER) {
+				if(
+					left->type() == ent::runtime::ValueType::INTEGER || left->type() == ent::runtime::ValueType::FLOAT &&
+					right->type() == ent::runtime::ValueType::INTEGER || right->type() == ent::runtime::ValueType::FLOAT
+				){
 					return evaluateTwoNumberBinaryExpression(
 						(NumberValue*)left,
 						(NumberValue*)right,
 						binaryExpression->operator_symbol[0]
 					);
 				} else {
-					// Invalid operands
-					throw std::runtime_error("Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print());
-					return nullptr;
+					throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print()));
 				}
 			}
 
@@ -68,14 +99,14 @@ namespace ent {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
 						return evaluateIdentifier((ent::front::ast::Identifier*)statement, env);
-					case ent::front::ast::NodeType::numericExpression:
-						return evaluateNumericExpression((ent::front::ast::NumericExpression*)statement);
+					case ent::front::ast::NodeType::integerExpression:
+						return evaluateIntegerExpression((ent::front::ast::IntegerExpression*)statement);
+					case ent::front::ast::NodeType::floatExpression:
+						return evaluateFloatExpression((ent::front::ast::FloatExpression*)statement);
 					case ent::front::ast::NodeType::binaryExpression:
 						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
 					default:
-						// Invalid statement
-						throw std::runtime_error("Invalid statement " + statement->type_id());
-						return nullptr;
+						throw_err(Error(ErrorType::RUNTIME_ERROR, "Invalid statement: " + statement->type_id()));
 				}
 			}
 
@@ -89,7 +120,7 @@ namespace ent {
 
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Program* program) {
 				Environment* env = new Environment();
-				env->set("myVar", new NumberValue(2));
+				env->init("myVar", new IntegerValue(2));
 				return evaluateProgram(program, env);
 			}
 		}

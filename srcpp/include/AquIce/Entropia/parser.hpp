@@ -3,6 +3,7 @@
 
 #include "token.hpp"
 #include "ast.hpp"
+#include "errors.hpp"
 
 namespace ent {
 	namespace front {
@@ -26,19 +27,23 @@ namespace ent {
 					(void)eat();
 					return new ent::front::ast::Identifier(value);
 				}
-				std::cerr << "Expected identifier, got " << tks.front().get_value() << std::endl;
-
-				return nullptr;
+				throw_err(ent::Error(ent::PARSE_ERROR, "Expected identifier, got " + tks.front().get_value()));
 			}
 
 			ent::front::ast::Expression* parse_numeric_expression() {
 				// If the current token is a number
-				if(tks.front().get_type() == ent::type::NUMBER) {
+				if(tks.front().get_type() == ent::type::INTEGER) {
+					// Parse the number
+					int value = std::stoi(tks.front().get_value());
+					(void)eat();
+					// Return the integer expression
+					return new ent::front::ast::IntegerExpression(value);
+				} else if(tks.front().get_type() == ent::type::FLOAT) {
 					// Parse the number
 					float value = std::stof(tks.front().get_value());
 					(void)eat();
-					// Return the numeric expression
-					return new ent::front::ast::NumericExpression(value);
+					// Return the float expression
+					return new ent::front::ast::FloatExpression(value);
 				} else {
 					return parse_identifier();
 				}

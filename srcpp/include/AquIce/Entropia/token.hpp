@@ -12,7 +12,8 @@ namespace ent {
 			OPEN_PAREN,
 			CLOSE_PAREN,
 
-			NUMBER,
+			INTEGER,
+			FLOAT,
 
 			IDENTIFIER,
 
@@ -56,8 +57,11 @@ namespace ent {
 					case CLOSE_PAREN:
 						type = "CLOSE_PAREN";
 						break;
-					case NUMBER:
-						type = "NUMBER";
+					case INTEGER:
+						type = "INTEGER";
+						break;
+					case FLOAT:
+						type = "FLOAT";
 						break;
 					case IDENTIFIER:
 						type = "IDENTIFIER";
