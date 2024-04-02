@@ -12,8 +12,14 @@ namespace ent {
 			OPEN_PAREN,
 			CLOSE_PAREN,
 
-			INTEGER,
-			FLOAT,
+			I8,
+			I16,
+			I32,
+			I64,
+			// Ux with x less than 64 is not needed because it is only determined at runtime
+			U64,
+			F32,
+			F64,
 
 			IDENTIFIER,
 
@@ -57,11 +63,27 @@ namespace ent {
 					case CLOSE_PAREN:
 						type = "CLOSE_PAREN";
 						break;
-					case INTEGER:
-						type = "INTEGER";
+					case I8:
+						type = "I8";
 						break;
-					case FLOAT:
-						type = "FLOAT";
+					case I16:
+						type = "I16";
+						break;
+					case I32:
+						type = "I32";
+						break;
+					case I64:
+						type = "I64";
+						break;
+						break;
+					case U64:
+						type = "U64";
+						break;
+					case F32:
+						type = "F32";
+						break;
+					case F64:
+						type = "F64";
 						break;
 					case IDENTIFIER:
 						type = "IDENTIFIER";

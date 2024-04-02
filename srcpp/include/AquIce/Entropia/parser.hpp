@@ -27,23 +27,53 @@ namespace ent {
 					(void)eat();
 					return new ent::front::ast::Identifier(value);
 				}
-				throw_err(ent::Error(ent::PARSE_ERROR, "Expected identifier, got " + tks.front().get_value()));
+				throw (ent::Error(ent::PARSE_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
 			}
 
 			ent::front::ast::Expression* parse_numeric_expression() {
 				// If the current token is a number
-				if(tks.front().get_type() == ent::type::INTEGER) {
+				if(tks.front().get_type() == ent::type::I8) {
 					// Parse the number
-					int value = std::stoi(tks.front().get_value());
+					i8 value = types::stoi8(tks.front().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::IntegerExpression(value);
-				} else if(tks.front().get_type() == ent::type::FLOAT) {
+					return new ent::front::ast::I8Expression(value);
+				} else if(tks.front().get_type() == ent::type::I16) {
 					// Parse the number
-					float value = std::stof(tks.front().get_value());
+					i16 value = types::stoi16(tks.front().get_value());
+					(void)eat();
+					// Return the integer expression
+					return new ent::front::ast::I16Expression(value);
+				} else if(tks.front().get_type() == ent::type::I32) {
+					// Parse the number
+					i32 value = types::stoi32(tks.front().get_value());
+					(void)eat();
+					// Return the integer expression
+					return new ent::front::ast::I32Expression(value);
+				} else if(tks.front().get_type() == ent::type::I64) {
+					// Parse the number
+					i64 value = types::stoi64(tks.front().get_value());
+					(void)eat();
+					// Return the integer expression
+					return new ent::front::ast::I64Expression(value);
+				} else if(tks.front().get_type() == ent::type::U64) {
+					// Parse the number
+					u64 value = types::stou64(tks.front().get_value());
+					(void)eat();
+					// Return the integer expression
+					return new ent::front::ast::U64Expression(value);
+				} else if(tks.front().get_type() == ent::type::F32) {
+					// Parse the number
+					float value = types::stof32(tks.front().get_value());
 					(void)eat();
 					// Return the float expression
-					return new ent::front::ast::FloatExpression(value);
+					return new ent::front::ast::F32Expression(value);
+				} else if(tks.front().get_type() == ent::type::F64) {
+					// Parse the number
+					double value = types::stof64(tks.front().get_value());
+					(void)eat();
+					// Return the float expression
+					return new ent::front::ast::F64Expression(value);
 				} else {
 					return parse_identifier();
 				}

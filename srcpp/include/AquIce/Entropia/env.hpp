@@ -24,13 +24,13 @@ namespace ent {
 			}
 			void set(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
-					throw_err(Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key));
+					throw (Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key)).error();
 				}
 				this->values[key] = value;
 			}
 			void init(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
-					throw_err(Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key));
+					throw (Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key)).error();
 				}
 				this->set(key, value);
 			}
