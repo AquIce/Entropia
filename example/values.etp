@@ -1,18 +1,15 @@
 use sysio as io;
 
-fn main() {
-	let a = 0d12; // Same as let a = 12;
+fn main(void): void {
+	let a: i32 = 0d12; // Same as let a: i32 = 12;
 	io::println(a.to_str()); // 12
 
-	let b = 0x0f;
+	let b: i32 = 0x0f;
 	io::println(b.to_str()); // 15
 
-	let c = 0b1010;
+	let c: i32 = 0b1010;
 	io::println(c.to_str()); // 10
 
-	let d = 0o12;
+	let d: i32 = 0o12;
 	io::println(d.to_str()); // 10
-
-	let e = 0b10101010;
-	io::println(e.to_str()); // 170
 }

@@ -3,17 +3,12 @@ use context as ctx;
 use mycodespace from './mycodespace.etp' as MyCodespace;
 
 codespace foo uses ctx { // ctx::example -> example
-	fn get_context(): Context {
+	fn get_context(void): Context {
 		return Context.get();
 	}
 }
 
-fn main() {
-	let context = foo::get_context();
+fn main(void): void {
+	let context: ctx::Context = foo::get_context();
 	io::println(context);
-	/*
-		Output is :
-		foo::get_context() -> ctx::Context
-		codespace::fn
-	*/
 }

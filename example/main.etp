@@ -2,9 +2,9 @@ use sysio as io;
 
 // This is a simple example for the Entropia Language Hello World
 
-fn main() { // Infers main(): void
+fn main(void): void {
 	io::println("Hello World!");
-	let myBoolean = true; // Infers myBoolean: bool
+	let myBoolean: bool = true;
 	if(myBoolean) {
 		io::println("This is true");
 	} else {

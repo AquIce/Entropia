@@ -4,20 +4,20 @@ use sysio as io;
 
 class Example {
 	@private
-	value: int;
+	value: i32;
 
 	@public
 	// Constructor
-	constructor(value: int) {
+	constructor(value: i32) {
 		this.value = value;
 	}
 	// Destructor
 	destructor() {}
 	// Set and get value methods
-	fn set_value(value: int) { // Equivalent to set_value(value: int): void
+	fn set_value(value: i32): void {
 		this.value = value;
 	}
-	fn get_value(): int {
+	fn get_value(void): i32 {
 		return this.value;
 	}
 }
@@ -25,12 +25,12 @@ class Example {
 class InheritedExample extends Example {
 	@public
 	// Set the value to 0
-	fn zero() {
+	fn zero(void): void {
 		this.set_value(0);
 	}
 }
 
-fn main() {
+fn main(void): void {
 	let a: Example = Example(5);
 	a.set_value(10);
 	io::println(a.get_value());

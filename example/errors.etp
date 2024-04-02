@@ -1,9 +1,9 @@
 use sysio as io;
 use ErrorHandling as ErrH;
 
-fn main() {
+fn main(void): void {
 	try {
-		let a: int = 12 / 0;
+		let a: i32 = 12 / 0;
 		io::println(a.to_str());
 	} catch(err) {
 		ErrH::printerr(err);

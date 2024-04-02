@@ -3,13 +3,15 @@ use typing;
 
 // This is a simple example for the Entropia Language types
 
-fn main() {
-	let a: int; // 1
-	let b: float; // 2.0
-	let c: byte; // 3
-	let d: char; // 'd'
-	let e: bool; // true
-	let f: str; // "Hello World!";
-	let g = 1; // Infers `int`
+fn main(void): void {
+	let a: i8; // 1
+	let b: i16; // 1
+	let c: i32; // 1
+	let d: i64; // 1
+	let e: f32; // 2.0
+	let f: f64; // 2.0
+0	let g: char; // 'd'
+	let h: bool; // true
+	let i: str; // "Hello World!";
 	io::println(typing::typeof(g));
 }
