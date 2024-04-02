@@ -327,6 +327,11 @@ namespace ent {
 						return evaluateF64Expression((ent::front::ast::F64Expression*)statement);
 					case ent::front::ast::NodeType::binaryExpression:
 						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
+					case ent::front::ast::NodeType::declaration:
+						return env->init(
+							((ent::front::ast::Declaration*)statement)->identifier->name,
+							evaluateStatement(((ent::front::ast::Declaration*)statement)->value, env)
+						);
 					default:
 						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
@@ -342,7 +347,7 @@ namespace ent {
 
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Program* program) {
 				Environment* env = new Environment();
-				env->init("myVar", new I8Value(2));
+				//env->init("myVar", new I8Value(2));
 				return evaluateProgram(program, env);
 			}
 		}

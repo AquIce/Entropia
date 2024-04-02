@@ -12,6 +12,7 @@ namespace ent {
         namespace ast {
             enum NodeType {
                 program,
+				declaration,
                 binaryExpression,
                 i8Expression,
 				i16Expression,
@@ -88,7 +89,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::i8Expression;
 				i8 value;
-				I8Expression(i8 value) {
+				I8Expression(i8 value = 0) {
 					this->value = value;
 					this->type = NodeType::i8Expression;
 				}
@@ -107,7 +108,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::i16Expression;
 				i16 value;
-				I16Expression(i16 value) {
+				I16Expression(i16 value = 0) {
 					this->value = value;
 					this->type = NodeType::i16Expression;
 				}
@@ -126,7 +127,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::i32Expression;
 				i32 value;
-				I32Expression(i32 value) {
+				I32Expression(i32 value = 0) {
 					this->value = value;
 					this->type = NodeType::i32Expression;
 				}
@@ -145,7 +146,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::i64Expression;
 				i64 value;
-				I64Expression(i64 value) {
+				I64Expression(i64 value = 0) {
 					this->value = value;
 					this->type = NodeType::i64Expression;
 				}
@@ -164,7 +165,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::u8Expression;
 				u8 value;
-				U8Expression(u8 value) {
+				U8Expression(u8 value = 0) {
 					this->value = value;
 					this->type = NodeType::u8Expression;
 				}
@@ -183,7 +184,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::u16Expression;
 				u16 value;
-				U16Expression(u16 value) {
+				U16Expression(u16 value = 0) {
 					this->value = value;
 					this->type = NodeType::u16Expression;
 				}
@@ -202,7 +203,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::u32Expression;
 				u32 value;
-				U32Expression(u32 value) {
+				U32Expression(u32 value = 0) {
 					this->value = value;
 					this->type = NodeType::u32Expression;
 				}
@@ -221,7 +222,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::u64Expression;
 				u64 value;
-				U64Expression(u64 value) {
+				U64Expression(u64 value = 0) {
 					this->value = value;
 					this->type = NodeType::u64Expression;
 				}
@@ -240,7 +241,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::f32Expression;
 				float value;
-				F32Expression(float value) {
+				F32Expression(float value = 0.0f) {
 					this->value = value;
 					this->type = NodeType::f32Expression;
 				}
@@ -259,7 +260,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::f64Expression;
 				double value;
-				F64Expression(double value) {
+				F64Expression(double value = 0.0) {
 					this->value = value;
 					this->type = NodeType::f64Expression;
 				}
@@ -296,6 +297,28 @@ namespace ent {
 						return "BinaryExpression";
 					}
             };
+
+			class Declaration: public Statement {
+			public:
+				enum NodeType type = NodeType::declaration;
+				Identifier* identifier;
+				ent::front::ast::Expression* value;
+				Declaration(Identifier* identifier, ent::front::ast::Expression* value) {
+					this->identifier = identifier;
+					this->value = value;
+					this->type = NodeType::declaration;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::declaration;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "Declaration(" + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+				}
+				virtual std::string type_id() override {
+					return "Declaration";
+				}
+			
+			};
         }
     }
 }

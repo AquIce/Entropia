@@ -9,8 +9,14 @@ namespace ent {
 		enum token_type {
 			OPERATOR,
 
+			LET,
+			TYPE_SPECIFIER,
+
 			OPEN_PAREN,
 			CLOSE_PAREN,
+			COLON,
+			SEMICOLON,
+			ASSIGN,
 
 			I8,
 			I16,
@@ -57,11 +63,26 @@ namespace ent {
 					case OPERATOR:
 						type = "OPERATOR";
 						break;
+					case LET:
+						type = "LET";
+						break;
+					case TYPE_SPECIFIER:
+						type = "TYPE_SPECIFIER";
+						break;
 					case OPEN_PAREN:
 						type = "OPEN_PAREN";
 						break;
 					case CLOSE_PAREN:
 						type = "CLOSE_PAREN";
+						break;
+					case COLON:
+						type = "COLON";
+						break;
+					case SEMICOLON:
+						type = "SEMICOLON";
+						break;
+					case ASSIGN:
+						type = "ASSIGN";
 						break;
 					case I8:
 						type = "I8";

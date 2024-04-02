@@ -22,17 +22,19 @@ namespace ent {
 			bool has(std::string key) {
 				return this->values.find(key) != this->values.end();
 			}
-			void set(std::string key, RuntimeValue* value) {
+			RuntimeValue* set(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
 					throw (Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key)).error();
 				}
 				this->values[key] = value;
+				return value;
 			}
-			void init(std::string key, RuntimeValue* value) {
+			RuntimeValue* init(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
 					throw (Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key)).error();
 				}
 				this->set(key, value);
+				return value;
 			}
 			RuntimeValue* get(std::string key) {
 				return this->values[key];

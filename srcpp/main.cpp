@@ -11,44 +11,72 @@
 
 int main() {
 	// Original string
-	std::string src = "1 / myVar + 2 * 3";
+	std::string src = "let myVar: i8 = 2; 1 / myVar + 2 * 3";
 
 	// Test lexer
 
 	std::vector<ent::type::token> tokens = ent::front::lex(src);
 
 	ASSERT_BLOCK("LEXER", {
-		ASSERT_EQUAL("Tokens size is 5", tokens.size(), 8);
+		ASSERT_EQUAL("Tokens size is 15", tokens.size(), 15);
+		ASSERT_BLOCK("Token 0", {
+			ASSERT_EQUAL("First token is a LET token", tokens[0].get_type(), ent::type::token_type::LET);
+			ASSERT_EQUAL("First token value is let", tokens[0].get_value(), "let");
+		});
 		ASSERT_BLOCK("Token 1", {
-			ASSERT_EQUAL("First token is an i8", tokens[0].get_type(), ent::type::I8);
-			ASSERT_EQUAL("First token value is 1", tokens[0].get_value(), "1");
+			ASSERT_EQUAL("Second token is an IDENTIFIER token", tokens[1].get_type(), ent::type::token_type::IDENTIFIER);
+			ASSERT_EQUAL("Second token value is myVar", tokens[1].get_value(), "myVar");
 		});
 		ASSERT_BLOCK("Token 2", {
-			ASSERT_EQUAL("Second token is an operator", tokens[1].get_type(), ent::type::OPERATOR);
-			ASSERT_EQUAL("Second token value is /", tokens[1].get_value(), "/");
+			ASSERT_EQUAL("Third token is a COLON token", tokens[2].get_type(), ent::type::token_type::COLON);
+			ASSERT_EQUAL("Third token value is :", tokens[2].get_value(), ":");
 		});
 		ASSERT_BLOCK("Token 3", {
-			ASSERT_EQUAL("Third token is an identifier", tokens[2].get_type(), ent::type::IDENTIFIER);
-			ASSERT_EQUAL("Third token value is myVar", tokens[2].get_value(), "myVar");
+			ASSERT_EQUAL("Fourth token is a TYPE_SPECIFIER token", tokens[3].get_type(), ent::type::token_type::TYPE_SPECIFIER);
+			ASSERT_EQUAL("Fourth token value is i8", tokens[3].get_value(), "i8");
 		});
 		ASSERT_BLOCK("Token 4", {
-			ASSERT_EQUAL("Fourth token is an operator", tokens[3].get_type(), ent::type::OPERATOR);
-			ASSERT_EQUAL("Fourth token value is +", tokens[3].get_value(), "+");
+			ASSERT_EQUAL("Fifth token is an ASSIGN token", tokens[4].get_type(), ent::type::token_type::ASSIGN);
+			ASSERT_EQUAL("Fifth token value is =", tokens[4].get_value(), "=");
 		});
 		ASSERT_BLOCK("Token 5", {
-			ASSERT_EQUAL("Fifth token is an i8", tokens[4].get_type(), ent::type::I8);
-			ASSERT_EQUAL("Fifth token value is 2", tokens[4].get_value(), "2");
+			ASSERT_EQUAL("Sixth token is an i8", tokens[5].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Sixth token value is 2", tokens[5].get_value(), "2");
 		});
 		ASSERT_BLOCK("Token 6", {
-			ASSERT_EQUAL("Sixth token is an operator", tokens[5].get_type(), ent::type::OPERATOR);
-			ASSERT_EQUAL("Sixth token value is *", tokens[5].get_value(), "*");
+			ASSERT_EQUAL("Seventh token is a SEMICOLON token", tokens[6].get_type(), ent::type::token_type::SEMICOLON);
+			ASSERT_EQUAL("Seventh token value is ;", tokens[6].get_value(), ";");
 		});
 		ASSERT_BLOCK("Token 7", {
-			ASSERT_EQUAL("Seventh token is an i8", tokens[6].get_type(), ent::type::I8);
-			ASSERT_EQUAL("Seventh token value is 3", tokens[6].get_value(), "3");
+			ASSERT_EQUAL("Eighth token is an i8", tokens[7].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Eighth token value is 1", tokens[7].get_value(), "1");
 		});
 		ASSERT_BLOCK("Token 8", {
-			ASSERT_EQUAL("Eighth token is an EOF token", tokens[7].get_type(), ent::type::EOF_TOKEN);
+			ASSERT_EQUAL("Ninth token is an operator", tokens[8].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Ninth token value is /", tokens[8].get_value(), "/");
+		});
+		ASSERT_BLOCK("Token 9", {
+			ASSERT_EQUAL("Tenth token is an identifier", tokens[9].get_type(), ent::type::token_type::IDENTIFIER);
+			ASSERT_EQUAL("Tenth token value is myVar", tokens[9].get_value(), "myVar");
+		});
+		ASSERT_BLOCK("Token 10", {
+			ASSERT_EQUAL("Eleventh token is an operator", tokens[10].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Eleventh token value is +", tokens[10].get_value(), "+");
+		});
+		ASSERT_BLOCK("Token 11", {
+			ASSERT_EQUAL("Twelfth token is an i8", tokens[11].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Twelfth token value is 2", tokens[11].get_value(), "2");
+		});
+		ASSERT_BLOCK("Token 12", {
+			ASSERT_EQUAL("Thirteenth token is an operator", tokens[12].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Thirteenth token value is *", tokens[12].get_value(), "*");
+		});
+		ASSERT_BLOCK("Token 13", {
+			ASSERT_EQUAL("Fourteenth token is an i8", tokens[13].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Fourteenth token value is 3", tokens[13].get_value(), "3");
+		});
+		ASSERT_BLOCK("Token 14", {
+			ASSERT_EQUAL("Fifteenth token is an EOF token", tokens[14].get_type(), ent::type::token_type::EOF_TOKEN);
 		});
 	});
 
@@ -58,36 +86,48 @@ int main() {
 
 	ASSERT_BLOCK("PARSER", {
 		ASSERT_BLOCK("Program body", {
-			ASSERT_EQUAL("Program body size is 1", program.body.size(), 1);
+			ASSERT_EQUAL("Program body size is 2", program.body.size(), 2);
 			ASSERT_TYPE("Program body is a vector of Statements", program.body, std::vector<ent::front::ast::Statement*>);
 		});
-		ASSERT_BLOCK("Left of the main BinaryExpression (1 / myVar)", {
-			ASSERT_EQUAL("BinaryExpression's left is a BinaryExpression", ((ent::front::ast::BinaryExpression*)program.body[0])->left->type_id(), "BinaryExpression");
-			ASSERT_BLOCK("Left's left of the first BinaryExpression (1)", {
-				ASSERT_EQUAL("BinaryExpression's left's left is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->left)->left->type_id(), "I8Expression");
-				ASSERT_EQUAL("I8Expression's value is 1", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->left)->left)->value, 1);
+		ASSERT_BLOCK("First statement (Declaration)", {
+			ASSERT_EQUAL("First statement is a Declaration", program.body[0]->type_id(), "Declaration");
+			ASSERT_BLOCK("Declaration's identifier (myVar)", {
+				ASSERT_EQUAL("Declaration's identifier is an Identifier", ((ent::front::ast::Declaration*)program.body[0])->identifier->type_id(), "Identifier");
+				ASSERT_EQUAL("Identifier's name is myVar", ((ent::front::ast::Identifier*)((ent::front::ast::Declaration*)program.body[0])->identifier)->name, "myVar");
 			});
-			ASSERT_BLOCK("Left's right of the first BinaryExpression (myVar)", {
-				ASSERT_EQUAL("BinaryExpression's left's right's value an Identifier", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->left)->right->type_id(), "Identifier");
-				ASSERT_EQUAL("Identifier's name is myVar", ((ent::front::ast::Identifier*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->left)->right)->name, "myVar");
+			ASSERT_BLOCK("Declaration's value (2)", {
+				ASSERT_EQUAL("Declaration's value is an I8Expression", ((ent::front::ast::Declaration*)program.body[0])->value->type_id(), "I8Expression");
+				ASSERT_EQUAL("I8Expression's value is 2", ((ent::front::ast::I8Expression*)((ent::front::ast::Declaration*)program.body[0])->value)->value, 2);
 			});
 		});
-		ASSERT_BLOCK("Right of the main BinaryExpression (2 * 3)", {
-			ASSERT_EQUAL("BinaryExpression's right is a BinaryExpression", ((ent::front::ast::BinaryExpression*)program.body[0])->right->type_id(), "BinaryExpression");
+		ASSERT_BLOCK("Left of the BinaryExpression (1 / myVar)", {
+			ASSERT_EQUAL("BinaryExpression's left is a BinaryExpression", ((ent::front::ast::BinaryExpression*)program.body[1])->left->type_id(), "BinaryExpression");
+			ASSERT_BLOCK("Left's left of the first BinaryExpression (1)", {
+				ASSERT_EQUAL("BinaryExpression's left's left is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->left)->left->type_id(), "I8Expression");
+				ASSERT_EQUAL("I8Expression's value is 1", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->left)->left)->value, 1);
+			});
+			ASSERT_BLOCK("Left's right of the first BinaryExpression (myVar)", {
+				ASSERT_EQUAL("BinaryExpression's left's right's value an Identifier", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->left)->right->type_id(), "Identifier");
+				ASSERT_EQUAL("Identifier's name is myVar", ((ent::front::ast::Identifier*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->left)->right)->name, "myVar");
+			});
+		});
+		ASSERT_BLOCK("Right of the BinaryExpression (2 * 3)", {
+			ASSERT_EQUAL("BinaryExpression's right is a BinaryExpression", ((ent::front::ast::BinaryExpression*)program.body[1])->right->type_id(), "BinaryExpression");
 			ASSERT_BLOCK("Right's left of the first BinaryExpression (2)", {
-				ASSERT_EQUAL("BinaryExpression's right's left is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->right)->left->type_id(), "I8Expression");
-				ASSERT_EQUAL("I8Expression's value is 2", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->right)->left)->value, 2);
+				ASSERT_EQUAL("BinaryExpression's right's left is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->right)->left->type_id(), "I8Expression");
+				ASSERT_EQUAL("I8Expression's value is 2", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->right)->left)->value, 2);
 			});
 			ASSERT_BLOCK("Right's right of the first BinaryExpression (3)", {
-				ASSERT_EQUAL("BinaryExpression's right's right is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->right)->right->type_id(), "I8Expression");
-				ASSERT_EQUAL("I8Expression's value is 3", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[0])->right)->right)->value, 3);
+				ASSERT_EQUAL("BinaryExpression's right's right is an I8Expression", ((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->right)->right->type_id(), "I8Expression");
+				ASSERT_EQUAL("I8Expression's value is 3", ((ent::front::ast::I8Expression*)((ent::front::ast::BinaryExpression*)((ent::front::ast::BinaryExpression*)program.body[1])->right)->right)->value, 3);
 			});
 		});
 	});
 
 	// Test interpreter
 
-	ent::runtime::RuntimeValue* result = ent::runtime::interpreter::interpret(&program)[0];
+	std::vector<ent::runtime::RuntimeValue*> results = ent::runtime::interpreter::interpret(&program);
+	auto result = results[1];
 
 	ASSERT_BLOCK("INTERPRETER", {
 		ASSERT_EQUAL("Result is an I8", result->type(), ent::runtime::ValueType::I8);

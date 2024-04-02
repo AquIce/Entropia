@@ -13,6 +13,12 @@ std::string shift(std::string& str) {
 	return first;
 }
 
+std::string shift(std::string& str, int n) {
+	std::string first = str.substr(0, n);
+	str = str.substr(n, str.length() - n);
+	return first;
+}
+
 namespace ent {
 	namespace front {
 		struct NumberValue {
@@ -68,11 +74,50 @@ namespace ent {
 				return ent::type::token(ent::type::OPEN_PAREN, shift(src));
 			} else if(src[0] == ')') {
 				return ent::type::token(ent::type::CLOSE_PAREN, shift(src));
+			} else if(src[0] == ':') {
+				return ent::type::token(ent::type::COLON, shift(src));
+			} else if(src[0] == ';') {
+				return ent::type::token(ent::type::SEMICOLON, shift(src));
+			} else if(src[0] == '=') {
+				return ent::type::token(ent::type::ASSIGN, shift(src));
 			} else if(src[0] == '+' || src[0] == '-' || src[0] == '*' || src[0] == '/') {
 				return ent::type::token(ent::type::OPERATOR, shift(src));
 			} else if(isdigit(src[0]) || src[0] == '.') {
 				NumberValue number = get_number(src);
 				return get_number_token(number);
+			} else if (src.rfind("let", 0) == 0) {
+				(void)shift(src, 3); // Remove "let" from the source string
+				return ent::type::token(ent::type::LET, "let");
+			} else if (src.rfind("i8", 0) == 0) {
+				(void)shift(src, 2); // Remove "i8" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "i8");
+			} else if (src.rfind("i16", 0) == 0) {
+				(void)shift(src, 3); // Remove "i16" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "i16");
+			} else if (src.rfind("i32", 0) == 0) {
+				(void)shift(src, 3); // Remove "i32" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "i32");
+			} else if (src.rfind("i64", 0) == 0) {
+				(void)shift(src, 3); // Remove "i64" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "i64");
+			} else if(src.rfind("u8", 0) == 0) {
+				(void)shift(src, 2); // Remove "u8" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "u8");
+			} else if (src.rfind("u16", 0) == 0) {
+				(void)shift(src, 3); // Remove "u16" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "u16");
+			} else if (src.rfind("u32", 0) == 0) {
+				(void)shift(src, 3); // Remove "u32" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "u32");
+			} else if (src.rfind("u64", 0) == 0) {
+				(void)shift(src, 3); // Remove "u64" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "u64");
+			} else if (src.rfind("f32", 0) == 0) {
+				(void)shift(src, 3); // Remove "f32" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "f32");
+			} else if (src.rfind("f64", 0) == 0) {
+				(void)shift(src, 3); // Remove "f64" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "f64");
 			} else {
 				std::string identifier = "";
 				while(isalnum(src[0])) {
