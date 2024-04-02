@@ -2,6 +2,7 @@
 #define __ENT_ERRORS__
 
 #include <iostream>
+#include <stdexcept>
 
 namespace ent {
 
@@ -30,7 +31,7 @@ namespace ent {
 			return this->message;
 		}
 
-		std::string error() {
+		std::runtime_error error() {
 			std::string type = "";
 			switch(this->type) {
 				case LEX_ERROR:
@@ -43,7 +44,7 @@ namespace ent {
 					type = "RUNTIME_ERROR";
 					break;
 			}
-			return type + ": " + this->message;
+			return std::runtime_error(type + ": " + this->message);
 		}
 	};
 }
