@@ -30,7 +30,7 @@ namespace ent {
 			return this->message;
 		}
 
-		std::string pretty_print() {
+		std::string error() {
 			std::string type = "";
 			switch(this->type) {
 				case LEX_ERROR:
@@ -46,11 +46,6 @@ namespace ent {
 			return type + ": " + this->message;
 		}
 	};
-
-	void throw_err(Error err) {
-		std::cerr << err.pretty_print() << std::endl;
-		exit(1);
-	}
 }
 
 #endif // __ENT_ERRORS__
