@@ -11,11 +11,15 @@ namespace ent {
 
 			LET,
 			TYPE_SPECIFIER,
+			FN,
 
 			OPEN_PAREN,
 			CLOSE_PAREN,
+			OPEN_BRACE,
+			CLOSE_BRACE,
 			COLON,
 			SEMICOLON,
+			COMMA,
 			ASSIGN,
 
 			I8,
@@ -69,17 +73,29 @@ namespace ent {
 					case TYPE_SPECIFIER:
 						type = "TYPE_SPECIFIER";
 						break;
+					case FN:
+						type = "FN";
+						break;
 					case OPEN_PAREN:
 						type = "OPEN_PAREN";
 						break;
 					case CLOSE_PAREN:
 						type = "CLOSE_PAREN";
 						break;
+					case OPEN_BRACE:
+						type = "OPEN_BRACE";
+						break;
+					case CLOSE_BRACE:
+						type = "CLOSE_BRACE";
+						break;
 					case COLON:
 						type = "COLON";
 						break;
 					case SEMICOLON:
 						type = "SEMICOLON";
+						break;
+					case COMMA:
+						type = "COMMA";
 						break;
 					case ASSIGN:
 						type = "ASSIGN";

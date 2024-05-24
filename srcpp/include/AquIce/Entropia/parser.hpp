@@ -184,6 +184,7 @@ namespace ent {
 				ent::front::ast::Expression* value = parse_expression();
 				std::string type = type_specifier.get_value();
 				(void)expect(ent::type::token_type::SEMICOLON, ";");
+				// ! let foo: i8 = 2 + 3; is breaking because BinaryExpression is not i8
 				if(type == "void") {
 					throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
@@ -211,8 +212,7 @@ namespace ent {
 				}
 			}
 
-			ent::front::ast::Statement* parse_assignation() {
-				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier) {
 				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
 
 				ent::front::ast::Expression* value = parse_expression();
@@ -222,6 +222,82 @@ namespace ent {
 				return new ent::front::ast::Assignation(identifier, value);
 			}
 
+			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier) {
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
+
+				std::vector<ent::front::ast::Expression*> arguments = std::vector<ent::front::ast::Expression*>();
+				
+				if(tks.front().get_type() == ent::type::token_type::TYPE_SPECIFIER && tks.front().get_value() == "void") {
+					(void)eat();
+				} else if(tks.front().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				} else {
+					arguments.push_back((ent::front::ast::Expression*)parse_expression());
+
+					while(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
+						(void)expect(ent::type::token_type::COMMA, "comma");
+						arguments.push_back((ent::front::ast::Expression*)parse_expression());
+					}
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
+				(void)expect(ent::type::token_type::SEMICOLON, ";");
+
+				// ! Figure out return
+				return new ent::front::ast::Statement();
+			}
+
+			ent::front::ast::Statement* parse_identifier_starting_expression() {
+				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				
+				if(tks.front().get_type() == ent::type::token_type::ASSIGN) {
+					return parse_assignation(identifier);
+				} else {
+					return parse_function_call(identifier);
+				}
+			}		
+
+			ent::front::ast::Statement* parse_statement();
+
+			ent::front::ast::Statement* parse_function_declaration() {
+				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
+
+				std::vector<ent::front::ast::Declaration*> arguments = std::vector<ent::front::ast::Declaration*>();
+
+
+				if(tks.front().get_type() == ent::type::token_type::TYPE_SPECIFIER && tks.front().get_value() == "void") {
+					(void)eat();
+				} else if(tks.front().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				} else {
+					arguments.push_back((ent::front::ast::Declaration*)parse_declaration());
+
+					while(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
+						(void)expect(ent::type::token_type::COMMA, "comma");
+						arguments.push_back((ent::front::ast::Declaration*)parse_declaration());
+					}
+				}
+
+				(void)eat();
+
+				(void)expect(ent::type::token_type::COLON, "colon");
+
+				std::string returnType = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier").get_value();
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace at start of function");
+
+				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+
+				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement());
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of function");
+				
+				return new ent::front::ast::FunctionDeclaration(identifier, returnType, arguments, body);
+			}
+
 			ent::front::ast::Statement* parse_statement() {
 				if(tks.front().get_type() == ent::type::token_type::LET) {
 					(void)eat();
@@ -229,8 +305,13 @@ namespace ent {
 					return declaration;
 				}
 				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
-					ent::front::ast::Statement* assignation = parse_assignation();
-					return assignation;
+					ent::front::ast::Statement* expression = parse_identifier_starting_expression();
+					return expression;
+				}
+				if(tks.front().get_type() == ent::type::token_type::FN) {
+					(void)eat();
+					ent::front::ast::Statement* function_declaration = parse_function_declaration();
+					return function_declaration;
 				}
 				return parse_expression();
 			}

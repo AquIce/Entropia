@@ -11,7 +11,7 @@
 
 int main() {
 	// Original string
-	std::string src = "let myVar: i8 = 2; myVar = 10; let myNewBar: i32 = myVar;";
+	std::string src = "fn main(void): void { let foo: i8 = 2; } main(void);";
 
 	std::vector<ent::type::token> tokens = ent::front::lex(src);
 

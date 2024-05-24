@@ -14,6 +14,7 @@ namespace ent {
                 program,
 				assignation,
 				declaration,
+				functionDeclaration,
                 binaryExpression,
                 i8Expression,
 				i16Expression,
@@ -41,29 +42,7 @@ namespace ent {
 				}
             };
 
-            class Program: public Statement {
-			public:
-				enum NodeType type = NodeType::program;
-				std::vector<ent::front::ast::Statement*> body;
-				Program(std::vector<ent::front::ast::Statement*> body) {
-					this->body = body;
-					this->type = NodeType::program;
-				}
-				virtual NodeType get_type() override {
-					return NodeType::program;
-				}
-				virtual std::string pretty_print(int indent = 0) override {
-					std::string pretty = std::string(indent, '\t') + "Program(\n";
-					for(int i = 0; i < this->body.size(); i++) {
-						pretty += std::string(indent, '\t') + this->body[i]->pretty_print(indent + 1) + "\n";
-					}
-					pretty += std::string(indent, '\t') + ")";
-					return pretty;
-				}
-				virtual std::string type_id() override {
-					return "Program";
-				}
-            };
+            class Program;
 
             class Expression: public Statement {};
 
@@ -347,6 +326,79 @@ namespace ent {
 				}
 			
 			};
+
+			class FunctionDeclaration: public Statement {
+			public:
+				enum NodeType type = NodeType::functionDeclaration;
+				Identifier* identifier;
+				std::string returnType;
+				std::vector<Declaration*> arguments;
+				std::vector<Statement*> body;
+
+				FunctionDeclaration(Identifier* identifier, std::string returnType, std::vector<Declaration*> arguments, std::vector<Statement*> body) {
+					this->identifier = identifier;
+					this->returnType = returnType;
+					this->arguments = arguments;
+					this->body = body;
+				}
+				
+				virtual NodeType get_type() override {
+					return NodeType::functionDeclaration;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					bool has_args = this->arguments.size() > 0;
+					std::string pretty = std::string(indent, '\t') + "fn " + this->identifier->name + "(" + (has_args ? "\n" : "void");
+					for(int i = 0; i < this->arguments.size(); i++) {
+						pretty += std::string(indent, '\t') + this->arguments[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += (has_args ? std::string(indent, '\t') : "") + "): " + returnType + " {\n";
+					for(int i = 0; i < this->body.size(); i++) {
+						pretty += std::string(indent, '\t') + this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + "}";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "Declaration";
+				}
+			
+			};
+
+			class Program: public Statement {
+			public:
+				enum NodeType type = NodeType::program;
+				std::vector<ent::front::ast::Statement*> body;
+				std::vector<FunctionDeclaration*> functions;
+				Program(std::vector<ent::front::ast::Statement*> body, std::vector<FunctionDeclaration*> functions = std::vector<FunctionDeclaration*>()) {
+					this->body = body;
+					this->type = NodeType::program;
+					this->functions = functions;
+				}
+				void add_function(FunctionDeclaration* functionDeclaration) {
+					functions.push_back(functionDeclaration);
+				}
+				FunctionDeclaration* get_function(Identifier* identifier) {
+					for(FunctionDeclaration* functionDeclaration : this->functions) {
+						if(functionDeclaration->identifier->name == identifier->name) {
+							return functionDeclaration;
+						}
+					}
+				}
+				virtual NodeType get_type() override {
+					return NodeType::program;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t') + "Program(\n";
+					for(int i = 0; i < this->body.size(); i++) {
+						pretty += std::string(indent, '\t') + this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + ")";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "Program";
+				}
+            };
         }
     }
 }

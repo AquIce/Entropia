@@ -74,10 +74,16 @@ namespace ent {
 				return ent::type::token(ent::type::OPEN_PAREN, shift(src));
 			} else if(src[0] == ')') {
 				return ent::type::token(ent::type::CLOSE_PAREN, shift(src));
+			} else if(src[0] == '{') {
+				return ent::type::token(ent::type::OPEN_BRACE, shift(src));
+			} else if(src[0] == '}') {
+				return ent::type::token(ent::type::CLOSE_BRACE, shift(src));
 			} else if(src[0] == ':') {
 				return ent::type::token(ent::type::COLON, shift(src));
 			} else if(src[0] == ';') {
 				return ent::type::token(ent::type::SEMICOLON, shift(src));
+			} else if(src[0] == ',') {
+				return ent::type::token(ent::type::COMMA, shift(src));
 			} else if(src[0] == '=') {
 				return ent::type::token(ent::type::ASSIGN, shift(src));
 			} else if(src[0] == '+' || src[0] == '-' || src[0] == '*' || src[0] == '/') {
@@ -118,6 +124,12 @@ namespace ent {
 			} else if (src.rfind("f64", 0) == 0) {
 				(void)shift(src, 3); // Remove "f64" from the source string
 				return ent::type::token(ent::type::TYPE_SPECIFIER, "f64");
+			} else if (src.rfind("void", 0) == 0) {
+				(void)shift(src, 4); // Remove "f64" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "void");
+			} else if (src.rfind("fn", 0) == 0) {
+				(void)shift(src, 2); // Remove "fn" from the source string
+				return ent::type::token(ent::type::FN, "fn");
 			} else {
 				std::string identifier = "";
 				while(isalnum(src[0])) {
