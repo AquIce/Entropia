@@ -32,7 +32,7 @@ namespace ent {
 			while(src[0] == '.' || isdigit(src[0])) {
 				if(src[0] == '.') {
 					if(!is_integer) {
-						throw (ent::Error(ent::LEX_ERROR, "Invalid number format")).error();
+						throw (ent::Error(ent::INVALID_NUMBER_FORMAT_ERROR, "Invalid number format")).error();
 					}
 					is_integer = false;
 				}
@@ -55,7 +55,7 @@ namespace ent {
 				} else if(value > _UI64_MAX && value < UINT_FAST64_MAX) {
 					return ent::type::token(ent::type::U64, n.value);
 				} else {
-					throw (ent::Error(ent::LEX_ERROR, "Integer value out of range")).error();
+					throw (ent::Error(ent::INTEGER_OUT_OF_RANGE_ERROR, "Integer value out of range")).error();
 				}
 			} else {
 				double value = std::stod(n.value);
@@ -64,7 +64,7 @@ namespace ent {
 				} else if(value > DBL_MIN && value < DBL_MAX) {
 					return ent::type::token(ent::type::F64, n.value);
 				} else {
-					throw (ent::Error(ent::LEX_ERROR, "Float value out of range")).error();
+					throw (ent::Error(ent::FLOAT_OUT_OF_RANGE_ERROR, "Float value out of range")).error();
 				}
 			}
 		}

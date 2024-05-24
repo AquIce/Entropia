@@ -7,8 +7,13 @@
 namespace ent {
 
 	enum ErrorType {
-		LEX_ERROR,
-		PARSE_ERROR,
+		INVALID_NUMBER_FORMAT_ERROR,
+		INTEGER_OUT_OF_RANGE_ERROR,
+		FLOAT_OUT_OF_RANGE_ERROR,
+
+		PARSER_EXPECTED_OTHER_ERROR,
+		INVALID_VOID_VARIABLE_ERROR,
+		INVALID_TYPE_SPECIFIER_ERROR,
 
 		INVALID_IDENTIFIER_ERROR,
 
@@ -69,11 +74,98 @@ namespace ent {
 		std::runtime_error error() {
 			std::string type = "";
 			switch(this->type) {
-				case LEX_ERROR:
-					type = "LEX_ERROR";
+				case INVALID_NUMBER_FORMAT_ERROR:
+					type = "INVALID_NUMBER_FORMAT_ERROR";
 					break;
-				case PARSE_ERROR:
-					type = "PARSE_ERROR";
+				case INTEGER_OUT_OF_RANGE_ERROR:
+					type = "INTEGER_OUT_OF_RANGE_ERROR";
+					break;
+				case FLOAT_OUT_OF_RANGE_ERROR:
+					type = "FLOAT_OUT_OF_RANGE_ERROR";
+					break;
+				case PARSER_EXPECTED_OTHER_ERROR:
+					type = "PARSER_EXPECTED_OTHER_ERROR";
+					break;
+				case INVALID_VOID_VARIABLE_ERROR:
+					type = "INVALID_VOID_VARIABLE_ERROR";
+					break;
+				case INVALID_TYPE_SPECIFIER_ERROR:
+					type = "INVALID_TYPE_SPECIFIER_ERROR";
+					break;
+				case INVALID_IDENTIFIER_ERROR:
+					type = "INVALID_IDENTIFIER_ERROR";
+					break;
+				case I8_OVERFLOW_ERROR:
+					type = "I8_OVERFLOW_ERROR";
+					break;
+				case I8_UNDERFLOW_ERROR:
+					type = "I8_UNDERFLOW_ERROR";
+					break;
+				case I16_OVERFLOW_ERROR:
+					type = "I16_OVERFLOW_ERROR";
+					break;
+				case I16_UNDERFLOW_ERROR:
+					type = "I16_UNDERFLOW_ERROR";
+					break;
+				case I32_OVERFLOW_ERROR:
+					type = "I32_OVERFLOW_ERROR";
+					break;
+				case I32_UNDERFLOW_ERROR:
+					type = "I32_UNDERFLOW_ERROR";
+					break;
+				case I64_OVERFLOW_ERROR:
+					type = "I64_OVERFLOW_ERROR";
+					break;
+				case I64_UNDERFLOW_ERROR:
+					type = "I64_UNDERFLOW_ERROR";
+					break;
+				case U8_OVERFLOW_ERROR:
+					type = "U8_OVERFLOW_ERROR";
+					break;
+				case U8_UNDERFLOW_ERROR:
+					type = "U8_UNDERFLOW_ERROR";
+					break;
+				case U16_OVERFLOW_ERROR:
+					type = "U16_OVERFLOW_ERROR";
+					break;
+				case U16_UNDERFLOW_ERROR:
+					type = "U16_UNDERFLOW_ERROR";
+					break;
+				case U32_OVERFLOW_ERROR:
+					type = "U32_OVERFLOW_ERROR";
+					break;
+				case U32_UNDERFLOW_ERROR:
+					type = "U32_UNDERFLOW_ERROR";
+					break;
+				case U64_OVERFLOW_ERROR:
+					type = "U64_OVERFLOW_ERROR";
+					break;
+				case U64_UNDERFLOW_ERROR:
+					type = "U64_UNDERFLOW_ERROR";
+					break;
+				case F32_OVERFLOW_ERROR:
+					type = "F32_OVERFLOW_ERROR";
+					break;
+				case F32_UNDERFLOW_ERROR:
+					type = "F32_UNDERFLOW_ERROR";
+					break;
+				case F64_OVERFLOW_ERROR:
+					type = "F64_OVERFLOW_ERROR";
+					break;
+				case F64_UNDERFLOW_ERROR:
+					type = "F64_UNDERFLOW_ERROR";
+					break;
+				case DIVISION_BY_ZERO_ERROR:
+					type = "DIVISION_BY_ZERO_ERROR";
+					break;
+				case INVALID_OPERATOR_ERROR:
+					type = "INVALID_OPERATOR_ERROR";
+					break;
+				case INVALID_OPERANDS_ERROR:
+					type = "INVALID_OPERANDS_ERROR";
+					break;
+				case NON_MATCHED_NUMBER_OPERANDS_ERROR:
+					type = "NON_MATCHED_NUMBER_OPERANDS_ERROR";
 					break;
 				case UNKNOWN_STATEMENT_ERROR:
 					type = "UNKNOWN_STATEMENT_ERROR";

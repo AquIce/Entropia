@@ -29,7 +29,7 @@ namespace ent {
 				if(tks.front().get_type() == type) {
 					return eat();
 				}
-				throw (ent::Error(ent::PARSE_ERROR, "Expected " + expected + ", got " + tks.front().get_value())).error();
+				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + tks.front().get_value())).error();
 			}
 
 			ent::front::ast::Expression* parse_identifier() {
@@ -38,7 +38,7 @@ namespace ent {
 					(void)eat();
 					return new ent::front::ast::Identifier(value);
 				}
-				throw (ent::Error(ent::PARSE_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
+				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
 			}
 
 			ent::front::ast::Expression* parse_numeric_expression() {
@@ -138,7 +138,7 @@ namespace ent {
 					return new ent::front::ast::Assignation(identifier, (ent::front::ast::Identifier*)value);
 				}
 				if(value->get_type() != type) {
-					throw (ent::Error(ent::PARSE_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
+					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
 				return new ent::front::ast::Assignation(identifier, value);
 			}
@@ -154,7 +154,7 @@ namespace ent {
 					std::string type = type_specifier.get_value();
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
 					if(type == "void") {
-						throw (ent::Error(ent::PARSE_ERROR, "Cannot declare a variable of type void")).error();
+						throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression());
 					} else if(type == "i16") {
@@ -176,7 +176,7 @@ namespace ent {
 					} else if(type == "f64") {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression());
 					} else {
-						throw (ent::Error(ent::PARSE_ERROR, "Unknown type specifier " + type)).error();
+						throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 					}
 				}
 				// Means next.get_type() == ent::type::token_type::ASSIGN
@@ -185,7 +185,7 @@ namespace ent {
 				std::string type = type_specifier.get_value();
 				(void)expect(ent::type::token_type::SEMICOLON, ";");
 				if(type == "void") {
-					throw (ent::Error(ent::PARSE_ERROR, "Cannot declare a variable of type void")).error();
+					throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value));
 				} else if(type == "i16") {
@@ -207,7 +207,7 @@ namespace ent {
 				} else if(type == "f64") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value));
 				} else {
-					throw (ent::Error(ent::PARSE_ERROR, "Unknown type specifier " + type)).error();
+					throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
 			}
 
