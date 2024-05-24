@@ -12,6 +12,7 @@ namespace ent {
         namespace ast {
             enum NodeType {
                 program,
+				assignation,
 				declaration,
                 binaryExpression,
                 i8Expression,
@@ -298,6 +299,28 @@ namespace ent {
 					}
             };
 
+			class Assignation: public Statement {
+			public:
+				enum NodeType type = NodeType::assignation;
+				Identifier* identifier;
+				ent::front::ast::Expression* value;
+				Assignation(Identifier* identifier, ent::front::ast::Expression* value) {
+					this->identifier = identifier;
+					this->value = value;
+					this->type = NodeType::assignation;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::assignation;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "Assignation(\n" + std::string(indent + 1, '\t') + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+				}
+				virtual std::string type_id() override {
+					return "Assignation";
+				}
+			
+			};
+
 			class Declaration: public Statement {
 			public:
 				enum NodeType type = NodeType::declaration;
@@ -308,11 +331,16 @@ namespace ent {
 					this->value = value;
 					this->type = NodeType::declaration;
 				}
+				Declaration(Assignation* assignation) {
+					this->identifier = assignation->identifier;
+					this->value = assignation->value;
+					this->type = NodeType::declaration;
+				}
 				virtual NodeType get_type() override {
 					return NodeType::declaration;
 				}
 				virtual std::string pretty_print(int indent = 0) override {
-					return std::string(indent, '\t') + "Declaration(" + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+					return std::string(indent, '\t') + "Declaration(\n" + std::string(indent + 1, '\t') + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
 				}
 				virtual std::string type_id() override {
 					return "Declaration";

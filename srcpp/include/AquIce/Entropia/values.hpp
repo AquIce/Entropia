@@ -8,11 +8,17 @@ namespace ent {
 
 		enum ValueType {
 			NULL_VAL,
+
 			I8,
 			I16,
 			I32,
 			I64,
+
+			U8,
+			U16,
+			U32,
 			U64,
+
 			F32,
 			F64,
 		};
@@ -37,9 +43,27 @@ namespace ent {
 			}
 		};
 
-		class NumberValue: public RuntimeValue {};
+		class NumberValue: public RuntimeValue {
+		public:
+			virtual int magnitude() {
+				return -1;
+			}
+		};
+
+		bool IsNumericType(ValueType type) {
+			return
+				type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ||
+				type == ValueType::U8 || type == ValueType::U16 || type == ValueType::U32 || type == ValueType::U64 ||
+				type == ValueType::F32 || type == ValueType::F64;
+		}
 
 		class IntegerValue: public NumberValue {};
+
+		bool IsIntegerType(ValueType type) {
+			return
+				type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ||
+				type == ValueType::U8 || type == ValueType::U16 || type == ValueType::U32 || type == ValueType::U64;
+		}
 
 		class SignedIntegerValue: public IntegerValue {};
 
@@ -55,6 +79,9 @@ namespace ent {
 			}
 			i8 get_value() {
 				return this->value;
+			}
+			virtual int magnitude() {
+				return 7;
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i8";
@@ -74,6 +101,9 @@ namespace ent {
 			i16 get_value() {
 				return this->value;
 			}
+			virtual int magnitude() {
+				return 15;
+			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i16";
 			}
@@ -91,6 +121,9 @@ namespace ent {
 			}
 			i32 get_value() {
 				return this->value;
+			}
+			virtual int magnitude() {
+				return 31;
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i32";
@@ -110,6 +143,9 @@ namespace ent {
 			i64 get_value() {
 				return this->value;
 			}
+			virtual int magnitude() {
+				return 63;
+			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i64";
 			}
@@ -117,6 +153,66 @@ namespace ent {
 
 		class UnsignedIntegerValue: public IntegerValue {};
 
+		class U8Value: public UnsignedIntegerValue {
+		private:
+			u8 value;
+		public:
+			U8Value(u8 value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::U8;
+			}
+			u8 get_value() {
+				return this->value;
+			}
+			virtual int magnitude() {
+				return 8;
+			}
+			virtual std::string pretty_print() override {
+				return std::to_string(this->value) + ": u8";
+			}
+		};
+		class U16Value: public UnsignedIntegerValue {
+		private:
+			u16 value;
+		public:
+			U16Value(u16 value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::U16;
+			}
+			u16 get_value() {
+				return this->value;
+			}
+			virtual int magnitude() {
+				return 16;
+			}
+			virtual std::string pretty_print() override {
+				return std::to_string(this->value) + ": u16";
+			}
+		};
+		class U32Value: public UnsignedIntegerValue {
+		private:
+			u32 value;
+		public:
+			U32Value(u32 value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::U32;
+			}
+			u32 get_value() {
+				return this->value;
+			}
+			virtual int magnitude() {
+				return 32;
+			}
+			virtual std::string pretty_print() override {
+				return std::to_string(this->value) + ": u32";
+			}
+		};
 		class U64Value: public UnsignedIntegerValue {
 		private:
 			u64 value;
@@ -130,12 +226,19 @@ namespace ent {
 			u64 get_value() {
 				return this->value;
 			}
+			virtual int magnitude() {
+				return 64;
+			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": u64";
 			}
 		};
 
 		class FloatValue: public NumberValue {};
+
+		bool IsFloatType(ValueType type) {
+			return type == ValueType::F32 || type == ValueType::F64;
+		}
 
 		class F32Value: public FloatValue {
 		private:

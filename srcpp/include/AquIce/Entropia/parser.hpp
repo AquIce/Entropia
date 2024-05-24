@@ -133,11 +133,14 @@ namespace ent {
 				return parse_additive_expression();
 			}
 
-			ent::front::ast::Declaration* expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, ent::front::ast::Identifier* identifier, ent::front::ast::Expression* value) {
+			ent::front::ast::Assignation* expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, ent::front::ast::Identifier* identifier, ent::front::ast::Expression* value) {
+				if(value->get_type() == ent::front::ast::NodeType::identifier) {
+					return new ent::front::ast::Assignation(identifier, (ent::front::ast::Identifier*)value);
+				}
 				if(value->get_type() != type) {
 					throw (ent::Error(ent::PARSE_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
-				return new ent::front::ast::Declaration(identifier, value);
+				return new ent::front::ast::Assignation(identifier, value);
 			}
 
 			ent::front::ast::Statement* parse_declaration() {
@@ -184,28 +187,39 @@ namespace ent {
 				if(type == "void") {
 					throw (ent::Error(ent::PARSE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value));
 				} else if(type == "i16") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value));
 				} else if(type == "i32") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value));
 				} else if(type == "i64") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value));
 				} else if(type == "u8") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value));
 				} else if(type == "u16") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value));
 				} else if(type == "u32") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value));
 				} else if(type == "u64") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value));
 				} else if(type == "f32") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value));
 				} else if(type == "f64") {
-					return expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value);
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value));
 				} else {
 					throw (ent::Error(ent::PARSE_ERROR, "Unknown type specifier " + type)).error();
 				}
+			}
+
+			ent::front::ast::Statement* parse_assignation() {
+				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
+
+				ent::front::ast::Expression* value = parse_expression();
+
+				(void)expect(ent::type::token_type::SEMICOLON, ";");
+				
+				return new ent::front::ast::Assignation(identifier, value);
 			}
 
 			ent::front::ast::Statement* parse_statement() {
@@ -213,6 +227,10 @@ namespace ent {
 					(void)eat();
 					ent::front::ast::Statement* declaration = parse_declaration();
 					return declaration;
+				}
+				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
+					ent::front::ast::Statement* assignation = parse_assignation();
+					return assignation;
 				}
 				return parse_expression();
 			}

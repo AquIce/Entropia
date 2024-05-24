@@ -10,6 +10,39 @@
 namespace ent {
 	namespace runtime {
 
+		RuntimeValue* get_result_value(RuntimeValue* dest, RuntimeValue* source) {
+			switch(dest->type()) {
+				case ValueType::I8:
+					return new I8Value(((I8Value*)source)->get_value());
+				case ValueType::I16:
+					return new I16Value(((I16Value*)source)->get_value());
+				case ValueType::I32:
+					return new I32Value(((I32Value*)source)->get_value());
+				case ValueType::I64:
+					return new I64Value(((I64Value*)source)->get_value());
+				case ValueType::U8:
+					return new U8Value(((U8Value*)source)->get_value());
+				case ValueType::U16:
+					return new U16Value(((U16Value*)source)->get_value());
+				case ValueType::U32:
+					return new U32Value(((U32Value*)source)->get_value());
+				default: // case ValueType::U64:
+					return new U64Value(((U64Value*)source)->get_value());
+			}
+		}
+
+		RuntimeValue* check_type_compatibility(RuntimeValue* dest, RuntimeValue* source, std::string key) {
+			if(dest->type() == source->type()) { return source; } // BOTH SAME TIME
+			if(IsIntegerType(dest->type()) && IsIntegerType(source->type())) { // BOTH INTEGER -> CHECK MAGNITUDE
+				if(((IntegerValue*)dest)->magnitude() >= ((IntegerValue*)source)->magnitude()) {
+					return get_result_value(dest, source);
+				}
+			}
+			if(dest->type() == ValueType::F64 && IsFloatType(source->type())) { return new F64Value(((F32Value*)source)->get_value()); } // F64 AND Fxx
+
+			throw (Error(ErrorType::INVALID_TYPE_ERROR, "Trying to assign invalid type to variable " + key)).error();
+		}
+
 		class Environment {
 		private:
 			std::unordered_map<std::string, RuntimeValue*> values;
@@ -24,21 +57,23 @@ namespace ent {
 			}
 			RuntimeValue* set(std::string key, RuntimeValue* value) {
 				if(!this->has(key)) {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Variable is not defined: " + key)).error();
+					throw (Error(ErrorType::SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
 				}
-				this->values[key] = value;
+				
+				this->values[key] = check_type_compatibility(this->get(key), value, key);
 				return value;
 			}
 			RuntimeValue* init(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Variable already defined: " + key)).error();
+					throw (Error(ErrorType::REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
 				}
-				this->set(key, value);
+				this->values[key] = value;
+
 				return value;
 			}
 			RuntimeValue* get(std::string key) {
 				if(!this->has(key)) {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Variable is not defined: " + key)).error();
+					throw (Error(ErrorType::GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
 				}
 				return this->values[key];
 			}

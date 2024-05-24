@@ -14,7 +14,7 @@ namespace ent {
 				if(env->has(identifier->name)) {
 					return env->get(identifier->name);
 				} else {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Invalid identifier: " + identifier->name)).error();
+					throw (Error(ErrorType::INVALID_IDENTIFIER_ERROR, "Invalid identifier: " + identifier->name)).error();
 				}
 			}
 
@@ -29,6 +29,16 @@ namespace ent {
 			}
 			RuntimeValue* evaluateI64Expression(ent::front::ast::I64Expression* numericExpression) {
 				return new I64Value(numericExpression->value);
+			}
+			
+			RuntimeValue* evaluateU8Expression(ent::front::ast::U8Expression* numericExpression) {
+				return new U8Value(numericExpression->value);
+			}
+			RuntimeValue* evaluateU16Expression(ent::front::ast::U16Expression* numericExpression) {
+				return new U16Value(numericExpression->value);
+			}
+			RuntimeValue* evaluateU32Expression(ent::front::ast::U32Expression* numericExpression) {
+				return new U32Value(numericExpression->value);
 			}
 			RuntimeValue* evaluateU64Expression(ent::front::ast::U64Expression* numericExpression) {
 				return new U64Value(numericExpression->value);
@@ -45,154 +55,233 @@ namespace ent {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > INT8_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Overflow")).error();
+							throw (Error(ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")).error();
 						if(left->get_value() + right->get_value() < INT8_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Underflow")).error();
+							throw (Error(ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow")).error();
 						return new I8Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > INT8_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Overflow")).error();
+							throw (Error(ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")).error();
 						if(left->get_value() - right->get_value() < INT8_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Underflow")).error();
+							throw (Error(ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow")).error();
 						return new I8Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > INT8_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Overflow")).error();
+							throw (Error(ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")).error();
 						if(left->get_value() * right->get_value() < INT8_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I8 Underflow")).error();
+							throw (Error(ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow")).error();
 						return new I8Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new I8Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 			RuntimeValue* evaluateI16BinaryExpression(I16Value* left, I16Value * right, char op) {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > INT16_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Overflow")).error();
+							throw (Error(ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")).error();
 						if(left->get_value() + right->get_value() < INT16_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Underflow")).error();
+							throw (Error(ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow")).error();
 						return new I16Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > INT16_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Overflow")).error();
+							throw (Error(ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")).error();
 						if(left->get_value() - right->get_value() < INT16_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Underflow")).error();
+							throw (Error(ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow")).error();
 						return new I16Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > INT16_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Overflow")).error();
+							throw (Error(ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")).error();
 						if(left->get_value() * right->get_value() < INT16_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I16 Underflow")).error();
+							throw (Error(ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow")).error();
 						return new I16Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new I16Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 			RuntimeValue* evaluateI32BinaryExpression(I32Value* left, I32Value * right, char op) {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > INT32_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Overflow")).error();
+							throw (Error(ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")).error();
 						if(left->get_value() + right->get_value() < INT32_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Underflow")).error();
+							throw (Error(ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow")).error();
 						return new I32Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > INT32_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Overflow")).error();
+							throw (Error(ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")).error();
 						if(left->get_value() - right->get_value() < INT32_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Underflow")).error();
+							throw (Error(ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow")).error();
 						return new I32Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > INT32_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Overflow")).error();
+							throw (Error(ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")).error();
 						if(left->get_value() * right->get_value() < INT32_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I32 Underflow")).error();
+							throw (Error(ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow")).error();
 						return new I32Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new I32Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 			RuntimeValue* evaluateI64BinaryExpression(I64Value* left, I64Value * right, char op) {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > INT64_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Overflow")).error();
+							throw (Error(ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")).error();
 						if(left->get_value() + right->get_value() < INT64_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Underflow"));
+							throw (Error(ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"));
 						return new I64Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > INT64_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Overflow")).error();
+							throw (Error(ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")).error();
 						if(left->get_value() - right->get_value() < INT64_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Underflow")).error();
+							throw (Error(ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow")).error();
 						return new I64Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > INT64_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Overflow")).error();
+							throw (Error(ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")).error();
 						if(left->get_value() * right->get_value() < INT64_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "I64 Underflow")).error();
+							throw (Error(ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow")).error();
 						return new I64Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new I64Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
+				}
+			}
+
+			RuntimeValue* evaluateU8BinaryExpression(U8Value* left, U8Value * right, char op) {
+				switch(op) {
+					case '+':
+						if(left->get_value() + right->get_value() > UINT8_MAX)
+							throw (Error(ErrorType::U8_OVERFLOW_ERROR, "U8 Overflow")).error();
+						return new U8Value(left->get_value() + right->get_value());
+						break;
+					case '-':
+						if(left->get_value() - right->get_value() < 0)
+							throw (Error(ErrorType::U8_UNDERFLOW_ERROR, "U8 Underflow")).error();
+						return new U8Value(left->get_value() - right->get_value());
+						break;
+					case '*':
+						if(left->get_value() * right->get_value() > UINT8_MAX)
+							throw (Error(ErrorType::U8_OVERFLOW_ERROR, "U8 Overflow")).error();
+						return new U8Value(left->get_value() * right->get_value());
+						break;
+					case '/':
+						if(right->get_value() == 0)
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
+						return new U8Value(left->get_value() / right->get_value());
+						break;
+					default:
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
+				}
+			}
+			RuntimeValue* evaluateU16BinaryExpression(U16Value* left, U16Value * right, char op) {
+				switch(op) {
+					case '+':
+						if(left->get_value() + right->get_value() > UINT16_MAX)
+							throw (Error(ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")).error();
+						return new U16Value(left->get_value() + right->get_value());
+						break;
+					case '-':
+						if(left->get_value() - right->get_value() < 0)
+							throw (Error(ErrorType::U16_UNDERFLOW_ERROR, "U16 Underflow")).error();
+						return new U16Value(left->get_value() - right->get_value());
+						break;
+					case '*':
+						if(left->get_value() * right->get_value() > UINT16_MAX)
+							throw (Error(ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")).error();
+						return new U16Value(left->get_value() * right->get_value());
+						break;
+					case '/':
+						if(right->get_value() == 0)
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
+						return new U16Value(left->get_value() / right->get_value());
+						break;
+					default:
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
+				}
+			}
+			RuntimeValue* evaluateU32BinaryExpression(U32Value* left, U32Value * right, char op) {
+				switch(op) {
+					case '+':
+						if(left->get_value() + right->get_value() > UINT32_MAX)
+							throw (Error(ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")).error();
+						return new U32Value(left->get_value() + right->get_value());
+						break;
+					case '-':
+						if(left->get_value() - right->get_value() < 0)
+							throw (Error(ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow")).error();
+						return new U32Value(left->get_value() - right->get_value());
+						break;
+					case '*':
+						if(left->get_value() * right->get_value() > UINT32_MAX)
+							throw (Error(ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")).error();
+						return new U32Value(left->get_value() * right->get_value());
+						break;
+					case '/':
+						if(right->get_value() == 0)
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
+						return new U32Value(left->get_value() / right->get_value());
+						break;
+					default:
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 			RuntimeValue* evaluateU64BinaryExpression(U64Value* left, U64Value * right, char op) {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > UINT64_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "U64 Overflow")).error();
+							throw (Error(ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")).error();
 						return new U64Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() < 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "U64 Underflow")).error();
+							throw (Error(ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow")).error();
 						return new U64Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > UINT64_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "U64 Overflow")).error();
+							throw (Error(ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")).error();
 						return new U64Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new U64Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 
@@ -200,64 +289,64 @@ namespace ent {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > FLT_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Overflow")).error();
+							throw (Error(ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")).error();
 						if(left->get_value() + right->get_value() < FLT_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Underflow")).error();
+							throw (Error(ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow")).error();
 						return new F32Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > FLT_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Overflow")).error();
+							throw (Error(ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")).error();
 						if(left->get_value() - right->get_value() < FLT_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Underflow")).error();
+							throw (Error(ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow")).error();
 						return new F32Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > FLT_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Overflow")).error();
+							throw (Error(ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")).error();
 						if(left->get_value() * right->get_value() < FLT_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F32 Underflow")).error();
+							throw (Error(ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow")).error();
 						return new F32Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new F32Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 			RuntimeValue* evaluateF64BinaryExpression(F64Value* left, F64Value * right, char op) {
 				switch(op) {
 					case '+':
 						if(left->get_value() + right->get_value() > DBL_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Overflow")).error();
+							throw (Error(ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")).error();
 						if(left->get_value() + right->get_value() < DBL_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Underflow")).error();
+							throw (Error(ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow")).error();
 						return new F64Value(left->get_value() + right->get_value());
 						break;
 					case '-':
 						if(left->get_value() - right->get_value() > DBL_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Overflow")).error();
+							throw (Error(ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")).error();
 						if(left->get_value() - right->get_value() < DBL_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Underflow")).error();
+							throw (Error(ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow")).error();
 						return new F64Value(left->get_value() - right->get_value());
 						break;
 					case '*':
 						if(left->get_value() * right->get_value() > DBL_MAX)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Overflow")).error();
+							throw (Error(ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")).error();
 						if(left->get_value() * right->get_value() < DBL_MIN)
-							throw (Error(ErrorType::RUNTIME_ERROR, "F64 Underflow")).error();
+							throw (Error(ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow")).error();
 						return new F64Value(left->get_value() * right->get_value());
 						break;
 					case '/':
 						if(right->get_value() == 0)
-							throw (Error(ErrorType::RUNTIME_ERROR, "Division by zero")).error();
+							throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error();
 						return new F64Value(left->get_value() / right->get_value());
 						break;
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operator: " + op)).error();
+						throw (Error(ErrorType::INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 				}
 			}
 
@@ -272,6 +361,12 @@ namespace ent {
 							return evaluateI32BinaryExpression((I32Value*)left, (I32Value*)right, binaryExpression->operator_symbol[0]);
 						case ValueType::I64:
 							return evaluateI64BinaryExpression((I64Value*)left, (I64Value*)right, binaryExpression->operator_symbol[0]);
+						case ValueType::U8:
+							return evaluateU8BinaryExpression((U8Value*)left, (U8Value*)right, binaryExpression->operator_symbol[0]);
+						case ValueType::U16:
+							return evaluateU16BinaryExpression((U16Value*)left, (U16Value*)right, binaryExpression->operator_symbol[0]);
+						case ValueType::U32:
+							return evaluateU32BinaryExpression((U32Value*)left, (U32Value*)right, binaryExpression->operator_symbol[0]);
 						case ValueType::U64:
 							return evaluateU64BinaryExpression((U64Value*)left, (U64Value*)right, binaryExpression->operator_symbol[0]);
 						case ValueType::F32:
@@ -279,18 +374,11 @@ namespace ent {
 						case ValueType::F64:
 							return evaluateF64BinaryExpression((F64Value*)left, (F64Value*)right, binaryExpression->operator_symbol[0]);
 						default:
-							throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+							throw (Error(ErrorType::INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 					}
 				} else {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Non-matched number operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+					throw (Error(ErrorType::NON_MATCHED_NUMBER_OPERANDS_ERROR, "Non-matched number operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 				}
-			}
-
-			bool IsNumericType(ValueType type) {
-				return
-					type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ||
-					type == ValueType::U64 ||
-					type == ValueType::F32 || type == ValueType::F64;
 			}
 
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env);
@@ -303,7 +391,7 @@ namespace ent {
 				if(IsNumericType(left->type()) && IsNumericType(right->type())) {
 					return evaluateNumberBinaryExpression(binaryExpression, (NumberValue*)left, (NumberValue*)right);
 				} else {
-					throw (Error(ErrorType::RUNTIME_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+					throw (Error(ErrorType::INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 				}
 			}
 
@@ -319,6 +407,12 @@ namespace ent {
 						return evaluateI32Expression((ent::front::ast::I32Expression*)statement);
 					case ent::front::ast::NodeType::i64Expression:
 						return evaluateI64Expression((ent::front::ast::I64Expression*)statement);
+					case ent::front::ast::NodeType::u8Expression:
+						return evaluateU8Expression((ent::front::ast::U8Expression*)statement);
+					case ent::front::ast::NodeType::u16Expression:
+						return evaluateU16Expression((ent::front::ast::U16Expression*)statement);
+					case ent::front::ast::NodeType::u32Expression:
+						return evaluateU32Expression((ent::front::ast::U32Expression*)statement);
 					case ent::front::ast::NodeType::u64Expression:
 						return evaluateU64Expression((ent::front::ast::U64Expression*)statement);
 					case ent::front::ast::NodeType::f32Expression:
@@ -332,8 +426,13 @@ namespace ent {
 							((ent::front::ast::Declaration*)statement)->identifier->name,
 							evaluateStatement(((ent::front::ast::Declaration*)statement)->value, env)
 						);
+					case ent::front::ast::NodeType::assignation:
+						return env->set(
+							((ent::front::ast::Assignation*)statement)->identifier->name,
+							evaluateStatement(((ent::front::ast::Assignation*)statement)->value, env)
+						);
 					default:
-						throw (Error(ErrorType::RUNTIME_ERROR, "Invalid statement: " + statement->type_id())).error();
+						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
 			}
 
