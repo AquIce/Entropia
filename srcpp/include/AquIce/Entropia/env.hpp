@@ -37,6 +37,9 @@ namespace ent {
 				return value;
 			}
 			RuntimeValue* get(std::string key) {
+				if(!this->has(key)) {
+					throw (Error(ErrorType::RUNTIME_ERROR, "Variable is not defined: " + key)).error();
+				}
 				return this->values[key];
 			}
 		};
