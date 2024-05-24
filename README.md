@@ -4,7 +4,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
 # TODO
 
 - [ ] Add variables
-  - [ ] Declaration syntax
+  - [x] Declaration syntax
   - [ ] Assignment syntax
   - [ ] Initialization syntax
 - [ ] Add functions
