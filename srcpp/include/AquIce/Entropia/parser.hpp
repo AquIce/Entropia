@@ -419,8 +419,6 @@ namespace ent {
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after condition");
 				}
 
-				std::cout << (conditionType == ConditionType::IF ? "IF" : conditionType == ConditionType::ELSE_IF ? "ELSE IF" : "ELSE") << std::endl;
-
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before body");
 
 				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
@@ -434,16 +432,23 @@ namespace ent {
 				ent::front::ast::ConditionnalBlock* conditionnalBlock = new ent::front::ast::ConditionnalBlock(body, condition);
 
 				if(conditionType != ConditionType::IF) {
-					std::cout << (before == nullptr) << std::endl;
-					std::cout << before->pretty_print() << std::endl;
 					conditionnalBlock->before = before;
-					std::cout << before->pretty_print() << std::endl;
 				}
 
 				before = conditionnalBlock;
-				std::cout << (before == nullptr) << std::endl;
 
 				return conditionnalBlock;
+			}
+
+			ent::front::ast::ConditionnalStructure* parse_conditionnal_structure() {
+
+				std::vector<ent::front::ast::ConditionnalBlock*> blocks = std::vector<ent::front::ast::ConditionnalBlock*>();
+
+				while(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
+					blocks.push_back(parse_conditionnal_block());
+				}
+
+				return new ent::front::ast::ConditionnalStructure(blocks);
 			}
 
 			ent::front::ast::Statement* parse_statement(bool updateBefore) {
@@ -466,7 +471,7 @@ namespace ent {
 					return function_declaration;
 				}
 				if(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
-					return parse_conditionnal_block();
+					return parse_conditionnal_structure();
 				}
 				
 				ent::front::ast::Expression* expression = parse_expression();

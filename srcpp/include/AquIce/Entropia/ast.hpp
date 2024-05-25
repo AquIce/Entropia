@@ -29,7 +29,8 @@ namespace ent {
 				f32Expression,
 				f64Expression,
 				identifier,
-				conditionnalBlock
+				conditionnalBlock,
+				conditionnalStructure
             };
 
             class Statement {
@@ -476,6 +477,30 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "ConditionnalBlock";
+				}
+            };
+
+			class ConditionnalStructure: public Statement {
+			public:
+				enum NodeType type = NodeType::conditionnalStructure;
+				std::vector<ConditionnalBlock*> conditionnalBlocks;
+
+				ConditionnalStructure(std::vector<ent::front::ast::ConditionnalBlock*> conditionnalBlocks) {
+					this->type = NodeType::program;
+					this->conditionnalBlocks = conditionnalBlocks;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::conditionnalStructure;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = "";
+					for(ConditionnalBlock* block : this->conditionnalBlocks) {
+						pretty += block->pretty_print(indent + 1) + "\n";
+					}
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "ConditionnalStructure";
 				}
             };
         }

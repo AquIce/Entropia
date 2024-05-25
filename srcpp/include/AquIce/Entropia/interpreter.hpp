@@ -413,6 +413,15 @@ namespace ent {
 				return new NullValue();
 			}
 
+			RuntimeValue* evaluateConditionnalStructure(ent::front::ast::ConditionnalStructure* conditionnalStructure, Environment* env) {
+				for(ent::front::ast::ConditionnalBlock* block : conditionnalStructure->conditionnalBlocks) {
+					if(block->condition == nullptr || evaluateStatement(block->condition, env)->IsTrue()) {
+						return evaluateSubScope(new ent::front::ast::Scope(block->body));
+					}
+				}
+				return new NullValue();
+			}
+
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
@@ -450,6 +459,8 @@ namespace ent {
 						return new NullValue();
 					case ent::front::ast::NodeType::scope:
 						return evaluateSubScope((ent::front::ast::Scope*)statement);
+					case ent::front::ast::NodeType::conditionnalStructure:
+						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
 					default:
 						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}

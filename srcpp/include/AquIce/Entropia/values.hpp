@@ -31,6 +31,9 @@ namespace ent {
 			virtual std::string pretty_print() {
 				return "RuntimeValue";
 			}
+			virtual bool IsTrue() {
+				return false;
+			}
 		};
 
 		class NullValue: public RuntimeValue {
@@ -44,6 +47,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return this->visible ? "null" : "";
+			}
+			virtual bool IsTrue() {
+				return false;
 			}
 		};
 
@@ -90,6 +96,9 @@ namespace ent {
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i8";
 			}
+			virtual bool IsTrue() {
+				return value != 0;
+			}
 		};
 
 		class I16Value: public SignedIntegerValue {
@@ -110,6 +119,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i16";
+			}
+			virtual bool IsTrue() {
+				return value != 0;
 			}
 		};
 
@@ -132,6 +144,9 @@ namespace ent {
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i32";
 			}
+			virtual bool IsTrue() {
+				return value != 0;
+			}
 		};
 
 		class I64Value: public SignedIntegerValue {
@@ -152,6 +167,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": i64";
+			}
+			virtual bool IsTrue() {
+				return value != 0;
 			}
 		};
 
@@ -176,6 +194,9 @@ namespace ent {
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": u8";
 			}
+			virtual bool IsTrue() {
+				return value != 0;
+			}
 		};
 		class U16Value: public UnsignedIntegerValue {
 		private:
@@ -195,6 +216,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": u16";
+			}
+			virtual bool IsTrue() {
+				return value != 0;
 			}
 		};
 		class U32Value: public UnsignedIntegerValue {
@@ -216,6 +240,9 @@ namespace ent {
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": u32";
 			}
+			virtual bool IsTrue() {
+				return value != 0;
+			}
 		};
 		class U64Value: public UnsignedIntegerValue {
 		private:
@@ -235,6 +262,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": u64";
+			}
+			virtual bool IsTrue() {
+				return value != 0;
 			}
 		};
 
@@ -260,6 +290,9 @@ namespace ent {
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": f32";
 			}
+			virtual bool IsTrue() {
+				return value != 0;
+			}
 		};
 
 		class F64Value: public FloatValue {
@@ -277,6 +310,9 @@ namespace ent {
 			}
 			virtual std::string pretty_print() override {
 				return std::to_string(this->value) + ": f64";
+			}
+			virtual bool IsTrue() {
+				return value != 0;
 			}
 		};
 	}
