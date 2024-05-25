@@ -395,6 +395,8 @@ namespace ent {
 				}
 			}
 
+			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
+
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
@@ -431,23 +433,28 @@ namespace ent {
 							((ent::front::ast::Assignation*)statement)->identifier->name,
 							evaluateStatement(((ent::front::ast::Assignation*)statement)->value, env)
 						);
+					case ent::front::ast::NodeType::functionDeclaration:
+						return new NullValue();
+					case ent::front::ast::NodeType::scope:
+						interpret((ent::front::ast::Scope*)statement);
+						return new NullValue();
 					default:
 						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
 			}
 
-			std::vector<RuntimeValue*> evaluateProgram(ent::front::ast::Program* program, Environment* env) {
+			std::vector<RuntimeValue*> evaluateScope(ent::front::ast::Scope* scope, Environment* env) {
 				std::vector<RuntimeValue*> results = std::vector<RuntimeValue*>();
-				for(int i = 0; i < program->body.size(); i++) {
-					results.push_back(evaluateStatement(program->body[i], env));
+				for(ent::front::ast::Statement* statement : scope->body) {
+					results.push_back(evaluateStatement(statement, env));
 				}
 				return results;
 			}
 
-			std::vector<RuntimeValue*> interpret(ent::front::ast::Program* program) {
+			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope) {
 				Environment* env = new Environment();
 				//env->init("myVar", new I8Value(2));
-				return evaluateProgram(program, env);
+				return evaluateScope(scope, env);
 			}
 		}
 	}

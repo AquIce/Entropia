@@ -11,6 +11,10 @@ namespace ent {
 
 			std::vector<ent::type::token> tks;
 
+			ent::front::ast::Program* program = new ent::front::ast::Program(
+				std::vector<ent::front::ast::Statement*>()
+			);
+
 			bool eof() {
 				return tks.front().get_type() == ent::type::token_type::EOF_TOKEN;
 			}
@@ -143,16 +147,12 @@ namespace ent {
 				return new ent::front::ast::Assignation(identifier, value);
 			}
 
-			ent::front::ast::Statement* parse_declaration() {
-				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
-				expect(ent::type::token_type::COLON, ":");
-				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
-
+			ent::front::ast::Declaration* parse_any_declaration(ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString) {
 				ent::type::token next = peek();
-				
-				if(next.get_type() == ent::type::token_type::SEMICOLON) {
+
+				if(next.get_type() == expectedAfter) {
 					std::string type = type_specifier.get_value();
-					(void)expect(ent::type::token_type::SEMICOLON, ";");
+					(void)expect(expectedAfter, expectedAfterString);
 					if(type == "void") {
 						throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
@@ -178,6 +178,27 @@ namespace ent {
 					} else {
 						throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 					}
+				}
+
+				return nullptr;
+			}
+
+			ent::front::ast::Statement* parse_declaration() {
+				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				expect(ent::type::token_type::COLON, ":");
+				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
+
+				ent::type::token next = peek();
+
+				ent::front::ast::Declaration* statement = parse_any_declaration(
+					identifier,
+					type_specifier,
+					ent::type::token_type::SEMICOLON,
+					";"
+				);
+				
+				if(statement != nullptr) {
+					return statement;
 				}
 				// Means next.get_type() == ent::type::token_type::ASSIGN
 				eat();
@@ -212,6 +233,10 @@ namespace ent {
 				}
 			}
 
+			ent::front::ast::Declaration* make_declaration(ent::front::ast::Declaration* declarationExpression, ent::front::ast::Expression* value) {
+				return new ent::front::ast::Declaration(declarationExpression->identifier, value);
+			}
+
 			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier) {
 				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
 
@@ -220,6 +245,31 @@ namespace ent {
 				(void)expect(ent::type::token_type::SEMICOLON, ";");
 				
 				return new ent::front::ast::Assignation(identifier, value);
+			}
+
+			std::vector<ent::front::ast::Statement*> get_child_nodes(ent::front::ast::Statement* statement) {
+				switch(statement->get_type()) {
+					case ent::front::ast::NodeType::functionDeclaration:
+						return ((ent::front::ast::FunctionDeclaration*)statement)->body;
+					case ent::front::ast::NodeType::program:
+						return ((ent::front::ast::Program*)statement)->body;
+					default:
+						return std::vector<ent::front::ast::Statement*>();
+				}
+			}
+
+			ent::front::ast::FunctionDeclaration* get_function_from_identifier(ent::front::ast::Statement* root, ent::front::ast::Identifier* functionIdentifier) {
+				for(ent::front::ast::Statement* statement : get_child_nodes(root)) {
+					if(
+						statement->get_type() == ent::front::ast::NodeType::functionDeclaration &&
+						((ent::front::ast::FunctionDeclaration*)statement)->identifier->name == functionIdentifier->name
+					) {
+						return (ent::front::ast::FunctionDeclaration*)statement;
+					}
+					ent::front::ast::FunctionDeclaration* declaration = get_function_from_identifier(statement, functionIdentifier);
+					if(declaration != nullptr) { return declaration; }
+				}
+				return nullptr;
 			}
 
 			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier) {
@@ -243,8 +293,24 @@ namespace ent {
 				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
 				(void)expect(ent::type::token_type::SEMICOLON, ";");
 
-				// ! Figure out return
-				return new ent::front::ast::Statement();
+				ent::front::ast::FunctionDeclaration* calledFunction = get_function_from_identifier(program, identifier);
+				if(calledFunction == nullptr) {
+					throw (ent::Error(ent::ErrorType::USING_FUNCTION_BEFORE_DECLARATION_ERROR, "Using undeclared function " + identifier->name)).error();
+				}
+
+				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
+
+				for(int i = 0; i < arguments.size(); i++) {
+					functionBody.push_back(
+						make_declaration(calledFunction->arguments[i], arguments[i])
+					);
+				}
+
+				for(ent::front::ast::Statement* statement : calledFunction->body) {
+					functionBody.push_back(statement);
+				}
+
+				return new ent::front::ast::Scope(functionBody);
 			}
 
 			ent::front::ast::Statement* parse_identifier_starting_expression() {
@@ -265,21 +331,38 @@ namespace ent {
 
 				std::vector<ent::front::ast::Declaration*> arguments = std::vector<ent::front::ast::Declaration*>();
 
-
 				if(tks.front().get_type() == ent::type::token_type::TYPE_SPECIFIER && tks.front().get_value() == "void") {
 					(void)eat();
+					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
 				} else if(tks.front().get_type() == ent::type::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
-					arguments.push_back((ent::front::ast::Declaration*)parse_declaration());
+					while(true) {
+						ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+						expect(ent::type::token_type::COLON, ":");
+						ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
 
-					while(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
-						(void)expect(ent::type::token_type::COMMA, "comma");
-						arguments.push_back((ent::front::ast::Declaration*)parse_declaration());
+						ent::front::ast::Declaration* declaration = parse_any_declaration(
+							identifier,
+							type_specifier,
+							ent::type::token_type::COMMA,
+							","
+						);
+
+						if(declaration == nullptr) {
+							declaration = parse_any_declaration(
+								identifier,
+								type_specifier,
+								ent::type::token_type::CLOSE_PAREN,
+								")"
+							);
+							arguments.push_back(declaration);
+							break;
+						}
+
+						arguments.push_back(declaration);
 					}
 				}
-
-				(void)eat();
 
 				(void)expect(ent::type::token_type::COLON, "colon");
 
@@ -316,15 +399,11 @@ namespace ent {
 				return parse_expression();
 			}
 
-			ent::front::ast::Program parse(std::vector<ent::type::token> tokens) {
+			ent::front::ast::Program* parse(std::vector<ent::type::token> tokens) {
 				tks = tokens;
 
-				ent::front::ast::Program program = ent::front::ast::Program(
-					std::vector<ent::front::ast::Statement*>()
-				);
-
 				while(!ent::front::parser::eof()) {
-					program.body.push_back(ent::front::parser::parse_statement());
+					program->body.push_back(ent::front::parser::parse_statement());
 				}
 
 				return program;

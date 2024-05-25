@@ -11,7 +11,7 @@
 
 int main() {
 	// Original string
-	std::string src = "fn main(void): void { let foo: i8 = 2; } main(void);";
+	std::string src = "fn foo(val: i32): void { let bar: i32 = val; bar + 23; } foo(12);";
 
 	std::vector<ent::type::token> tokens = ent::front::lex(src);
 
@@ -22,13 +22,13 @@ int main() {
 
 	// Test parser
 
-	ent::front::ast::Program program = ent::front::parser::parse(tokens);
+	ent::front::ast::Program* program = ent::front::parser::parse(tokens);
 
-	std::cout << program.pretty_print() << std::endl;
+	std::cout << program->pretty_print() << std::endl;
 
 	// Test interpreter
 
-	std::vector<ent::runtime::RuntimeValue*> results = ent::runtime::interpreter::interpret(&program);
+	std::vector<ent::runtime::RuntimeValue*> results = ent::runtime::interpreter::interpret(program);
 	
 	for(int i = 0; i < results.size(); i++) {
 		std::cout << results[i]->pretty_print() << std::endl;
