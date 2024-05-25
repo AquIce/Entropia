@@ -35,11 +35,15 @@ namespace ent {
 
 		class NullValue: public RuntimeValue {
 		public:
+			bool visible = true;
+			NullValue(bool visible = true) {
+				this->visible = visible;
+			}
 			virtual ValueType type() override {
 				return ValueType::NULL_VAL;
 			}
 			virtual std::string pretty_print() override {
-				return "null";
+				return this->visible ? "null" : "";
 			}
 		};
 

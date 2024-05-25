@@ -233,8 +233,8 @@ namespace ent {
 				}
 			}
 
-			ent::front::ast::Declaration* make_declaration(ent::front::ast::Declaration* declarationExpression, ent::front::ast::Expression* value) {
-				return new ent::front::ast::Declaration(declarationExpression->identifier, value);
+			ent::front::ast::Declaration* make_declaration(ent::front::ast::Declaration* declarationExpression, ent::front::ast::Expression* value, bool isInFunctionSetup = false) {
+				return new ent::front::ast::Declaration(declarationExpression->identifier, value, isInFunctionSetup);
 			}
 
 			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier) {
@@ -302,7 +302,7 @@ namespace ent {
 
 				for(int i = 0; i < arguments.size(); i++) {
 					functionBody.push_back(
-						make_declaration(calledFunction->arguments[i], arguments[i])
+						make_declaration(calledFunction->arguments[i], arguments[i], true)
 					);
 				}
 
@@ -396,7 +396,11 @@ namespace ent {
 					ent::front::ast::Statement* function_declaration = parse_function_declaration();
 					return function_declaration;
 				}
-				return parse_expression();
+				
+				ent::front::ast::Expression* expression = parse_expression();
+				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
+
+				return expression;
 			}
 
 			ent::front::ast::Program* parse(std::vector<ent::type::token> tokens) {

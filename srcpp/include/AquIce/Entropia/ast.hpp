@@ -360,10 +360,12 @@ namespace ent {
 				enum NodeType type = NodeType::declaration;
 				Identifier* identifier;
 				ent::front::ast::Expression* value;
-				Declaration(Identifier* identifier, ent::front::ast::Expression* value) {
+				bool isInFunctionSetup = false;
+				Declaration(Identifier* identifier, ent::front::ast::Expression* value, bool isInFunctionSetup = false) {
 					this->identifier = identifier;
 					this->value = value;
 					this->type = NodeType::declaration;
+					this->isInFunctionSetup = isInFunctionSetup;
 				}
 				Declaration(Assignation* assignation) {
 					this->identifier = assignation->identifier;

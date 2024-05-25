@@ -397,6 +397,22 @@ namespace ent {
 
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
 
+			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
+				RuntimeValue* value = env->init(
+					declaration->identifier->name,
+					evaluateStatement(declaration->value, env)
+				);
+				return declaration->isInFunctionSetup  ? new NullValue(false) : value;
+			}
+
+			RuntimeValue* evaluateSubScope(ent::front::ast::Scope* scope) {
+				std::vector<RuntimeValue*> sub_values = interpret(scope);
+				for(RuntimeValue* sub_value : sub_values) {
+					std::cout << sub_value->pretty_print() << std::endl;
+				}
+				return new NullValue();
+			}
+
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
@@ -424,10 +440,7 @@ namespace ent {
 					case ent::front::ast::NodeType::binaryExpression:
 						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
 					case ent::front::ast::NodeType::declaration:
-						return env->init(
-							((ent::front::ast::Declaration*)statement)->identifier->name,
-							evaluateStatement(((ent::front::ast::Declaration*)statement)->value, env)
-						);
+						return evaluateDeclaration((ent::front::ast::Declaration*)statement, env);
 					case ent::front::ast::NodeType::assignation:
 						return env->set(
 							((ent::front::ast::Assignation*)statement)->identifier->name,
@@ -436,8 +449,7 @@ namespace ent {
 					case ent::front::ast::NodeType::functionDeclaration:
 						return new NullValue();
 					case ent::front::ast::NodeType::scope:
-						interpret((ent::front::ast::Scope*)statement);
-						return new NullValue();
+						return evaluateSubScope((ent::front::ast::Scope*)statement);
 					default:
 						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
