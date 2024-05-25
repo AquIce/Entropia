@@ -13,6 +13,9 @@ namespace ent {
 			TYPE_SPECIFIER,
 			FN,
 
+			IF,
+			ELSE,
+
 			OPEN_PAREN,
 			CLOSE_PAREN,
 			OPEN_BRACE,

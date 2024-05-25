@@ -130,6 +130,12 @@ namespace ent {
 			} else if (src.rfind("fn", 0) == 0) {
 				(void)shift(src, 2); // Remove "fn" from the source string
 				return ent::type::token(ent::type::FN, "fn");
+			} else if (src.rfind("if", 0) == 0) {
+				(void)shift(src, 2); // Remove "if" from the source string
+				return ent::type::token(ent::type::IF, "if");
+			} else if (src.rfind("else", 0) == 0) {
+				(void)shift(src, 4); // Remove "else" from the source string
+				return ent::type::token(ent::type::ELSE, "else");
 			} else {
 				std::string identifier = "";
 				while(isalnum(src[0])) {

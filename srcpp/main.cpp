@@ -11,7 +11,7 @@
 
 int main() {
 	// Original string
-	std::string src = "fn foo(val: i32): void { let bar: i32 = val; 23 + bar; } foo(12);";
+	std::string src = "if(0) { 1 + 1; } else if(1) { 2 + 2; } else { 3 + 3; }";
 
 	std::vector<ent::type::token> tokens = ent::front::lex(src);
 

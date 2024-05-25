@@ -28,7 +28,8 @@ namespace ent {
 				u64Expression,
 				f32Expression,
 				f64Expression,
-				identifier
+				identifier,
+				conditionnalBlock
             };
 
             class Statement {
@@ -441,6 +442,40 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "Program";
+				}
+            };
+
+			class ConditionnalBlock: public Statement {
+			public:
+				enum NodeType type = NodeType::conditionnalBlock;
+				std::vector<Statement*> body;
+				Expression* condition;
+				ConditionnalBlock* before;
+
+				ConditionnalBlock(std::vector<ent::front::ast::Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) {
+					this->type = NodeType::program;
+					this->body = body;
+					this->condition = condition;
+					this->before = before;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::conditionnalBlock;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t');
+					pretty += condition == nullptr ? "else" : 
+						(
+							(this->before != nullptr ? "else " : "") + std::string("if(\n" + this->condition->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")")
+						);
+					pretty += " {\n";
+					for(int i = 0; i < this->body.size(); i++) {
+						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + "}";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "ConditionnalBlock";
 				}
             };
         }

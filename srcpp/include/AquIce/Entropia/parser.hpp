@@ -15,6 +15,8 @@ namespace ent {
 				std::vector<ent::front::ast::Statement*>()
 			);
 
+			ent::front::ast::ConditionnalBlock* before = nullptr;
+
 			bool eof() {
 				return tks.front().get_type() == ent::type::token_type::EOF_TOKEN;
 			}
@@ -323,7 +325,7 @@ namespace ent {
 				}
 			}		
 
-			ent::front::ast::Statement* parse_statement();
+			ent::front::ast::Statement* parse_statement(bool updateBefore = true);
 
 			ent::front::ast::Statement* parse_function_declaration() {
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
@@ -381,24 +383,95 @@ namespace ent {
 				return new ent::front::ast::FunctionDeclaration(identifier, returnType, arguments, body);
 			}
 
-			ent::front::ast::Statement* parse_statement() {
+			ent::front::ast::ConditionnalBlock* parse_conditionnal_block() {
+
+				enum ConditionType {
+					IF,
+					ELSE_IF,
+					ELSE
+				};
+				enum ConditionType conditionType = ConditionType::IF;
+
+				if(tks.front().get_type() == ent::type::token_type::ELSE) {
+					if(before == nullptr) {
+						throw (ent::Error(ent::MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
+					}
+					(void)eat();
+					conditionType = tks.front().get_type() == ent::type::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
+				}
+
+				ent::front::ast::Expression* condition = nullptr;
+
+				if(conditionType != ConditionType::ELSE) {
+					(void)expect(ent::type::token_type::IF, "if keyword");
+
+					if(tks.front().get_type() == ent::type::token_type::ELSE) {
+						if(before == nullptr) {
+							throw (ent::Error(ent::MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
+						}
+						(void)eat();
+					}
+					
+					(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before condition");
+				
+					condition = parse_expression();
+
+					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after condition");
+				}
+
+				std::cout << (conditionType == ConditionType::IF ? "IF" : conditionType == ConditionType::ELSE_IF ? "ELSE IF" : "ELSE") << std::endl;
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before body");
+
+				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+
+				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement(false));
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after body");
+
+				ent::front::ast::ConditionnalBlock* conditionnalBlock = new ent::front::ast::ConditionnalBlock(body, condition);
+
+				if(conditionType != ConditionType::IF) {
+					std::cout << (before == nullptr) << std::endl;
+					std::cout << before->pretty_print() << std::endl;
+					conditionnalBlock->before = before;
+					std::cout << before->pretty_print() << std::endl;
+				}
+
+				before = conditionnalBlock;
+				std::cout << (before == nullptr) << std::endl;
+
+				return conditionnalBlock;
+			}
+
+			ent::front::ast::Statement* parse_statement(bool updateBefore) {
+
 				if(tks.front().get_type() == ent::type::token_type::LET) {
 					(void)eat();
 					ent::front::ast::Statement* declaration = parse_declaration();
+					if(updateBefore) { before = nullptr; }
 					return declaration;
 				}
 				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
 					ent::front::ast::Statement* expression = parse_identifier_starting_expression();
+					if(updateBefore) { before = nullptr; }
 					return expression;
 				}
 				if(tks.front().get_type() == ent::type::token_type::FN) {
 					(void)eat();
 					ent::front::ast::Statement* function_declaration = parse_function_declaration();
+					if(updateBefore) { before = nullptr; }
 					return function_declaration;
+				}
+				if(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
+					return parse_conditionnal_block();
 				}
 				
 				ent::front::ast::Expression* expression = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
+				if(updateBefore) { before = nullptr; }
 
 				return expression;
 			}
