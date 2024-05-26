@@ -32,7 +32,7 @@ namespace ent {
 		}
 
 		RuntimeValue* check_type_compatibility(RuntimeValue* dest, RuntimeValue* source, std::string key) {
-			if(dest->type() == source->type()) { return source; } // BOTH SAME TIME
+			if(dest->type() == source->type()) { return source; } // BOTH SAME TYPE
 			if(IsIntegerType(dest->type()) && IsIntegerType(source->type())) { // BOTH INTEGER -> CHECK MAGNITUDE
 				if(((IntegerValue*)dest)->magnitude() >= ((IntegerValue*)source)->magnitude()) {
 					return get_result_value(dest, source);

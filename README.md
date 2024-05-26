@@ -17,7 +17,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [x] Else
   - [ ] Logical operators
     - [ ] Binary operators
-      - [ ] ==
+      - [x] ==
       - [ ] !=
       - [ ] &&
       - [ ] ||
@@ -25,11 +25,13 @@ Entropia is a C++ based programming language, implementing ownership and other u
       - [ ] >
       - [ ] <=
       - [ ] >=
+      - [ ] ^^
     - [ ] Unary operators
       - [ ] !
-      - [ ] ^^
   - [ ] Switch
 - [ ] Add concept of subEnv to allow scoping variables
+- [ ] Make parenthesis precedence
+- [ ] Edit get_operator_return_type to not only checking left (could allow this: let a: i8 = 1 + 1024)
 - [ ] Add other operators
   - [ ] Binary operators
     - [ ] %

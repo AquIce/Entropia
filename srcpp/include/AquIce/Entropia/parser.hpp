@@ -11,6 +11,18 @@ namespace ent {
 
 			std::vector<ent::type::token> tks;
 
+			std::vector<ent::front::ast::Identifier*> original_identifiers;
+
+			ent::front::ast::Identifier* get_original_identifier(ent::front::ast::Identifier* identifier) {
+				for(ent::front::ast::Identifier* original_identifier : original_identifiers) {
+					if(identifier->name == original_identifier->name) {
+						return original_identifier;
+					}
+				}
+				original_identifiers.push_back(identifier);
+				return identifier;
+			}
+
 			ent::front::ast::Program* program = new ent::front::ast::Program(
 				std::vector<ent::front::ast::Statement*>()
 			);
@@ -42,7 +54,7 @@ namespace ent {
 				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
 					std::string value = tks.front().get_value();
 					(void)eat();
-					return new ent::front::ast::Identifier(value);
+					return get_original_identifier(new ent::front::ast::Identifier(value));
 				}
 				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
 			}
@@ -91,6 +103,9 @@ namespace ent {
 					(void)eat();
 					// Return the float expression
 					return new ent::front::ast::F64Expression(value);
+				} else if(tks.front().get_type() == ent::type::token_type::BOOL) {
+					bool value = eat().get_value() == "true";
+					return new ent::front::ast::BooleanExpression(value);
 				} else {
 					return parse_identifier();
 				}
@@ -98,10 +113,10 @@ namespace ent {
 			}
 
 			ent::front::ast::Expression* parse_multiplicative_expression() {
-				// Parse the multiplicative expression first
+				// Parse the numeric expression first
 				ent::front::ast::Expression* left = parse_numeric_expression();
 				// Parse the rest of the expression
-				while(tks.front().get_value() == "*" || tks.front().get_value() == "/"){
+				while(tks.front().get_value() == "*" || tks.front().get_value() == "/") {
 					std::string operator_symbol = tks.front().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
@@ -135,17 +150,60 @@ namespace ent {
 				return left;
 			}
 
+			ent::front::ast::Expression* parse_logical_expression() {
+				// Parse the multiplicative expression first
+				ent::front::ast::Expression* left = parse_additive_expression();
+				// Parse the rest of the expression
+				while(
+					tks.front().get_value() == "==" || tks.front().get_value() == "!=" ||
+					tks.front().get_value() == "&&" || tks.front().get_value() == "||" ||
+					tks.front().get_value() == "<" || tks.front().get_value() == ">" ||
+					tks.front().get_value() == "<=" || tks.front().get_value() == ">=" ||
+					tks.front().get_value() == "^^"
+				) {
+					std::string operator_symbol = tks.front().get_value();
+					(void)eat();
+					// Parse the next multiplicative expression
+					ent::front::ast::Expression* right = parse_additive_expression();
+					// Set the left as a binary expression
+					left = new ent::front::ast::BinaryExpression(
+						left,
+						operator_symbol,
+						right
+					);
+				}
+				return left;
+			}
+
 			ent::front::ast::Expression* parse_expression() {
-				return parse_additive_expression();
+				return parse_logical_expression();
 			}
 
 			ent::front::ast::Assignation* expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, ent::front::ast::Identifier* identifier, ent::front::ast::Expression* value) {
+				// Value is an identifier
 				if(value->get_type() == ent::front::ast::NodeType::identifier) {
-					return new ent::front::ast::Assignation(identifier, (ent::front::ast::Identifier*)value);
+					ent::front::ast::Identifier* value_identifier = (ent::front::ast::Identifier*)value;
+					if(is_valid_cast(value_identifier->get_identifier_type(), type)) {
+						identifier->set_identifier_type(type);
+						return new ent::front::ast::Assignation(identifier, value_identifier);
+					}
+					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
-				if(value->get_type() != type) {
+				// Value is a binary expression
+				if(value->get_type() == ent::front::ast::NodeType::binaryExpression) {
+					ent::front::ast::BinaryExpression* value_binary_expression = (ent::front::ast::BinaryExpression*)value;
+					if(is_valid_cast(value_binary_expression->get_return_type(), type)) {
+						identifier->set_identifier_type(type);
+						return new ent::front::ast::Assignation(identifier, (ent::front::ast::BinaryExpression*)value);
+					}
+					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
+				}
+				// Invalid cast
+				if(!is_valid_cast(value->get_type(), type)) {
 					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
+				// Valid cast
+				identifier->set_identifier_type(type);
 				return new ent::front::ast::Assignation(identifier, value);
 			}
 
@@ -177,6 +235,8 @@ namespace ent {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F32Expression());
 					} else if(type == "f64") {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression());
+					} else if(type == "bool") {
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression());
 					} else {
 						throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 					}
@@ -207,7 +267,6 @@ namespace ent {
 				ent::front::ast::Expression* value = parse_expression();
 				std::string type = type_specifier.get_value();
 				(void)expect(ent::type::token_type::SEMICOLON, ";");
-				// ! let foo: i8 = 2 + 3; is breaking because BinaryExpression is not i8
 				if(type == "void") {
 					throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
@@ -230,6 +289,8 @@ namespace ent {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value));
 				} else if(type == "f64") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value));
+				} else if(type == "bool") {
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value));
 				} else {
 					throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}

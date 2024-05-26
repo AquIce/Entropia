@@ -84,10 +84,37 @@ namespace ent {
 				return ent::type::token(ent::type::SEMICOLON, shift(src));
 			} else if(src[0] == ',') {
 				return ent::type::token(ent::type::COMMA, shift(src));
+			} else if (src.rfind("==", 0) == 0) {
+				(void)shift(src, 2); // Remove "==" from the source string
+				return ent::type::token(ent::type::EQUAL, "==");
 			} else if(src[0] == '=') {
 				return ent::type::token(ent::type::ASSIGN, shift(src));
+			} else if (src.rfind("<=", 0) == 0) {
+				(void)shift(src, 2); // Remove "<=" from the source string
+				return ent::type::token(ent::type::SMALLER_OR_EQUAL, "<=");
+			} else if (src.rfind(">=", 0) == 0) {
+				(void)shift(src, 2); // Remove ">=" from the source string
+				return ent::type::token(ent::type::GREATER_OR_EQUAL, ">=");
+			} else if(src[0] == '<') {
+				return ent::type::token(ent::type::SMALLER_THAN, shift(src));
+			} else if(src[0] == '>') {
+				return ent::type::token(ent::type::GREATER_THAN, shift(src));
+			} else if (src.rfind("!=", 0) == 0) {
+				(void)shift(src, 2); // Remove "!=" from the source string
+				return ent::type::token(ent::type::NOT_EQUAL, "!=");
+			} else if(src[0] == '!') {
+				return ent::type::token(ent::type::NOT, shift(src));
 			} else if(src[0] == '+' || src[0] == '-' || src[0] == '*' || src[0] == '/') {
 				return ent::type::token(ent::type::OPERATOR, shift(src));
+			} else if (src.rfind("&&", 0) == 0) {
+				(void)shift(src, 2); // Remove "&&" from the source string
+				return ent::type::token(ent::type::AND, "&&");
+			} else if (src.rfind("||", 0) == 0) {
+				(void)shift(src, 2); // Remove "||" from the source string
+				return ent::type::token(ent::type::OR, "||");
+			} else if (src.rfind("^^", 0) == 0) {
+				(void)shift(src, 2); // Remove "^^" from the source string
+				return ent::type::token(ent::type::XOR, "^^");
 			} else if(isdigit(src[0]) || src[0] == '.') {
 				NumberValue number = get_number(src);
 				return get_number_token(number);
@@ -124,8 +151,17 @@ namespace ent {
 			} else if (src.rfind("f64", 0) == 0) {
 				(void)shift(src, 3); // Remove "f64" from the source string
 				return ent::type::token(ent::type::TYPE_SPECIFIER, "f64");
+			} else if (src.rfind("bool", 0) == 0) {
+				(void)shift(src, 4); // Remove "bool" from the source string
+				return ent::type::token(ent::type::TYPE_SPECIFIER, "bool");
+			} else if (src.rfind("true", 0) == 0) {
+				(void)shift(src, 4); // Remove "true" from the source string
+				return ent::type::token(ent::type::BOOL, "true");
+			} else if (src.rfind("false", 0) == 0) {
+				(void)shift(src, 5); // Remove "false" from the source string
+				return ent::type::token(ent::type::BOOL, "false");
 			} else if (src.rfind("void", 0) == 0) {
-				(void)shift(src, 4); // Remove "f64" from the source string
+				(void)shift(src, 4); // Remove "void" from the source string
 				return ent::type::token(ent::type::TYPE_SPECIFIER, "void");
 			} else if (src.rfind("fn", 0) == 0) {
 				(void)shift(src, 2); // Remove "fn" from the source string

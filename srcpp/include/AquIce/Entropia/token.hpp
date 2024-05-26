@@ -25,6 +25,19 @@ namespace ent {
 			COMMA,
 			ASSIGN,
 
+			EQUAL,
+			NOT_EQUAL,
+			AND,
+			OR,
+			XOR,
+			SMALLER_THAN,
+			GREATER_THAN,
+			SMALLER_OR_EQUAL,
+			GREATER_OR_EQUAL,
+			NOT,
+
+			BOOL,
+
 			I8,
 			I16,
 			I32,
@@ -102,6 +115,39 @@ namespace ent {
 						break;
 					case ASSIGN:
 						type = "ASSIGN";
+						break;
+					case EQUAL:
+						type = "EQUAL";
+						break;
+					case NOT_EQUAL:
+						type = "NOT_EQUAL";
+						break;
+					case AND:
+						type = "AND";
+						break;
+					case OR:
+						type = "OR";
+						break;
+					case XOR:
+						type = "XOR";
+						break;
+					case SMALLER_THAN:
+						type = "SMALLER_THAN";
+						break;
+					case GREATER_THAN:
+						type = "GREATER_THAN";
+						break;
+					case SMALLER_OR_EQUAL:
+						type = "SMALLER_OR_EQUAL";
+						break;
+					case GREATER_OR_EQUAL:
+						type = "GREATER_OR_EQUAL";
+						break;
+					case NOT:
+						type = "NOT";
+						break;
+					case BOOL:
+						type = "BOOL";
 						break;
 					case I8:
 						type = "I8";

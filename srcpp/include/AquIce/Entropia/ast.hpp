@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include "../types/numbers.hpp"
 
@@ -28,10 +29,56 @@ namespace ent {
 				u64Expression,
 				f32Expression,
 				f64Expression,
+				booleanExpression,
 				identifier,
 				conditionnalBlock,
 				conditionnalStructure
             };
+
+			std::vector<enum NodeType> valid_casts_to_type(enum NodeType type) {
+				return std::unordered_map<enum NodeType, std::vector<enum NodeType>>({
+					{NodeType::i8Expression, std::vector<enum NodeType>({})},
+					{NodeType::i16Expression, std::vector<enum NodeType>({
+						NodeType::u8Expression,
+						NodeType::i8Expression,
+					})},
+					{NodeType::i32Expression, std::vector<enum NodeType>({
+						NodeType::u16Expression,
+						NodeType::i16Expression,
+					})},
+					{NodeType::i64Expression, std::vector<enum NodeType>({
+						NodeType::u32Expression,
+						NodeType::i32Expression,
+					})},
+					{NodeType::u8Expression, std::vector<enum NodeType>({})},
+					{NodeType::u16Expression, std::vector<enum NodeType>({
+						NodeType::u8Expression,
+					})},
+					{NodeType::u32Expression, std::vector<enum NodeType>({
+						NodeType::u16Expression,
+					})},
+					{NodeType::u64Expression, std::vector<enum NodeType>({
+						NodeType::u32Expression,
+					})},
+					{NodeType::f32Expression, std::vector<enum NodeType>({
+						NodeType::u64Expression,
+						NodeType::i64Expression,
+					})},
+					{NodeType::f64Expression, std::vector<enum NodeType>({
+						NodeType::f32Expression,
+					})},
+				})[type];
+			}
+
+			bool is_valid_cast(enum NodeType source, enum NodeType dest) {
+				if(source == dest) { return true; }
+				for(enum NodeType dest_valid_cast : valid_casts_to_type(dest)) {
+					if(is_valid_cast(source, dest_valid_cast)) {
+						return true;
+					}
+				}
+				return false;
+			}
 
             class Statement {
 			public:
@@ -79,12 +126,20 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::identifier;
 				std::string name;
+				enum NodeType identifierType;// = NodeType::identifier;
+
 				Identifier(std::string name) {
 					this->name = name;
 					this->type = NodeType::identifier;
 				}
 				virtual NodeType get_type() override {
 					return NodeType::identifier;
+				}
+				enum NodeType get_identifier_type() {
+					return this->identifierType;
+				}
+				void set_identifier_type(enum NodeType type) {
+					this->identifierType = type;
 				}
 				virtual std::string pretty_print(int indent = 0) override {
 					return std::string(indent, '\t') + "Identifier(" + this->name + ")";
@@ -284,20 +339,46 @@ namespace ent {
 				}
 			};
 
+			class BooleanExpression: public Expression {
+			public:
+				enum NodeType type = NodeType::booleanExpression;
+				bool value;
+				BooleanExpression(bool value = false) {
+					this->value = value;
+					this->type = NodeType::booleanExpression;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::booleanExpression;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "BooleanExpression(" + (this->value ? "true" : "false") + ")";
+				}
+				virtual std::string type_id() override {
+					return "BooleanExpression";
+				}
+			};
+
+			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol);
+
             class BinaryExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::binaryExpression;
                     ent::front::ast::Expression* left;
                     ent::front::ast::Expression* right;
+					enum NodeType returnType;
                     std::string operator_symbol;
                     BinaryExpression(ent::front::ast::Expression* left, std::string operator_symbol, ent::front::ast::Expression* right) {
 						this->left = left;
 						this->operator_symbol = operator_symbol;
 						this->right = right;
 						this->type = NodeType::binaryExpression;
+						this->returnType = get_operator_return_type(this->left, this->operator_symbol);
 					}
 					virtual NodeType get_type() override {
 						return NodeType::binaryExpression;
+					}
+					enum NodeType get_return_type() {
+						return this->returnType;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
 						return std::string(indent, '\t') + "BinaryExpression(\n" + this->left->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->right->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
@@ -306,6 +387,24 @@ namespace ent {
 						return "BinaryExpression";
 					}
             };
+
+			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol) {
+				if(operator_symbol == "==" || operator_symbol == "!=" ||
+					operator_symbol == "&&" || operator_symbol == "||" ||
+					operator_symbol == "<" || operator_symbol == ">" ||
+					operator_symbol == "<=" || operator_symbol == ">=" ||
+					operator_symbol == "^^"
+				) {
+					return NodeType::booleanExpression;
+				};
+				if(left->get_type() == NodeType::binaryExpression) {
+					return ((BinaryExpression*)left)->get_return_type();
+				}
+				if(left->get_type() == NodeType::identifier) {
+					return ((Identifier*)left)->get_identifier_type();
+				}
+				return left->get_type();
+			}
 
 			class FunctionCallExpression: public Expression {
                 public:

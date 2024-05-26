@@ -21,6 +21,8 @@ namespace ent {
 
 			F32,
 			F64,
+
+			BOOL,
 		};
 
 		class RuntimeValue {
@@ -313,6 +315,27 @@ namespace ent {
 			}
 			virtual bool IsTrue() {
 				return value != 0;
+			}
+		};
+
+		class BooleanValue : public RuntimeValue {
+		private:
+			bool value;
+		public:
+			BooleanValue(bool value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::BOOL;
+			}
+			bool get_value() {
+				return this->value;
+			}
+			virtual std::string pretty_print() override {
+				return this->value ? "true" : "false";
+			}
+			virtual bool IsTrue() {
+				return value;
 			}
 		};
 	}
