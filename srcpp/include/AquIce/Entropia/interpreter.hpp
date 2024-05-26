@@ -842,9 +842,12 @@ namespace ent {
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
 
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
+				RuntimeValue* v = evaluateStatement(declaration->value, env);
+				std::cout << declaration->identifier->identifierType << std::endl;
+				ent::runtime::check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
 				RuntimeValue* value = env->init(
 					declaration->identifier->name,
-					evaluateStatement(declaration->value, env)
+					v
 				);
 				return declaration->isInFunctionSetup  ? new NullValue(false) : value;
 			}

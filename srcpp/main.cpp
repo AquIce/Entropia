@@ -11,7 +11,7 @@
 
 int main() {
 	// Original string
-	std::string src = "let foo: i16 = 1 + 1024;";
+	std::string src = "let foo: i8 = 1 + 1024;";
 
 	std::vector<ent::type::token> tokens = ent::front::lex(src);
 

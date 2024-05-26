@@ -31,6 +31,35 @@ namespace ent {
 			}
 		}
 
+		RuntimeValue* get_sample_value(enum ent::front::ast::NodeType type) {
+			switch(type) {
+				case ent::front::ast::NodeType::i8Expression:
+					return new I8Value(0);
+				case ent::front::ast::NodeType::i16Expression:
+					return new I16Value(0);
+				case ent::front::ast::NodeType::i32Expression:
+					return new I32Value(0);
+				case ent::front::ast::NodeType::i64Expression:
+					return new I64Value(0);
+				case ent::front::ast::NodeType::u8Expression:
+					return new U8Value(0);
+				case ent::front::ast::NodeType::u16Expression:
+					return new U16Value(0);
+				case ent::front::ast::NodeType::u32Expression:
+					return new U32Value(0);
+				case ent::front::ast::NodeType::u64Expression:
+					return new U64Value(0);
+				case ent::front::ast::NodeType::f32Expression:
+					return new F32Value(0);
+				case ent::front::ast::NodeType::f64Expression:
+					return new F64Value(0);
+				case ent::front::ast::NodeType::booleanExpression:
+					return new BooleanValue(false);
+				default:
+					throw (Error(ErrorType::INVALID_TYPE_ERROR, "Trying to get sample value for invalid type to variable")).error();
+			}
+		}
+
 		RuntimeValue* check_type_compatibility(RuntimeValue* dest, RuntimeValue* source, std::string key) {
 			if(dest->type() == source->type()) { return source; } // BOTH SAME TYPE
 			if(IsIntegerType(dest->type()) && IsIntegerType(source->type())) { // BOTH INTEGER -> CHECK MAGNITUDE
