@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include <AquIce/Entropia/lexer.hpp>
 #include <AquIce/Entropia/token.hpp>
@@ -9,11 +10,24 @@
 
 #include <AquIce/unit/assert.hpp>
 
-int main() {
-	// Original string
-	std::string src = "let foo: i8 = 1 + 1024;";
+int main(int argc, char** argv) {
 
-	std::vector<ent::type::token> tokens = ent::front::lex(src);
+	if(argc != 2) {
+		std::cout << "Usage: entropia <filename>" << std::endl;
+		return 1;
+	}
+
+	std::string filename = argv[1];
+	
+	if((&filename)->rfind(".etp") != filename.length() - 4) {
+		std::cout << "Invalid file format" << std::endl;
+		return 1;
+	}
+
+	std::ifstream file = std::ifstream(argv[1]);
+	std::string code = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	std::vector<ent::type::token> tokens = ent::front::lex(code);
 
 	for(int i = 0; i < tokens.size(); i++) {
 		std::cout << tokens[i].get_value() << " ";

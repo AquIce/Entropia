@@ -187,7 +187,7 @@ namespace ent {
 			// Iterate through the source string
 			while(src.length() > 0) {
 				// If the current character is a space, skip it
-				if(src[0] == ' ') {
+				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
 					shift(src);
 					continue;
 				} else {

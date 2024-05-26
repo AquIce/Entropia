@@ -7,7 +7,7 @@ test_build:
 	g++ -I include -o entropia_test test.cpp
 
 run: build
-	./entropia
+	./entropia main.etp
 
 test: test_build
 	./entropia_test
