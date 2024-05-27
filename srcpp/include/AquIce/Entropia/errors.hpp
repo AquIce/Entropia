@@ -40,6 +40,7 @@ namespace ent {
 		F32_UNDERFLOW_ERROR,
 		F64_OVERFLOW_ERROR,
 		F64_UNDERFLOW_ERROR,
+		GLOBAL_OVERFLOW_ERROR,
 
 		DIVISION_BY_ZERO_ERROR,
 		INVALID_OPERATOR_ERROR,
@@ -166,6 +167,9 @@ namespace ent {
 					break;
 				case F64_UNDERFLOW_ERROR:
 					type = "F64_UNDERFLOW_ERROR";
+					break;
+				case GLOBAL_OVERFLOW_ERROR:
+					type = "GLOBAL_OVERFLOW_ERROR";
 					break;
 				case DIVISION_BY_ZERO_ERROR:
 					type = "DIVISION_BY_ZERO_ERROR";

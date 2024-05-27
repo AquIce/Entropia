@@ -43,16 +43,11 @@ namespace ent {
 
 		ent::type::token get_number_token(NumberValue n) {
 			if(n.is_integer) {
-				long long value = std::stoll(n.value);
-				if(value > INT8_MIN && value < INT8_MAX) {
-					return ent::type::token(ent::type::I8, n.value);
-				} else if(value > _I16_MIN && value < INT16_MAX) {
-					return ent::type::token(ent::type::I16, n.value);
-				} else if(value > _I32_MIN && value < INT32_MAX) {
-					return ent::type::token(ent::type::I32, n.value);
-				} else if(value > _I64_MIN && value < INT64_MAX) {
+				i64 value = std::stoll(n.value);
+				u64 uValue = std::stoull(n.value);
+				if(value > _I64_MIN && value < INT64_MAX) {
 					return ent::type::token(ent::type::I64, n.value);
-				} else if(value > _UI64_MAX && value < UINT_FAST64_MAX) {
+				} else if(uValue > 0 && uValue < UINT_FAST64_MAX) {
 					return ent::type::token(ent::type::U64, n.value);
 				} else {
 					throw (ent::Error(ent::INTEGER_OUT_OF_RANGE_ERROR, "Integer value out of range")).error();

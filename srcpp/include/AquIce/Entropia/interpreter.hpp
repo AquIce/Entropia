@@ -2,6 +2,8 @@
 #define __ENT_RUNTIME_INTERPRETER__
 
 #include <iostream>
+#include <limits>
+#include <cmath>
 
 #include "ast.hpp"
 #include "env.hpp"
@@ -10,31 +12,15 @@
 #define evaluateNumberExpression(return_T, function_name, big_T, little_T, max, min, overflow_error, underflow_error) \
 return_T function_name(big_T* left, little_T* right, std::string op) { \
 	if(op == "+") { \
-		if(left->get_value() + right->get_value() > max) \
-			throw overflow_error.error(); \
-		if(left->get_value() + right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() + right->get_value()); \
+		return cast_to_min_type(left->get_value() + right->get_value()); \
 	} if(op == "-") { \
-		if(left->get_value() - right->get_value() > max) \
-			throw overflow_error.error(); \
-		if(left->get_value() - right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() - right->get_value()); \
+		return cast_to_min_type(left->get_value() - right->get_value()); \
 	} if(op == "*") { \
-		if(left->get_value() * right->get_value() > max) \
-			throw overflow_error.error();  \
-		if(left->get_value() * right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() * right->get_value()); \
+		return cast_to_min_type(left->get_value() * right->get_value()); \
 	} if(op == "/") { \
-		if(left->get_value() / right->get_value() > max) \
-			throw overflow_error.error();  \
-		if(left->get_value() / right->get_value() < min) \
-			throw underflow_error.error(); \
 		if(right->get_value() == 0) \
 			throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
-		return new big_T(left->get_value() / right->get_value()); \
+		return cast_to_min_type(left->get_value() / right->get_value()); \
 	} if(op == "==") { \
 		return new BooleanValue(left->get_value() == right->get_value()); \
 	} if(op == "!=") { \
@@ -63,31 +49,15 @@ return_T function_name(big_T* left, little_T* right, std::string op) { \
 #define evaluateNumberExpressionReverse(return_T, function_name, big_T, little_T, max, min, overflow_error, underflow_error) \
 return_T function_name(little_T* left, big_T* right, std::string op) { \
 	if(op == "+") { \
-		if(left->get_value() + right->get_value() > max) \
-			throw overflow_error.error(); \
-		if(left->get_value() + right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() + right->get_value()); \
+		return cast_to_min_type(left->get_value() + right->get_value()); \
 	} if(op == "-") { \
-		if(left->get_value() - right->get_value() > max) \
-			throw overflow_error.error(); \
-		if(left->get_value() - right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() - right->get_value()); \
+		return cast_to_min_type(left->get_value() - right->get_value()); \
 	} if(op == "*") { \
-		if(left->get_value() * right->get_value() > max) \
-			throw overflow_error.error();  \
-		if(left->get_value() * right->get_value() < min) \
-			throw underflow_error.error(); \
-		return new big_T(left->get_value() * right->get_value()); \
+		return cast_to_min_type(left->get_value() * right->get_value()); \
 	} if(op == "/") { \
-		if(left->get_value() / right->get_value() > max) \
-			throw overflow_error.error();  \
-		if(left->get_value() / right->get_value() < min) \
-			throw underflow_error.error(); \
 		if(right->get_value() == 0) \
 			throw (Error(ErrorType::DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
-		return new big_T(left->get_value() / right->get_value()); \
+		return cast_to_min_type(left->get_value() / right->get_value()); \
 	} if(op == "==") { \
 		return new BooleanValue(left->get_value() == right->get_value()); \
 	} if(op == "!=") { \
@@ -163,6 +133,30 @@ namespace ent {
 
 			RuntimeValue* evaluateBooleanExpression(ent::front::ast::BooleanExpression* booleanExpression) {
 				return new BooleanValue(booleanExpression->value);
+			}
+
+			RuntimeValue* cast_to_min_type(double num) {
+				if (std::isnan(num) || std::isinf(num) || num > std::numeric_limits<uint64_t>::max() || num < std::numeric_limits<int64_t>::min()) {
+					throw (Error(ErrorType::INVALID_IDENTIFIER_ERROR, std::string("The number is out of range for available types : ") + std::to_string(num))).error();
+				}
+
+				if (num >= std::numeric_limits<int8_t>::min() && num <= std::numeric_limits<int8_t>::max() && num == static_cast<int8_t>(num)) {
+					return new I8Value(static_cast<int8_t>(num));
+				} else if (num >= std::numeric_limits<int16_t>::min() && num <= std::numeric_limits<int16_t>::max() && num == static_cast<int16_t>(num)) {
+					return new I16Value(static_cast<int16_t>(num));
+				} else if (num >= std::numeric_limits<int32_t>::min() && num <= std::numeric_limits<int32_t>::max() && num == static_cast<int32_t>(num)) {
+					return new I32Value(static_cast<int32_t>(num));
+				} else if (num >= std::numeric_limits<int64_t>::min() && num <= std::numeric_limits<int64_t>::max() && num == static_cast<int64_t>(num)) {
+					return new I64Value(static_cast<int64_t>(num));
+				} else if (num >= 0 && num <= std::numeric_limits<uint64_t>::max() && num == static_cast<uint64_t>(num)) {
+					return new U64Value(static_cast<uint64_t>(num));
+				}
+
+				if (num >= -std::numeric_limits<float>::max() && num <= std::numeric_limits<float>::max() && static_cast<float>(num) == num) {
+					return new F32Value(static_cast<float>(num));
+				} else {
+					return new F64Value(num);
+				}
 			}
 
 			// * I8
@@ -831,7 +825,9 @@ namespace ent {
 
 				// Both operands are numbers
 				if(IsNumericType(left->type()) && IsNumericType(right->type())) {
-					return evaluateNumberBinaryExpression(binaryExpression, (NumberValue*)left, (NumberValue*)right);
+					RuntimeValue* val = evaluateNumberBinaryExpression(binaryExpression, (NumberValue*)left, (NumberValue*)right);
+					std::cout << val->pretty_print() << std::endl;
+					return val;
 				} else if(left->type() == ValueType::BOOL && right->type() == ValueType::BOOL) {
 					return evaluateBooleanBinaryExpression((BooleanValue*)left, (BooleanValue*)right, binaryExpression->operator_symbol);
 				} else {
@@ -839,12 +835,16 @@ namespace ent {
 				}
 			}
 
+			RuntimeValue* evaluateParenthesisExpression(ent::front::ast::ParenthesisExpression* parenthesisExpression, Environment* env) {
+				return evaluateStatement(parenthesisExpression->content, env);
+			}
+
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
 
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
 				RuntimeValue* v = evaluateStatement(declaration->value, env);
 				std::cout << declaration->identifier->identifierType << std::endl;
-				ent::runtime::check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
+				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
 				RuntimeValue* value = env->init(
 					declaration->identifier->name,
 					v
@@ -895,6 +895,8 @@ namespace ent {
 						return evaluateF64Expression((ent::front::ast::F64Expression*)statement);
 					case ent::front::ast::NodeType::binaryExpression:
 						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
+					case ent::front::ast::NodeType::parenthesisExpression:
+						return evaluateParenthesisExpression((ent::front::ast::ParenthesisExpression*)statement, env);
 					case ent::front::ast::NodeType::booleanExpression:
 						return evaluateBooleanExpression((ent::front::ast::BooleanExpression*)statement);
 					case ent::front::ast::NodeType::declaration:

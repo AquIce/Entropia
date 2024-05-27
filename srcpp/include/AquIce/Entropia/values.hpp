@@ -62,19 +62,22 @@ namespace ent {
 			}
 		};
 
-		bool IsNumericType(ValueType type) {
-			return
-				type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ||
-				type == ValueType::U8 || type == ValueType::U16 || type == ValueType::U32 || type == ValueType::U64 ||
-				type == ValueType::F32 || type == ValueType::F64;
-		}
-
 		class IntegerValue: public NumberValue {};
+
+		bool IsSignedIntegerType(ValueType type) {
+			return type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ;
+		}
 
 		bool IsIntegerType(ValueType type) {
 			return
-				type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ||
+				IsSignedIntegerType(type) ||
 				type == ValueType::U8 || type == ValueType::U16 || type == ValueType::U32 || type == ValueType::U64;
+		}
+
+		bool IsNumericType(ValueType type) {
+			return
+				IsIntegerType(type) ||
+				type == ValueType::F32 || type == ValueType::F64;
 		}
 
 		class SignedIntegerValue: public IntegerValue {};

@@ -92,6 +92,12 @@ namespace ent {
 					case FN:
 						type = "FN";
 						break;
+					case IF:
+						type = "IF";
+						break;
+					case ELSE:
+						type = "ELSE";
+						break;
 					case OPEN_PAREN:
 						type = "OPEN_PAREN";
 						break;

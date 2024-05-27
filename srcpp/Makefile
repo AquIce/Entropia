@@ -1,10 +1,10 @@
 default: run
 
 build:
-	g++ -I include -o entropia main.cpp
+	g++ -I include -Wall -o entropia main.cpp
 
 test_build:
-	g++ -I include -o entropia_test test.cpp
+	g++ -I include -Wall -o entropia_test test.cpp
 
 run: build
 	./entropia main.etp

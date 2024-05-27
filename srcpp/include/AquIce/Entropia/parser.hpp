@@ -59,6 +59,8 @@ namespace ent {
 				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
 			}
 
+			ent::front::ast::Expression* parse_expression();
+
 			ent::front::ast::Expression* parse_numeric_expression() {
 				// If the current token is a number
 				if(tks.front().get_type() == ent::type::token_type::I8) {
@@ -112,15 +114,29 @@ namespace ent {
 				return nullptr;
 			}
 
+			ent::front::ast::Expression* parse_parenthesis_expression() {
+				if(tks.front().get_type() != ent::type::token_type::OPEN_PAREN) {
+					return parse_numeric_expression();
+				}
+				(void)eat();
+				ent::front::ast::Expression* content = parse_expression();
+				if(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
+					std::cout << tks.front().pretty_print() << std::endl;
+					throw std::runtime_error("Invalid expression in parenthesis");
+				}
+				(void)eat();
+				return new ent::front::ast::ParenthesisExpression(content);
+			}
+
 			ent::front::ast::Expression* parse_multiplicative_expression() {
 				// Parse the numeric expression first
-				ent::front::ast::Expression* left = parse_numeric_expression();
+				ent::front::ast::Expression* left = parse_parenthesis_expression();
 				// Parse the rest of the expression
 				while(tks.front().get_value() == "*" || tks.front().get_value() == "/") {
 					std::string operator_symbol = tks.front().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
-					ent::front::ast::Expression* right = parse_numeric_expression();
+					ent::front::ast::Expression* right = parse_parenthesis_expression();
 					// Set the left as a binary expression
 					left = new ent::front::ast::BinaryExpression(
 						left,
@@ -363,7 +379,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
 
-				for(int i = 0; i < arguments.size(); i++) {
+				for(u64 i = 0; i < arguments.size(); i++) {
 					functionBody.push_back(
 						make_declaration(calledFunction->arguments[i], arguments[i], true)
 					);

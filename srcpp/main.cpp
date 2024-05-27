@@ -13,7 +13,7 @@
 int main(int argc, char** argv) {
 
 	if(argc != 2) {
-		std::cout << "Usage: entropia <filename>" << std::endl;
+		std::cout << "Usage: entropia <filename: " << std::endl;
 		return 1;
 	}
 
@@ -27,24 +27,42 @@ int main(int argc, char** argv) {
 	std::ifstream file = std::ifstream(argv[1]);
 	std::string code = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-	std::vector<ent::type::token> tokens = ent::front::lex(code);
+	std::vector<ent::type::token> tokens;
+	try {
+		tokens = ent::front::lex(code);
+	} catch (const std::exception& e) {
+		std::cout << "LEXER ERROR : " << e.what() << std::endl;
+		return 1;
+	}
 
-	for(int i = 0; i < tokens.size(); i++) {
+	for(u64 i = 0; i < tokens.size(); i++) {
 		std::cout << tokens[i].get_value() << " ";
 	}
 	std::cout << std::endl;
 
 	// Test parser
 
-	ent::front::ast::Program* program = ent::front::parser::parse(tokens);
+	ent::front::ast::Program* program;
+	try {
+		program = ent::front::parser::parse(tokens);
+	} catch (const std::exception& e) {
+		std::cout << "PARSER ERROR : " << e.what() << std::endl;
+		return 1;
+	}
 
 	std::cout << program->pretty_print() << std::endl;
 
 	// Test interpreter
 
-	std::vector<ent::runtime::RuntimeValue*> results = ent::runtime::interpreter::interpret(program);
+	std::vector<ent::runtime::RuntimeValue*> results;
+	try {
+		results = ent::runtime::interpreter::interpret(program);
+	} catch (const std::exception& e) {
+		std::cout << "INTERPRETER ERROR : " << e.what() << std::endl;
+		return 1;
+	}
 	
-	for(int i = 0; i < results.size(); i++) {
+	for(u64 i = 0; i < results.size(); i++) {
 		std::cout << results[i]->pretty_print() << std::endl;
 	}
 

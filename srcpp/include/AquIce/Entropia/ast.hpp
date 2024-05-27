@@ -29,6 +29,7 @@ namespace ent {
 				u64Expression,
 				f32Expression,
 				f64Expression,
+				parenthesisExpression,
 				booleanExpression,
 				identifier,
 				conditionnalBlock,
@@ -77,6 +78,11 @@ namespace ent {
 						return true;
 					}
 				}
+				for(enum NodeType source_valid_cast : valid_casts_to_type(source)) {
+					if(is_valid_cast(dest, source_valid_cast)) {
+						return true;
+					}
+				}
 				return false;
 			}
 
@@ -107,7 +113,7 @@ namespace ent {
 				}
 				virtual std::string pretty_print(int indent = 0) override {
 					std::string pretty = std::string(indent, '\t') + "{\n";
-					for(int i = 0; i < this->body.size(); i++) {
+					for(u64 i = 0; i < this->body.size(); i++) {
 						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
 					}
 					pretty += std::string(indent, '\t') + "}";
@@ -358,6 +364,26 @@ namespace ent {
 				}
 			};
 
+			class ParenthesisExpression: public Expression {
+			public:
+				enum NodeType type = NodeType::parenthesisExpression;
+				Expression* content;
+
+				ParenthesisExpression(Expression* content) {
+					this->content = content;
+					this->type = NodeType::booleanExpression;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::parenthesisExpression;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "ParenthesisExpression(\n" + this->content->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+				}
+				virtual std::string type_id() override {
+					return "ParenthesisExpression";
+				}
+			};
+
 			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol);
 
             class BinaryExpression: public Expression {
@@ -423,7 +449,7 @@ namespace ent {
                     virtual std::string pretty_print(int indent = 0) override {
 						bool has_args = this->arguments.size() > 0;
 						std::string pretty = std::string(indent, '\t') + this->functionIdentifier->name + "(" + (has_args ? "\n" : "void");
-						for(int i = 0; i < this->arguments.size(); i++) {
+						for(u64 i = 0; i < this->arguments.size(); i++) {
 							pretty += this->arguments[i]->pretty_print(indent + 1) + "\n";
 						}
 						pretty += (has_args ? std::string(indent, '\t') : "") + ");";
@@ -506,11 +532,11 @@ namespace ent {
 				virtual std::string pretty_print(int indent = 0) override {
 					bool has_args = this->arguments.size() > 0;
 					std::string pretty = std::string(indent, '\t') + "fn " + this->identifier->name + "(" + (has_args ? "\n" : "void");
-					for(int i = 0; i < this->arguments.size(); i++) {
+					for(u64 i = 0; i < this->arguments.size(); i++) {
 						pretty += this->arguments[i]->pretty_print(indent + 1) + "\n";
 					}
 					pretty += (has_args ? std::string(indent, '\t') : "") + "): " + returnType + " {\n";
-					for(int i = 0; i < this->body.size(); i++) {
+					for(u64 i = 0; i < this->body.size(); i++) {
 						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
 					}
 					pretty += std::string(indent, '\t') + "}";
@@ -534,7 +560,7 @@ namespace ent {
 				}
 				virtual std::string pretty_print(int indent = 0) override {
 					std::string pretty = std::string(indent, '\t') + "Program(\n";
-					for(int i = 0; i < this->body.size(); i++) {
+					for(u64 i = 0; i < this->body.size(); i++) {
 						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
 					}
 					pretty += std::string(indent, '\t') + ")";
@@ -568,7 +594,7 @@ namespace ent {
 							(this->before != nullptr ? "else " : "") + std::string("if(\n" + this->condition->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")")
 						);
 					pretty += " {\n";
-					for(int i = 0; i < this->body.size(); i++) {
+					for(u64 i = 0; i < this->body.size(); i++) {
 						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
 					}
 					pretty += std::string(indent, '\t') + "}";
