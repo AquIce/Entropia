@@ -15,6 +15,7 @@ namespace ent {
 
 			IF,
 			ELSE,
+			FOR,
 
 			OPEN_PAREN,
 			CLOSE_PAREN,
@@ -97,6 +98,9 @@ namespace ent {
 						break;
 					case ELSE:
 						type = "ELSE";
+						break;
+					case FOR:
+						type = "FOR";
 						break;
 					case OPEN_PAREN:
 						type = "OPEN_PAREN";

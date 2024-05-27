@@ -33,7 +33,8 @@ namespace ent {
 				booleanExpression,
 				identifier,
 				conditionnalBlock,
-				conditionnalStructure
+				conditionnalStructure,
+				forLoop,
             };
 
 			std::vector<enum NodeType> valid_casts_to_type(enum NodeType type) {
@@ -611,7 +612,7 @@ namespace ent {
 				std::vector<ConditionnalBlock*> conditionnalBlocks;
 
 				ConditionnalStructure(std::vector<ent::front::ast::ConditionnalBlock*> conditionnalBlocks) {
-					this->type = NodeType::program;
+					this->type = NodeType::conditionnalBlock;
 					this->conditionnalBlocks = conditionnalBlocks;
 				}
 				virtual NodeType get_type() override {
@@ -628,6 +629,48 @@ namespace ent {
 					return "ConditionnalStructure";
 				}
             };
+
+			class Loop: public Statement {
+			public:
+				Expression* loopCondition;
+				std::vector<Statement*> body;
+
+				Loop(Expression* loopCondition, std::vector<Statement*> body) {
+					this->loopCondition = loopCondition;
+					this->body = body;
+				}
+			};
+
+			class ForLoop: public Loop {
+			public:
+				enum NodeType type = NodeType::forLoop;
+				Statement* initStatement;
+				Statement* iterationStatement;
+
+				ForLoop(Statement* initStatement, Expression* loopCondition, Statement* iterationStatement, std::vector<Statement*> body): Loop(loopCondition, body) {
+					this->type = NodeType::program;
+					this->initStatement = initStatement;
+					this->iterationStatement = iterationStatement;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::forLoop;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t') + "for(\n";
+					pretty += this->initStatement->pretty_print(indent + 1) + ";\n";
+					pretty += this->loopCondition->pretty_print(indent + 1) + ";\n";
+					pretty += this->iterationStatement->pretty_print(indent + 1) + "\n";
+					pretty += std::string(indent, '\t') + ") {\n";
+					for(u64 i = 0; i < this->body.size(); i++) {
+						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + "}";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "ForLoop";
+				}
+			};
         }
     }
 }

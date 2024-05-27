@@ -826,7 +826,6 @@ namespace ent {
 				// Both operands are numbers
 				if(IsNumericType(left->type()) && IsNumericType(right->type())) {
 					RuntimeValue* val = evaluateNumberBinaryExpression(binaryExpression, (NumberValue*)left, (NumberValue*)right);
-					std::cout << val->pretty_print() << std::endl;
 					return val;
 				} else if(left->type() == ValueType::BOOL && right->type() == ValueType::BOOL) {
 					return evaluateBooleanBinaryExpression((BooleanValue*)left, (BooleanValue*)right, binaryExpression->operator_symbol);
@@ -843,7 +842,6 @@ namespace ent {
 
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
 				RuntimeValue* v = evaluateStatement(declaration->value, env);
-				std::cout << declaration->identifier->identifierType << std::endl;
 				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
 				RuntimeValue* value = env->init(
 					declaration->identifier->name,
@@ -867,6 +865,21 @@ namespace ent {
 					}
 				}
 				return new NullValue();
+			}
+
+			RuntimeValue* evaluateForLoop(ent::front::ast::ForLoop* forLoop, Environment* env) {
+				evaluateStatement(forLoop->initStatement, env);
+
+				RuntimeValue* last = new RuntimeValue();
+
+				while(evaluateStatement(forLoop->loopCondition, env)->IsTrue()) {
+					evaluateStatement(forLoop->iterationStatement, env);
+					for(ent::front::ast::Statement* statement : forLoop->body) {
+						last = evaluateStatement(statement, env);
+					}
+				}
+
+				return last;
 			}
 
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
@@ -912,6 +925,8 @@ namespace ent {
 						return evaluateSubScope((ent::front::ast::Scope*)statement);
 					case ent::front::ast::NodeType::conditionnalStructure:
 						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
+					case ent::front::ast::NodeType::forLoop:
+						return evaluateForLoop((ent::front::ast::ForLoop*)statement, env);
 					default:
 						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}

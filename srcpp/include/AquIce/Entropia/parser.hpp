@@ -121,7 +121,6 @@ namespace ent {
 				(void)eat();
 				ent::front::ast::Expression* content = parse_expression();
 				if(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
-					std::cout << tks.front().pretty_print() << std::endl;
 					throw std::runtime_error("Invalid expression in parenthesis");
 				}
 				(void)eat();
@@ -223,12 +222,14 @@ namespace ent {
 				return new ent::front::ast::Assignation(identifier, value);
 			}
 
-			ent::front::ast::Declaration* parse_any_declaration(ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString) {
+			ent::front::ast::Declaration* parse_any_declaration(ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
 				ent::type::token next = peek();
 
-				if(next.get_type() == expectedAfter) {
+				if(next.get_type() != ent::type::token_type::ASSIGN) {
 					std::string type = type_specifier.get_value();
-					(void)expect(expectedAfter, expectedAfterString);
+					if(applyExpect) {
+						(void)expect(expectedAfter, expectedAfterString);
+					}
 					if(type == "void") {
 						throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
@@ -261,7 +262,7 @@ namespace ent {
 				return nullptr;
 			}
 
-			ent::front::ast::Statement* parse_declaration() {
+			ent::front::ast::Statement* parse_declaration(bool needsSemicolon) {
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 				expect(ent::type::token_type::COLON, ":");
 				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
@@ -272,7 +273,8 @@ namespace ent {
 					identifier,
 					type_specifier,
 					ent::type::token_type::SEMICOLON,
-					";"
+					";",
+					needsSemicolon
 				);
 				
 				if(statement != nullptr) {
@@ -282,7 +284,9 @@ namespace ent {
 				eat();
 				ent::front::ast::Expression* value = parse_expression();
 				std::string type = type_specifier.get_value();
-				(void)expect(ent::type::token_type::SEMICOLON, ";");
+				if(needsSemicolon) {
+					(void)expect(ent::type::token_type::SEMICOLON, ";");
+				}
 				if(type == "void") {
 					throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
@@ -316,12 +320,14 @@ namespace ent {
 				return new ent::front::ast::Declaration(declarationExpression->identifier, value, isInFunctionSetup);
 			}
 
-			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier) {
+			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
 				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
 
 				ent::front::ast::Expression* value = parse_expression();
 
-				(void)expect(ent::type::token_type::SEMICOLON, ";");
+				if(needsSemicolon) {
+					(void)expect(ent::type::token_type::SEMICOLON, ";");
+				}
 				
 				return new ent::front::ast::Assignation(identifier, value);
 			}
@@ -351,7 +357,7 @@ namespace ent {
 				return nullptr;
 			}
 
-			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier) {
+			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
 
 				std::vector<ent::front::ast::Expression*> arguments = std::vector<ent::front::ast::Expression*>();
@@ -370,7 +376,9 @@ namespace ent {
 				}
 
 				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
-				(void)expect(ent::type::token_type::SEMICOLON, ";");
+				if(needsSemicolon) {
+					(void)expect(ent::type::token_type::SEMICOLON, ";");
+				}
 
 				ent::front::ast::FunctionDeclaration* calledFunction = get_function_from_identifier(program, identifier);
 				if(calledFunction == nullptr) {
@@ -392,17 +400,21 @@ namespace ent {
 				return new ent::front::ast::Scope(functionBody);
 			}
 
-			ent::front::ast::Statement* parse_identifier_starting_expression() {
+			ent::front::ast::Statement* parse_identifier_starting_expression(bool needsSemicolon) {
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 				
-				if(tks.front().get_type() == ent::type::token_type::ASSIGN) {
-					return parse_assignation(identifier);
-				} else {
-					return parse_function_call(identifier);
+				if(needsSemicolon && tks.front().get_type() == ent::type::token_type::SEMICOLON) {
+					(void)eat();
+					return identifier;
 				}
+
+				if(tks.front().get_type() == ent::type::token_type::ASSIGN) {
+					return parse_assignation(identifier, needsSemicolon);
+				}
+				return parse_function_call(identifier, needsSemicolon);
 			}		
 
-			ent::front::ast::Statement* parse_statement(bool updateBefore = true);
+			ent::front::ast::Statement* parse_statement(bool updateBefore = true, bool needsSemiColon = true);
 
 			ent::front::ast::Statement* parse_function_declaration() {
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
@@ -528,16 +540,39 @@ namespace ent {
 				return new ent::front::ast::ConditionnalStructure(blocks);
 			}
 
-			ent::front::ast::Statement* parse_statement(bool updateBefore) {
+			ent::front::ast::ForLoop* parse_for_loop() {
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before for keyword");
+
+				ent::front::ast::Statement* initStatement = parse_statement(true, false);
+				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for init statement");
+				ent::front::ast::Expression* loopCondition = parse_expression();
+				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for condition");
+				ent::front::ast::Statement* iterationStatement = parse_statement(true, false);
+
+				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before for body");
+
+				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+
+				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement());
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after for body");
+
+				return new ent::front::ast::ForLoop(initStatement, loopCondition, iterationStatement, body);
+			}
+
+			ent::front::ast::Statement* parse_statement(bool updateBefore, bool needsSemicolon) {
 
 				if(tks.front().get_type() == ent::type::token_type::LET) {
 					(void)eat();
-					ent::front::ast::Statement* declaration = parse_declaration();
+					ent::front::ast::Statement* declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return declaration;
 				}
 				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
-					ent::front::ast::Statement* expression = parse_identifier_starting_expression();
+					ent::front::ast::Statement* expression = parse_identifier_starting_expression(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return expression;
 				}
@@ -550,7 +585,12 @@ namespace ent {
 				if(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
 					return parse_conditionnal_structure();
 				}
-				
+				if(tks.front().get_type() == ent::type::token_type::FOR) {
+					(void)eat();
+					ent::front::ast::Statement* for_loop = parse_for_loop();
+					if(updateBefore) { before = nullptr; }
+					return for_loop;
+				}
 				ent::front::ast::Expression* expression = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
 				if(updateBefore) { before = nullptr; }
