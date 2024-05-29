@@ -50,7 +50,6 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [ ] Add loops
   - [x] For
   - [ ] While
-  - [ ] Do ... while
   - [ ] For :
 - [ ] Add other datatypes
   - [x] Booleans
