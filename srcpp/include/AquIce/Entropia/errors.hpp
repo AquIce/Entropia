@@ -4,21 +4,26 @@
 #include <iostream>
 #include <stdexcept>
 
+#define error_switch_case(err) \
+case err: \
+	type = #err; \
+	break;
+
 namespace ent {
 
 	enum ErrorType {
-		INVALID_NUMBER_FORMAT_ERROR,
-		INTEGER_OUT_OF_RANGE_ERROR,
-		FLOAT_OUT_OF_RANGE_ERROR,
+		LEXER_INVALID_NUMBER_FORMAT_ERROR,
+		LEXER_VALUE_OUT_OF_RANGE_ERROR,
 
 		PARSER_EXPECTED_OTHER_ERROR,
-		INVALID_VOID_VARIABLE_ERROR,
-		INVALID_TYPE_SPECIFIER_ERROR,
-		EXPLICIT_VOID_MISSING_FN_ERROR,
-		USING_FUNCTION_BEFORE_DECLARATION_ERROR,
-		MISSING_IF_STATEMENT_BEFORE_ELSE,
+		PARSER_INVALID_VOID_VARIABLE_ERROR,
+		PARSER_INVALID_TYPE_SPECIFIER_ERROR,
+		PARSER_EXPLICIT_VOID_MISSING_FN_ERROR,
+		PARSER_USING_FUNCTION_BEFORE_DECLARATION_ERROR,
+		PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE,
+		PARSER_INVALID_EXPRESSION_IN_PARENTHESIS,
 
-		INVALID_IDENTIFIER_ERROR,
+		INTERPRETER_INVALID_IDENTIFIER_ERROR,
 
 		I8_OVERFLOW_ERROR,
 		I8_UNDERFLOW_ERROR,
@@ -42,18 +47,18 @@ namespace ent {
 		F64_UNDERFLOW_ERROR,
 		GLOBAL_OVERFLOW_ERROR,
 
-		DIVISION_BY_ZERO_ERROR,
-		INVALID_OPERATOR_ERROR,
-		INVALID_OPERANDS_ERROR,
+		INTERPRETER_DIVISION_BY_ZERO_ERROR,
+		INTERPRETER_INVALID_OPERATOR_ERROR,
+		INTERPRETER_INVALID_OPERANDS_ERROR,
 		NON_MATCHED_NUMBER_OPERANDS_ERROR,
 
-		UNKNOWN_STATEMENT_ERROR,
+		INTERPRETER_UNKNOWN_STATEMENT_ERROR,
 
-		REDECLARING_EXISTING_VARIABLE_ERROR,
-		SETTING_NON_EXISTING_VARIABLE_ERROR,
-		GETTING_NON_EXISTING_VARIABLE_ERROR,
+		ENV_REDECLARING_EXISTING_VARIABLE_ERROR,
+		ENV_SETTING_NON_EXISTING_VARIABLE_ERROR,
+		ENV_GETTING_NON_EXISTING_VARIABLE_ERROR,
 
-		INVALID_TYPE_ERROR,
+		ENV_INVALID_TYPE_ERROR,
 	};
 
 	class Error {
@@ -78,126 +83,46 @@ namespace ent {
 		std::runtime_error error() {
 			std::string type = "";
 			switch(this->type) {
-				case INVALID_NUMBER_FORMAT_ERROR:
-					type = "INVALID_NUMBER_FORMAT_ERROR";
-					break;
-				case INTEGER_OUT_OF_RANGE_ERROR:
-					type = "INTEGER_OUT_OF_RANGE_ERROR";
-					break;
-				case FLOAT_OUT_OF_RANGE_ERROR:
-					type = "FLOAT_OUT_OF_RANGE_ERROR";
-					break;
-				case PARSER_EXPECTED_OTHER_ERROR:
-					type = "PARSER_EXPECTED_OTHER_ERROR";
-					break;
-				case INVALID_VOID_VARIABLE_ERROR:
-					type = "INVALID_VOID_VARIABLE_ERROR";
-					break;
-				case INVALID_TYPE_SPECIFIER_ERROR:
-					type = "INVALID_TYPE_SPECIFIER_ERROR";
-					break;
-				case INVALID_IDENTIFIER_ERROR:
-					type = "INVALID_IDENTIFIER_ERROR";
-					break;
-				case EXPLICIT_VOID_MISSING_FN_ERROR:
-					type = "EXPLICIT_VOID_MISSING_FN_ERROR";
-					break;
-				case USING_FUNCTION_BEFORE_DECLARATION_ERROR:
-					type = "USING_FUNCTION_BEFORE_DECLARATION_ERROR";
-					break;
-				case MISSING_IF_STATEMENT_BEFORE_ELSE:
-					type = "MISSING_IF_STATEMENT_BEFORE_ELSE";
-					break;
-				case I8_OVERFLOW_ERROR:
-					type = "I8_OVERFLOW_ERROR";
-					break;
-				case I8_UNDERFLOW_ERROR:
-					type = "I8_UNDERFLOW_ERROR";
-					break;
-				case I16_OVERFLOW_ERROR:
-					type = "I16_OVERFLOW_ERROR";
-					break;
-				case I16_UNDERFLOW_ERROR:
-					type = "I16_UNDERFLOW_ERROR";
-					break;
-				case I32_OVERFLOW_ERROR:
-					type = "I32_OVERFLOW_ERROR";
-					break;
-				case I32_UNDERFLOW_ERROR:
-					type = "I32_UNDERFLOW_ERROR";
-					break;
-				case I64_OVERFLOW_ERROR:
-					type = "I64_OVERFLOW_ERROR";
-					break;
-				case I64_UNDERFLOW_ERROR:
-					type = "I64_UNDERFLOW_ERROR";
-					break;
-				case U8_OVERFLOW_ERROR:
-					type = "U8_OVERFLOW_ERROR";
-					break;
-				case U8_UNDERFLOW_ERROR:
-					type = "U8_UNDERFLOW_ERROR";
-					break;
-				case U16_OVERFLOW_ERROR:
-					type = "U16_OVERFLOW_ERROR";
-					break;
-				case U16_UNDERFLOW_ERROR:
-					type = "U16_UNDERFLOW_ERROR";
-					break;
-				case U32_OVERFLOW_ERROR:
-					type = "U32_OVERFLOW_ERROR";
-					break;
-				case U32_UNDERFLOW_ERROR:
-					type = "U32_UNDERFLOW_ERROR";
-					break;
-				case U64_OVERFLOW_ERROR:
-					type = "U64_OVERFLOW_ERROR";
-					break;
-				case U64_UNDERFLOW_ERROR:
-					type = "U64_UNDERFLOW_ERROR";
-					break;
-				case F32_OVERFLOW_ERROR:
-					type = "F32_OVERFLOW_ERROR";
-					break;
-				case F32_UNDERFLOW_ERROR:
-					type = "F32_UNDERFLOW_ERROR";
-					break;
-				case F64_OVERFLOW_ERROR:
-					type = "F64_OVERFLOW_ERROR";
-					break;
-				case F64_UNDERFLOW_ERROR:
-					type = "F64_UNDERFLOW_ERROR";
-					break;
-				case GLOBAL_OVERFLOW_ERROR:
-					type = "GLOBAL_OVERFLOW_ERROR";
-					break;
-				case DIVISION_BY_ZERO_ERROR:
-					type = "DIVISION_BY_ZERO_ERROR";
-					break;
-				case INVALID_OPERATOR_ERROR:
-					type = "INVALID_OPERATOR_ERROR";
-					break;
-				case INVALID_OPERANDS_ERROR:
-					type = "INVALID_OPERANDS_ERROR";
-					break;
-				case NON_MATCHED_NUMBER_OPERANDS_ERROR:
-					type = "NON_MATCHED_NUMBER_OPERANDS_ERROR";
-					break;
-				case UNKNOWN_STATEMENT_ERROR:
-					type = "UNKNOWN_STATEMENT_ERROR";
-					break;
-				case REDECLARING_EXISTING_VARIABLE_ERROR:
-					type = "REDECLARING_EXISTING_VARIABLE_ERROR";
-					break;
-				case SETTING_NON_EXISTING_VARIABLE_ERROR:
-					type = "SETTING_NON_EXISTING_VARIABLE_ERROR";
-					break;
-				case GETTING_NON_EXISTING_VARIABLE_ERROR:
-					type = "GETTING_NON_EXISTING_VARIABLE_ERROR";
-					break;
-				case INVALID_TYPE_ERROR:
-					type = "INVALID_TYPE_ERROR";
-					break;
+				error_switch_case(ErrorType::LEXER_INVALID_NUMBER_FORMAT_ERROR)
+				error_switch_case(ErrorType::LEXER_VALUE_OUT_OF_RANGE_ERROR)
+				error_switch_case(ErrorType::PARSER_EXPECTED_OTHER_ERROR)
+				error_switch_case(ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR)
+				error_switch_case(ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR)
+				error_switch_case(ErrorType::INTERPRETER_INVALID_IDENTIFIER_ERROR)
+				error_switch_case(ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR)
+				error_switch_case(ErrorType::PARSER_USING_FUNCTION_BEFORE_DECLARATION_ERROR)
+				error_switch_case(ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE)
+				error_switch_case(ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS)
+				error_switch_case(ErrorType::I8_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::I8_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::I16_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::I16_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::I32_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::I32_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::I64_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::I64_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::U8_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::U8_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::U16_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::U16_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::U32_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::U32_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::U64_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::U64_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::F32_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::F32_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::F64_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::F64_UNDERFLOW_ERROR)
+				error_switch_case(ErrorType::GLOBAL_OVERFLOW_ERROR)
+				error_switch_case(ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR)
+				error_switch_case(ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR)
+				error_switch_case(ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR)
+				error_switch_case(ErrorType::NON_MATCHED_NUMBER_OPERANDS_ERROR)
+				error_switch_case(ErrorType::INTERPRETER_UNKNOWN_STATEMENT_ERROR)
+				error_switch_case(ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR)
+				error_switch_case(ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR)
+				error_switch_case(ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR)
+				error_switch_case(ErrorType::ENV_INVALID_TYPE_ERROR)
 			}
 			return std::runtime_error(type + ": " + this->message);
 		}

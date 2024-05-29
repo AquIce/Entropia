@@ -104,9 +104,9 @@ namespace ent {
 			class Scope: public Statement {
 			public:
 				enum NodeType type = NodeType::scope;
-				std::vector<ent::front::ast::Statement*> body;
+				std::vector<Statement*> body;
 
-				Scope(std::vector<ent::front::ast::Statement*> body) {
+				Scope(std::vector<Statement*> body) {
 					this->body = body;
 					this->type = NodeType::scope;
 				}
@@ -391,11 +391,11 @@ namespace ent {
             class BinaryExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::binaryExpression;
-                    ent::front::ast::Expression* left;
-                    ent::front::ast::Expression* right;
+                    Expression* left;
+                    Expression* right;
 					enum NodeType returnType;
                     std::string operator_symbol;
-                    BinaryExpression(ent::front::ast::Expression* left, std::string operator_symbol, ent::front::ast::Expression* right) {
+                    BinaryExpression(Expression* left, std::string operator_symbol, Expression* right) {
 						this->left = left;
 						this->operator_symbol = operator_symbol;
 						this->right = right;
@@ -437,10 +437,10 @@ namespace ent {
 			class FunctionCallExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::functionCallExpression;
-					ent::front::ast::Identifier* functionIdentifier;
-                    std::vector<ent::front::ast::Expression*> arguments;
+					Identifier* functionIdentifier;
+                    std::vector<Expression*> arguments;
 
-                    FunctionCallExpression(ent::front::ast::Identifier* functionIdentifier, std::vector<ent::front::ast::Expression*> arguments) {
+                    FunctionCallExpression(Identifier* functionIdentifier, std::vector<Expression*> arguments) {
 						this->functionIdentifier = functionIdentifier;
 						this->arguments = arguments;
 						this->type = NodeType::binaryExpression;
@@ -466,8 +466,8 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::assignation;
 				Identifier* identifier;
-				ent::front::ast::Expression* value;
-				Assignation(Identifier* identifier, ent::front::ast::Expression* value) {
+				Expression* value;
+				Assignation(Identifier* identifier, Expression* value) {
 					this->identifier = identifier;
 					this->value = value;
 					this->type = NodeType::assignation;
@@ -488,9 +488,9 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::declaration;
 				Identifier* identifier;
-				ent::front::ast::Expression* value;
+				Expression* value;
 				bool isInFunctionSetup = false;
-				Declaration(Identifier* identifier, ent::front::ast::Expression* value, bool isInFunctionSetup = false) {
+				Declaration(Identifier* identifier, Expression* value, bool isInFunctionSetup = false) {
 					this->identifier = identifier;
 					this->value = value;
 					this->type = NodeType::declaration;
@@ -554,7 +554,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::program;
 
-				Program(std::vector<ent::front::ast::Statement*> body) : Scope(body) {
+				Program(std::vector<Statement*> body) : Scope(body) {
 					this->type = NodeType::program;
 				}
 				virtual NodeType get_type() override {
@@ -580,7 +580,7 @@ namespace ent {
 				Expression* condition;
 				ConditionnalBlock* before;
 
-				ConditionnalBlock(std::vector<ent::front::ast::Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) {
+				ConditionnalBlock(std::vector<Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) {
 					this->type = NodeType::program;
 					this->body = body;
 					this->condition = condition;
@@ -612,7 +612,7 @@ namespace ent {
 				enum NodeType type = NodeType::conditionnalStructure;
 				std::vector<ConditionnalBlock*> conditionnalBlocks;
 
-				ConditionnalStructure(std::vector<ent::front::ast::ConditionnalBlock*> conditionnalBlocks) {
+				ConditionnalStructure(std::vector<ConditionnalBlock*> conditionnalBlocks) {
 					this->type = NodeType::conditionnalBlock;
 					this->conditionnalBlocks = conditionnalBlocks;
 				}
@@ -701,4 +701,4 @@ namespace ent {
     }
 }
 
-#endif
+#endif // __ENT_FRONT_AST__

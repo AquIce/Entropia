@@ -29,99 +29,97 @@ namespace ent {
 
 			ent::front::ast::ConditionnalBlock* before = nullptr;
 
-			bool eof() {
-				return tks.front().get_type() == ent::type::token_type::EOF_TOKEN;
-			}
-
-			ent::type::token eat() {
-				ent::type::token tk = tks.front();
-				tks.erase(tks.begin());
-				return tk;
-			}
-
 			ent::type::token peek() {
 				return tks.front();
 			}
 
+			bool eof() {
+				return peek().get_type() == ent::type::token_type::EOF_TOKEN;
+			}
+
+			ent::type::token eat() {
+				ent::type::token tk = peek();
+				tks.erase(tks.begin());
+				return tk;
+			}
+
 			ent::type::token expect(ent::type::token_type type, std::string expected) {
-				if(tks.front().get_type() == type) {
+				if(peek().get_type() == type) {
 					return eat();
 				}
-				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + tks.front().get_value())).error();
+				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + peek().get_value())).error();
 			}
 
 			ent::front::ast::Expression* parse_identifier() {
-				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
-					std::string value = tks.front().get_value();
+				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
+					std::string value = peek().get_value();
 					(void)eat();
 					return get_original_identifier(new ent::front::ast::Identifier(value));
 				}
-				throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + tks.front().get_value())).error();
+				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + peek().get_value())).error();
 			}
 
 			ent::front::ast::Expression* parse_expression();
 
 			ent::front::ast::Expression* parse_numeric_expression() {
 				// If the current token is a number
-				if(tks.front().get_type() == ent::type::token_type::I8) {
+				if(peek().get_type() == ent::type::token_type::I8) {
 					// Parse the number
-					i8 value = types::stoi8(tks.front().get_value());
+					i8 value = types::stoi8(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return new ent::front::ast::I8Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::I16) {
+				} else if(peek().get_type() == ent::type::token_type::I16) {
 					// Parse the number
-					i16 value = types::stoi16(tks.front().get_value());
+					i16 value = types::stoi16(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return new ent::front::ast::I16Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::I32) {
+				} else if(peek().get_type() == ent::type::token_type::I32) {
 					// Parse the number
-					i32 value = types::stoi32(tks.front().get_value());
+					i32 value = types::stoi32(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return new ent::front::ast::I32Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::I64) {
+				} else if(peek().get_type() == ent::type::token_type::I64) {
 					// Parse the number
-					i64 value = types::stoi64(tks.front().get_value());
+					i64 value = types::stoi64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return new ent::front::ast::I64Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::U64) {
+				} else if(peek().get_type() == ent::type::token_type::U64) {
 					// Parse the number
-					u64 value = types::stou64(tks.front().get_value());
+					u64 value = types::stou64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return new ent::front::ast::U64Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::F32) {
+				} else if(peek().get_type() == ent::type::token_type::F32) {
 					// Parse the number
-					float value = types::stof32(tks.front().get_value());
+					float value = types::stof32(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return new ent::front::ast::F32Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::F64) {
+				} else if(peek().get_type() == ent::type::token_type::F64) {
 					// Parse the number
-					double value = types::stof64(tks.front().get_value());
+					double value = types::stof64(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return new ent::front::ast::F64Expression(value);
-				} else if(tks.front().get_type() == ent::type::token_type::BOOL) {
+				} else if(peek().get_type() == ent::type::token_type::BOOL) {
 					bool value = eat().get_value() == "true";
 					return new ent::front::ast::BooleanExpression(value);
-				} else {
-					return parse_identifier();
 				}
-				return nullptr;
+				return parse_identifier();
 			}
 
 			ent::front::ast::Expression* parse_parenthesis_expression() {
-				if(tks.front().get_type() != ent::type::token_type::OPEN_PAREN) {
+				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
 					return parse_numeric_expression();
 				}
 				(void)eat();
 				ent::front::ast::Expression* content = parse_expression();
-				if(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
-					throw std::runtime_error("Invalid expression in parenthesis");
+				if(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS, "Invalid expression in parenthesis")).error();
 				}
 				(void)eat();
 				return new ent::front::ast::ParenthesisExpression(content);
@@ -131,8 +129,8 @@ namespace ent {
 				// Parse the numeric expression first
 				ent::front::ast::Expression* left = parse_parenthesis_expression();
 				// Parse the rest of the expression
-				while(tks.front().get_value() == "*" || tks.front().get_value() == "/") {
-					std::string operator_symbol = tks.front().get_value();
+				while(peek().get_value() == "*" || peek().get_value() == "/") {
+					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
 					ent::front::ast::Expression* right = parse_parenthesis_expression();
@@ -150,8 +148,8 @@ namespace ent {
 				// Parse the multiplicative expression first
 				ent::front::ast::Expression* left = parse_multiplicative_expression();
 				// Parse the rest of the expression
-				while(tks.front().get_value() == "+" || tks.front().get_value() == "-") {
-					std::string operator_symbol = tks.front().get_value();
+				while(peek().get_value() == "+" || peek().get_value() == "-") {
+					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
 					ent::front::ast::Expression* right = parse_multiplicative_expression();
@@ -170,13 +168,13 @@ namespace ent {
 				ent::front::ast::Expression* left = parse_additive_expression();
 				// Parse the rest of the expression
 				while(
-					tks.front().get_value() == "==" || tks.front().get_value() == "!=" ||
-					tks.front().get_value() == "&&" || tks.front().get_value() == "||" ||
-					tks.front().get_value() == "<" || tks.front().get_value() == ">" ||
-					tks.front().get_value() == "<=" || tks.front().get_value() == ">=" ||
-					tks.front().get_value() == "^^"
+					peek().get_value() == "==" || peek().get_value() == "!=" ||
+					peek().get_value() == "&&" || peek().get_value() == "||" ||
+					peek().get_value() == "<" || peek().get_value() == ">" ||
+					peek().get_value() == "<=" || peek().get_value() == ">=" ||
+					peek().get_value() == "^^"
 				) {
-					std::string operator_symbol = tks.front().get_value();
+					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
 					ent::front::ast::Expression* right = parse_additive_expression();
@@ -202,7 +200,7 @@ namespace ent {
 						identifier->set_identifier_type(type);
 						return new ent::front::ast::Assignation(identifier, value_identifier);
 					}
-					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
+					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
 				// Value is a binary expression
 				if(value->get_type() == ent::front::ast::NodeType::binaryExpression) {
@@ -211,11 +209,11 @@ namespace ent {
 						identifier->set_identifier_type(type);
 						return new ent::front::ast::Assignation(identifier, (ent::front::ast::BinaryExpression*)value);
 					}
-					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
+					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
 				// Invalid cast
 				if(!is_valid_cast(value->get_type(), type)) {
-					throw (ent::Error(ent::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
+					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
 				// Valid cast
 				identifier->set_identifier_type(type);
@@ -231,7 +229,7 @@ namespace ent {
 						(void)expect(expectedAfter, expectedAfterString);
 					}
 					if(type == "void") {
-						throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
+						throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression());
 					} else if(type == "i16") {
@@ -254,9 +252,8 @@ namespace ent {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression());
 					} else if(type == "bool") {
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression());
-					} else {
-						throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 					}
+					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
 
 				return nullptr;
@@ -281,14 +278,14 @@ namespace ent {
 					return statement;
 				}
 				// Means next.get_type() == ent::type::token_type::ASSIGN
-				eat();
+				(void)eat();
 				ent::front::ast::Expression* value = parse_expression();
 				std::string type = type_specifier.get_value();
 				if(needsSemicolon) {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
 				}
 				if(type == "void") {
-					throw (ent::Error(ent::INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
+					throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value));
 				} else if(type == "i16") {
@@ -311,9 +308,8 @@ namespace ent {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value));
 				} else if(type == "bool") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value));
-				} else {
-					throw (ent::Error(ent::INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
+				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
 
 			ent::front::ast::Declaration* make_declaration(ent::front::ast::Declaration* declarationExpression, ent::front::ast::Expression* value, bool isInFunctionSetup = false) {
@@ -362,14 +358,14 @@ namespace ent {
 
 				std::vector<ent::front::ast::Expression*> arguments = std::vector<ent::front::ast::Expression*>();
 				
-				if(tks.front().get_type() == ent::type::token_type::TYPE_SPECIFIER && tks.front().get_value() == "void") {
+				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
-				} else if(tks.front().get_type() == ent::type::token_type::CLOSE_PAREN) {
-					throw (ent::Error(ent::EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
 					arguments.push_back((ent::front::ast::Expression*)parse_expression());
 
-					while(tks.front().get_type() != ent::type::token_type::CLOSE_PAREN) {
+					while(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
 						(void)expect(ent::type::token_type::COMMA, "comma");
 						arguments.push_back((ent::front::ast::Expression*)parse_expression());
 					}
@@ -382,7 +378,7 @@ namespace ent {
 
 				ent::front::ast::FunctionDeclaration* calledFunction = get_function_from_identifier(program, identifier);
 				if(calledFunction == nullptr) {
-					throw (ent::Error(ent::ErrorType::USING_FUNCTION_BEFORE_DECLARATION_ERROR, "Using undeclared function " + identifier->name)).error();
+					throw (ent::Error(ent::ErrorType::PARSER_USING_FUNCTION_BEFORE_DECLARATION_ERROR, "Using undeclared function " + identifier->name)).error();
 				}
 
 				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
@@ -403,12 +399,12 @@ namespace ent {
 			ent::front::ast::Statement* parse_identifier_starting_expression(bool needsSemicolon) {
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 				
-				if(needsSemicolon && tks.front().get_type() == ent::type::token_type::SEMICOLON) {
+				if(needsSemicolon && peek().get_type() == ent::type::token_type::SEMICOLON) {
 					(void)eat();
 					return identifier;
 				}
 
-				if(tks.front().get_type() == ent::type::token_type::ASSIGN) {
+				if(peek().get_type() == ent::type::token_type::ASSIGN) {
 					return parse_assignation(identifier, needsSemicolon);
 				}
 				return parse_function_call(identifier, needsSemicolon);
@@ -422,11 +418,11 @@ namespace ent {
 
 				std::vector<ent::front::ast::Declaration*> arguments = std::vector<ent::front::ast::Declaration*>();
 
-				if(tks.front().get_type() == ent::type::token_type::TYPE_SPECIFIER && tks.front().get_value() == "void") {
+				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
-				} else if(tks.front().get_type() == ent::type::token_type::CLOSE_PAREN) {
-					throw (ent::Error(ent::EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
 					while(true) {
 						ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
@@ -463,7 +459,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
 
-				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
@@ -481,12 +477,12 @@ namespace ent {
 				};
 				enum ConditionType conditionType = ConditionType::IF;
 
-				if(tks.front().get_type() == ent::type::token_type::ELSE) {
+				if(peek().get_type() == ent::type::token_type::ELSE) {
 					if(before == nullptr) {
-						throw (ent::Error(ent::MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
+						throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 					}
 					(void)eat();
-					conditionType = tks.front().get_type() == ent::type::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
+					conditionType = peek().get_type() == ent::type::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
 				}
 
 				ent::front::ast::Expression* condition = nullptr;
@@ -494,9 +490,9 @@ namespace ent {
 				if(conditionType != ConditionType::ELSE) {
 					(void)expect(ent::type::token_type::IF, "if keyword");
 
-					if(tks.front().get_type() == ent::type::token_type::ELSE) {
+					if(peek().get_type() == ent::type::token_type::ELSE) {
 						if(before == nullptr) {
-							throw (ent::Error(ent::MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
+							throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 						}
 						(void)eat();
 					}
@@ -512,7 +508,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
 
-				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement(false));
 				}
 
@@ -533,7 +529,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::ConditionnalBlock*> blocks = std::vector<ent::front::ast::ConditionnalBlock*>();
 
-				while(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
+				while(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
 					blocks.push_back(parse_conditionnal_block());
 				}
 
@@ -554,7 +550,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
 
-				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
@@ -574,7 +570,7 @@ namespace ent {
 
 				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
 
-				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
@@ -585,34 +581,34 @@ namespace ent {
 
 			ent::front::ast::Statement* parse_statement(bool updateBefore, bool needsSemicolon) {
 
-				if(tks.front().get_type() == ent::type::token_type::LET) {
+				if(peek().get_type() == ent::type::token_type::LET) {
 					(void)eat();
 					ent::front::ast::Statement* declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return declaration;
 				}
-				if(tks.front().get_type() == ent::type::token_type::IDENTIFIER) {
+				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
 					ent::front::ast::Statement* expression = parse_identifier_starting_expression(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return expression;
 				}
-				if(tks.front().get_type() == ent::type::token_type::FN) {
+				if(peek().get_type() == ent::type::token_type::FN) {
 					(void)eat();
 					ent::front::ast::Statement* function_declaration = parse_function_declaration();
 					if(updateBefore) { before = nullptr; }
 					return function_declaration;
 				}
-				if(tks.front().get_type() == ent::type::token_type::IF || tks.front().get_type() == ent::type::token_type::ELSE) {
+				if(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
 					return parse_conditionnal_structure();
 				}
-				if(tks.front().get_type() == ent::type::token_type::FOR) {
+				if(peek().get_type() == ent::type::token_type::FOR) {
 					(void)eat();
 					ent::front::ast::Statement* for_loop = parse_for_loop();
 					if(updateBefore) { before = nullptr; }
 					return for_loop;
 				}
 				if(
-					tks.front().get_type() == ent::type::token_type::WHILE
+					peek().get_type() == ent::type::token_type::WHILE
 				) {
 					ent::front::ast::Statement* whileLoop = parse_while_loop();
 					if(updateBefore) { before = nullptr; }
@@ -628,8 +624,8 @@ namespace ent {
 			ent::front::ast::Program* parse(std::vector<ent::type::token> tokens) {
 				tks = tokens;
 
-				while(!ent::front::parser::eof()) {
-					program->body.push_back(ent::front::parser::parse_statement());
+				while(!eof()) {
+					program->body.push_back(parse_statement());
 				}
 
 				return program;

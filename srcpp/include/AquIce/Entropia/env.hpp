@@ -56,7 +56,7 @@ namespace ent {
 				case ent::front::ast::NodeType::booleanExpression:
 					return new BooleanValue(false);
 				default:
-					throw (Error(ErrorType::INVALID_TYPE_ERROR, "Trying to get sample value for invalid type to variable")).error();
+					throw (ent::Error(ent::ErrorType::ENV_INVALID_TYPE_ERROR, "Trying to get sample value for invalid type to variable")).error();
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace ent {
 			}
 			if(dest->type() == ValueType::F64 && IsFloatType(source->type())) { return new F64Value(((F32Value*)source)->get_value()); } // F64 AND Fxx
 
-			throw (Error(ErrorType::INVALID_TYPE_ERROR, "Trying to assign invalid type to variable " + key)).error();
+			throw (ent::Error(ent::ErrorType::ENV_INVALID_TYPE_ERROR, "Trying to assign invalid type to variable " + key)).error();
 		}
 
 		class Environment {
@@ -86,7 +86,7 @@ namespace ent {
 			}
 			RuntimeValue* set(std::string key, RuntimeValue* value) {
 				if(!this->has(key)) {
-					throw (Error(ErrorType::SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
+					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
 				}
 				
 				this->values[key] = check_type_compatibility(this->get(key), value, key);
@@ -94,7 +94,7 @@ namespace ent {
 			}
 			RuntimeValue* init(std::string key, RuntimeValue* value) {
 				if(this->has(key)) {
-					throw (Error(ErrorType::REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
+					throw (ent::Error(ent::ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
 				}
 				this->values[key] = value;
 
@@ -102,7 +102,7 @@ namespace ent {
 			}
 			RuntimeValue* get(std::string key) {
 				if(!this->has(key)) {
-					throw (Error(ErrorType::GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
+					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
 				}
 				return this->values[key];
 			}

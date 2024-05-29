@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+#define token_switch_case(tk) \
+case tk: \
+	type = #tk; \
+	break;
+
 namespace ent {
 	namespace type {
 		enum token_type {
@@ -82,115 +87,49 @@ namespace ent {
 			std::string pretty_print() {
 				std::string type = "";
 				switch(this->type) {
-					case OPERATOR:
-						type = "OPERATOR";
-						break;
-					case LET:
-						type = "LET";
-						break;
-					case TYPE_SPECIFIER:
-						type = "TYPE_SPECIFIER";
-						break;
-					case FN:
-						type = "FN";
-						break;
-					case IF:
-						type = "IF";
-						break;
-					case ELSE:
-						type = "ELSE";
-						break;
-					case FOR:
-						type = "FOR";
-						break;
-					case WHILE:
-						type = "WHILE";
-						break;
-					case OPEN_PAREN:
-						type = "OPEN_PAREN";
-						break;
-					case CLOSE_PAREN:
-						type = "CLOSE_PAREN";
-						break;
-					case OPEN_BRACE:
-						type = "OPEN_BRACE";
-						break;
-					case CLOSE_BRACE:
-						type = "CLOSE_BRACE";
-						break;
-					case COLON:
-						type = "COLON";
-						break;
-					case SEMICOLON:
-						type = "SEMICOLON";
-						break;
-					case COMMA:
-						type = "COMMA";
-						break;
-					case ASSIGN:
-						type = "ASSIGN";
-						break;
-					case EQUAL:
-						type = "EQUAL";
-						break;
-					case NOT_EQUAL:
-						type = "NOT_EQUAL";
-						break;
-					case AND:
-						type = "AND";
-						break;
-					case OR:
-						type = "OR";
-						break;
-					case XOR:
-						type = "XOR";
-						break;
-					case SMALLER_THAN:
-						type = "SMALLER_THAN";
-						break;
-					case GREATER_THAN:
-						type = "GREATER_THAN";
-						break;
-					case SMALLER_OR_EQUAL:
-						type = "SMALLER_OR_EQUAL";
-						break;
-					case GREATER_OR_EQUAL:
-						type = "GREATER_OR_EQUAL";
-						break;
-					case NOT:
-						type = "NOT";
-						break;
-					case BOOL:
-						type = "BOOL";
-						break;
-					case I8:
-						type = "I8";
-						break;
-					case I16:
-						type = "I16";
-						break;
-					case I32:
-						type = "I32";
-						break;
-					case I64:
-						type = "I64";
-						break;
-						break;
-					case U64:
-						type = "U64";
-						break;
-					case F32:
-						type = "F32";
-						break;
-					case F64:
-						type = "F64";
-						break;
-					case IDENTIFIER:
-						type = "IDENTIFIER";
-						break;
-					case EOF_TOKEN:
-						type = "EOF_TOKEN";
-						break;
+					token_switch_case(OPERATOR)
+					token_switch_case(LET)
+					token_switch_case(TYPE_SPECIFIER)
+					token_switch_case(FN)
+
+					token_switch_case(IF)
+					token_switch_case(ELSE)
+					token_switch_case(FOR)
+					token_switch_case(WHILE)
+
+					token_switch_case(OPEN_PAREN)
+					token_switch_case(CLOSE_PAREN)
+					token_switch_case(OPEN_BRACE)
+					token_switch_case(CLOSE_BRACE)
+					token_switch_case(COLON)
+					token_switch_case(SEMICOLON)
+					token_switch_case(COMMA)
+					token_switch_case(ASSIGN)
+
+					token_switch_case(EQUAL)
+					token_switch_case(NOT_EQUAL)
+					token_switch_case(AND)
+					token_switch_case(OR)
+					token_switch_case(XOR)
+					token_switch_case(SMALLER_THAN)
+					token_switch_case(GREATER_THAN)
+					token_switch_case(SMALLER_OR_EQUAL)
+					token_switch_case(GREATER_OR_EQUAL)
+					token_switch_case(NOT)
+
+					token_switch_case(BOOL)
+
+					token_switch_case(I8)
+					token_switch_case(I16)
+					token_switch_case(I32)
+					token_switch_case(I64)
+					token_switch_case(U64)
+					token_switch_case(F32)
+					token_switch_case(F64)
+
+					token_switch_case(IDENTIFIER)
+
+					token_switch_case(EOF_TOKEN)
 				}
 				type += ": ";
 				type += this->value;
