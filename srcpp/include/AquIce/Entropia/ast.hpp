@@ -35,6 +35,7 @@ namespace ent {
 				conditionnalBlock,
 				conditionnalStructure,
 				forLoop,
+				whileLoop,
             };
 
 			std::vector<enum NodeType> valid_casts_to_type(enum NodeType type) {
@@ -669,6 +670,31 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "ForLoop";
+				}
+			};
+
+			class WhileLoop: public Loop {
+			public:
+				enum NodeType type = NodeType::whileLoop;
+
+				WhileLoop(Expression* loopCondition, std::vector<Statement*> body): Loop(loopCondition, body) {
+					this->type = NodeType::whileLoop;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::whileLoop;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t') + "while(\n";
+					pretty += this->loopCondition->pretty_print(indent + 1) + ";\n";
+					pretty += std::string(indent, '\t') + ") {\n";
+					for(u64 i = 0; i < this->body.size(); i++) {
+						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + "}";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "WhileLoop";
 				}
 			};
         }

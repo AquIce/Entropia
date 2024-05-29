@@ -541,7 +541,7 @@ namespace ent {
 			}
 
 			ent::front::ast::ForLoop* parse_for_loop() {
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before for keyword");
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after for keyword");
 
 				ent::front::ast::Statement* initStatement = parse_statement(true, false);
 				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for init statement");
@@ -561,6 +561,26 @@ namespace ent {
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after for body");
 
 				return new ent::front::ast::ForLoop(initStatement, loopCondition, iterationStatement, body);
+			}
+
+			ent::front::ast::WhileLoop* parse_while_loop() {
+				(void)eat();
+
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after while keyword");
+				ent::front::ast::Expression* loopCondition = parse_expression();
+				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after while condition");
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before while body");
+
+				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+
+				while(tks.front().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement());
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after while body");
+
+				return new ent::front::ast::WhileLoop(loopCondition, body);
 			}
 
 			ent::front::ast::Statement* parse_statement(bool updateBefore, bool needsSemicolon) {
@@ -590,6 +610,13 @@ namespace ent {
 					ent::front::ast::Statement* for_loop = parse_for_loop();
 					if(updateBefore) { before = nullptr; }
 					return for_loop;
+				}
+				if(
+					tks.front().get_type() == ent::type::token_type::WHILE
+				) {
+					ent::front::ast::Statement* whileLoop = parse_while_loop();
+					if(updateBefore) { before = nullptr; }
+					return whileLoop;
 				}
 				ent::front::ast::Expression* expression = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");

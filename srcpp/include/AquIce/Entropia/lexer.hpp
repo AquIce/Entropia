@@ -176,6 +176,9 @@ namespace ent {
 			} else if (src.rfind("for", 0) == 0) {
 				(void)shift(src, 3); // Remove "for" from the source string
 				return ent::type::token(ent::type::FOR, "for");
+			} else if (src.rfind("while", 0) == 0) {
+				(void)shift(src, 5); // Remove "while" from the source string
+				return ent::type::token(ent::type::WHILE, "while");
 			} else {
 				std::string identifier = "";
 				while(isalnum(src[0])) {

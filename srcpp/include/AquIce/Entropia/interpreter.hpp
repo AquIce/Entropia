@@ -882,6 +882,18 @@ namespace ent {
 				return last;
 			}
 
+			RuntimeValue* evaluateWhileLoop(ent::front::ast::WhileLoop* whileLoop, Environment* env) {
+				RuntimeValue* last = new RuntimeValue();
+				
+				while(evaluateStatement(whileLoop->loopCondition, env)->IsTrue()) {
+					for(ent::front::ast::Statement* statement : whileLoop->body) {
+						last = evaluateStatement(statement, env);
+					}
+				}
+
+				return last;
+			}
+
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
@@ -927,6 +939,8 @@ namespace ent {
 						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
 					case ent::front::ast::NodeType::forLoop:
 						return evaluateForLoop((ent::front::ast::ForLoop*)statement, env);
+					case ent::front::ast::NodeType::whileLoop:
+						return evaluateWhileLoop((ent::front::ast::WhileLoop*)statement, env);
 					default:
 						throw (Error(ErrorType::UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
