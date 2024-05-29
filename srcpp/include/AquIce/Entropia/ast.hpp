@@ -648,7 +648,7 @@ namespace ent {
 				Statement* iterationStatement;
 
 				ForLoop(Statement* initStatement, Expression* loopCondition, Statement* iterationStatement, std::vector<Statement*> body): Loop(loopCondition, body) {
-					this->type = NodeType::program;
+					this->type = NodeType::forLoop;
 					this->initStatement = initStatement;
 					this->iterationStatement = iterationStatement;
 				}
