@@ -18,6 +18,7 @@ namespace ent {
 				declaration,
 				functionDeclaration,
                 binaryExpression,
+				unaryExpression,
 				functionCallExpression,
                 i8Expression,
 				i16Expression,
@@ -416,12 +417,38 @@ namespace ent {
 					}
             };
 
+			 class UnaryExpression: public Expression {
+                public:
+                    enum NodeType type = NodeType::unaryExpression;
+                    Expression* term;
+					enum NodeType returnType;
+                    std::string operator_symbol;
+                    UnaryExpression(Expression* term, std::string operator_symbol) {
+						this->term = term;
+						this->operator_symbol = operator_symbol;
+						this->type = NodeType::unaryExpression;
+						this->returnType = get_operator_return_type(this->term, this->operator_symbol);
+					}
+					virtual NodeType get_type() override {
+						return NodeType::unaryExpression;
+					}
+					enum NodeType get_return_type() {
+						return this->returnType;
+					}
+                    virtual std::string pretty_print(int indent = 0) override {
+						return std::string(indent, '\t') + "UnaryExpression(\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->term->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+					}
+					virtual std::string type_id() override {
+						return "UnaryExpression";
+					}
+            };
+
 			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol) {
 				if(operator_symbol == "==" || operator_symbol == "!=" ||
 					operator_symbol == "&&" || operator_symbol == "||" ||
 					operator_symbol == "<" || operator_symbol == ">" ||
 					operator_symbol == "<=" || operator_symbol == ">=" ||
-					operator_symbol == "^^"
+					operator_symbol == "^^" || operator_symbol == "!"
 				) {
 					return NodeType::booleanExpression;
 				};

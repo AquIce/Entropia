@@ -125,15 +125,29 @@ namespace ent {
 				return new ent::front::ast::ParenthesisExpression(content);
 			}
 
+			ent::front::ast::Expression* parse_unary_expression() {
+				if(peek().get_type() != ent::type::token_type::NOT) {
+					return parse_parenthesis_expression();
+				}
+
+				std::string operator_symbol = eat().get_value();
+				ent::front::ast::Expression* term = parse_parenthesis_expression();
+				
+				return new ent::front::ast::UnaryExpression(
+					term,
+					operator_symbol
+				);
+			}
+
 			ent::front::ast::Expression* parse_multiplicative_expression() {
 				// Parse the numeric expression first
-				ent::front::ast::Expression* left = parse_parenthesis_expression();
+				ent::front::ast::Expression* left = parse_unary_expression();
 				// Parse the rest of the expression
 				while(peek().get_value() == "*" || peek().get_value() == "/") {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
-					ent::front::ast::Expression* right = parse_parenthesis_expression();
+					ent::front::ast::Expression* right = parse_unary_expression();
 					// Set the left as a binary expression
 					left = new ent::front::ast::BinaryExpression(
 						left,
@@ -607,13 +621,12 @@ namespace ent {
 					if(updateBefore) { before = nullptr; }
 					return for_loop;
 				}
-				if(
-					peek().get_type() == ent::type::token_type::WHILE
-				) {
+				if(peek().get_type() == ent::type::token_type::WHILE) {
 					ent::front::ast::Statement* whileLoop = parse_while_loop();
 					if(updateBefore) { before = nullptr; }
 					return whileLoop;
 				}
+
 				ent::front::ast::Expression* expression = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
 				if(updateBefore) { before = nullptr; }

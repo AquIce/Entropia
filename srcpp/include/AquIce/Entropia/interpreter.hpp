@@ -836,6 +836,13 @@ namespace ent {
 				return evaluateStatement(parenthesisExpression->content, env);
 			}
 
+			RuntimeValue* evaluateUnaryExpression(ent::front::ast::UnaryExpression* unaryExpression, Environment* env) {
+				if(unaryExpression->operator_symbol == "!") {
+					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
+				}
+				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
+			}
+
 			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
 
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
@@ -920,6 +927,8 @@ namespace ent {
 						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
 					case ent::front::ast::NodeType::parenthesisExpression:
 						return evaluateParenthesisExpression((ent::front::ast::ParenthesisExpression*)statement, env);
+					case ent::front::ast::NodeType::unaryExpression:
+						return evaluateUnaryExpression((ent::front::ast::UnaryExpression*)statement, env);
 					case ent::front::ast::NodeType::booleanExpression:
 						return evaluateBooleanExpression((ent::front::ast::BooleanExpression*)statement);
 					case ent::front::ast::NodeType::declaration:
