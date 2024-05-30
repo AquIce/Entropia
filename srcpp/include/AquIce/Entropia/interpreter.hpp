@@ -843,7 +843,7 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
 			}
 
-			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope);
+			RuntimeValue* interpret(ent::front::ast::Scope* scope);
 
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
 				RuntimeValue* v = evaluateStatement(declaration->value, env);
@@ -855,18 +855,12 @@ namespace ent {
 				return declaration->isInFunctionSetup  ? new NullValue(false) : value;
 			}
 
-			RuntimeValue* evaluateSubScope(ent::front::ast::Scope* scope) {
-				std::vector<RuntimeValue*> sub_values = interpret(scope);
-				for(RuntimeValue* sub_value : sub_values) {
-					std::cout << sub_value->pretty_print() << std::endl;
-				}
-				return new NullValue();
-			}
+			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env = nullptr);
 
 			RuntimeValue* evaluateConditionnalStructure(ent::front::ast::ConditionnalStructure* conditionnalStructure, Environment* env) {
 				for(ent::front::ast::ConditionnalBlock* block : conditionnalStructure->conditionnalBlocks) {
 					if(block->condition == nullptr || evaluateStatement(block->condition, env)->IsTrue()) {
-						return evaluateSubScope(new ent::front::ast::Scope(block->body));
+						return evaluateScope(new ent::front::ast::Scope(block->body), env);
 					}
 				}
 				return new NullValue();
@@ -879,9 +873,7 @@ namespace ent {
 
 				while(evaluateStatement(forLoop->loopCondition, env)->IsTrue()) {
 					evaluateStatement(forLoop->iterationStatement, env);
-					for(ent::front::ast::Statement* statement : forLoop->body) {
-						last = evaluateStatement(statement, env);
-					}
+					last = evaluateScope(new ent::front::ast::Scope(forLoop->body), env);
 				}
 
 				return last;
@@ -891,9 +883,7 @@ namespace ent {
 				RuntimeValue* last = new RuntimeValue();
 				
 				while(evaluateStatement(whileLoop->loopCondition, env)->IsTrue()) {
-					for(ent::front::ast::Statement* statement : whileLoop->body) {
-						last = evaluateStatement(statement, env);
-					}
+					last = evaluateScope(new ent::front::ast::Scope(whileLoop->body), env);
 				}
 
 				return last;
@@ -941,7 +931,7 @@ namespace ent {
 					case ent::front::ast::NodeType::functionDeclaration:
 						return new NullValue();
 					case ent::front::ast::NodeType::scope:
-						return evaluateSubScope((ent::front::ast::Scope*)statement);
+						return evaluateScope((ent::front::ast::Scope*)statement);
 					case ent::front::ast::NodeType::conditionnalStructure:
 						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
 					case ent::front::ast::NodeType::forLoop:
@@ -953,18 +943,19 @@ namespace ent {
 				}
 			}
 
-			std::vector<RuntimeValue*> evaluateScope(ent::front::ast::Scope* scope, Environment* env) {
-				std::vector<RuntimeValue*> results = std::vector<RuntimeValue*>();
+			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env) {
+				Environment* scope_env = new Environment(parent_env);
+
+				RuntimeValue* result;
+
 				for(ent::front::ast::Statement* statement : scope->body) {
-					results.push_back(evaluateStatement(statement, env));
+					result = evaluateStatement(statement, scope_env);
 				}
-				return results;
+				return result;
 			}
 
-			std::vector<RuntimeValue*> interpret(ent::front::ast::Scope* scope) {
-				Environment* env = new Environment();
-				//env->init("myVar", new I8Value(2));
-				return evaluateScope(scope, env);
+			RuntimeValue* interpret(ent::front::ast::Scope* scope) {
+				return evaluateScope(scope);
 			}
 		}
 	}

@@ -600,16 +600,14 @@ namespace ent {
 				}
             };
 
-			class ConditionnalBlock: public Statement {
+			class ConditionnalBlock: public Scope {
 			public:
 				enum NodeType type = NodeType::conditionnalBlock;
-				std::vector<Statement*> body;
 				Expression* condition;
 				ConditionnalBlock* before;
 
-				ConditionnalBlock(std::vector<Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) {
+				ConditionnalBlock(std::vector<Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) : Scope(body) {
 					this->type = NodeType::program;
-					this->body = body;
 					this->condition = condition;
 					this->before = before;
 				}
@@ -658,14 +656,12 @@ namespace ent {
 				}
             };
 
-			class Loop: public Statement {
+			class Loop: public Scope {
 			public:
 				Expression* loopCondition;
-				std::vector<Statement*> body;
 
-				Loop(Expression* loopCondition, std::vector<Statement*> body) {
+				Loop(Expression* loopCondition, std::vector<Statement*> body) : Scope(body) {
 					this->loopCondition = loopCondition;
-					this->body = body;
 				}
 			};
 

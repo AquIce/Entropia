@@ -1,3 +1,7 @@
-if(!false) {
-	true && (false || true);
+let i: i8 = 12;
+
+if(true) {
+	let j: i8 = 13;
 }
+
+let j: i64 = 1;

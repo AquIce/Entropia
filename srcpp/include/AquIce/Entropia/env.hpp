@@ -74,18 +74,31 @@ namespace ent {
 
 		class Environment {
 		private:
+			Environment* parent = nullptr;
 			std::unordered_map<std::string, RuntimeValue*> values;
 
 		public:
-			Environment() {
+			Environment(Environment* parent = nullptr) {
+				this->parent = parent;
 				this->values = std::unordered_map<std::string, RuntimeValue*>();
 			}
 
 			bool has(std::string key) {
-				return this->values.find(key) != this->values.end();
+				if(this->values.find(key) == this->values.end()) {
+					if(this->parent != nullptr) {
+						return parent->has(key);
+					}
+
+					return false;
+				}
+				
+				return true;
 			}
 			RuntimeValue* set(std::string key, RuntimeValue* value) {
 				if(!this->has(key)) {
+					if(this->parent != nullptr) {
+						return this->parent->set(key, value);
+					}
 					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
 				}
 				
@@ -102,6 +115,9 @@ namespace ent {
 			}
 			RuntimeValue* get(std::string key) {
 				if(!this->has(key)) {
+					if(this->parent != nullptr) {
+						return this->parent->get(key);
+					}
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
 				}
 				return this->values[key];

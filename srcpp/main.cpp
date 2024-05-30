@@ -54,17 +54,15 @@ int main(int argc, char** argv) {
 
 	// Test interpreter
 
-	std::vector<ent::runtime::RuntimeValue*> results;
+	ent::runtime::RuntimeValue* result;
 	try {
-		results = ent::runtime::interpreter::interpret(program);
+		result = ent::runtime::interpreter::interpret(program);
 	} catch (const std::exception& e) {
 		std::cout << "INTERPRETER ERROR : " << e.what() << std::endl;
 		return 1;
 	}
 	
-	for(u64 i = 0; i < results.size(); i++) {
-		std::cout << results[i]->pretty_print() << std::endl;
-	}
+	std::cout << result->pretty_print() << std::endl;
 
 	return 0;
 }
