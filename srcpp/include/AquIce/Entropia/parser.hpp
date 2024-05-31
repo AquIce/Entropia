@@ -245,26 +245,37 @@ namespace ent {
 					if(type == "void") {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::i8Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression());
 					} else if(type == "i16") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::i16Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I16Expression());
 					} else if(type == "i32") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::i32Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I32Expression());
 					} else if(type == "i64") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::i64Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I64Expression());
 					} else if(type == "u8") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::u8Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U8Expression());
 					} else if(type == "u16") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::u16Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U16Expression());
 					} else if(type == "u32") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::u32Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U32Expression());
 					} else if(type == "u64") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::u64Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U64Expression());
 					} else if(type == "f32") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::f32Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F32Expression());
 					} else if(type == "f64") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::f64Expression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression());
 					} else if(type == "bool") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::booleanExpression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression());
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
@@ -353,20 +364,6 @@ namespace ent {
 				}
 			}
 
-			ent::front::ast::FunctionDeclaration* get_function_from_identifier(ent::front::ast::Statement* root, ent::front::ast::Identifier* functionIdentifier) {
-				for(ent::front::ast::Statement* statement : get_child_nodes(root)) {
-					if(
-						statement->get_type() == ent::front::ast::NodeType::functionDeclaration &&
-						((ent::front::ast::FunctionDeclaration*)statement)->identifier->name == functionIdentifier->name
-					) {
-						return (ent::front::ast::FunctionDeclaration*)statement;
-					}
-					ent::front::ast::FunctionDeclaration* declaration = get_function_from_identifier(statement, functionIdentifier);
-					if(declaration != nullptr) { return declaration; }
-				}
-				return nullptr;
-			}
-
 			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
 
@@ -390,24 +387,7 @@ namespace ent {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
 				}
 
-				ent::front::ast::FunctionDeclaration* calledFunction = get_function_from_identifier(program, identifier);
-				if(calledFunction == nullptr) {
-					throw (ent::Error(ent::ErrorType::PARSER_USING_FUNCTION_BEFORE_DECLARATION_ERROR, "Using undeclared function " + identifier->name)).error();
-				}
-
-				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
-
-				for(u64 i = 0; i < arguments.size(); i++) {
-					functionBody.push_back(
-						make_declaration(calledFunction->arguments[i], arguments[i], true)
-					);
-				}
-
-				for(ent::front::ast::Statement* statement : calledFunction->body) {
-					functionBody.push_back(statement);
-				}
-
-				return new ent::front::ast::Scope(functionBody);
+				return new ent::front::ast::FunctionCallExpression(identifier, arguments);
 			}
 
 			ent::front::ast::Statement* parse_identifier_starting_expression(bool needsSemicolon) {
@@ -432,25 +412,28 @@ namespace ent {
 
 				std::vector<ent::front::ast::Declaration*> arguments = std::vector<ent::front::ast::Declaration*>();
 
+				if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				}
 				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
-				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
-					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
 					while(true) {
 						ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 						expect(ent::type::token_type::COLON, ":");
 						ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
 
-						ent::front::ast::Declaration* declaration = parse_any_declaration(
-							identifier,
-							type_specifier,
-							ent::type::token_type::COMMA,
-							","
-						);
-
-						if(declaration == nullptr) {
+						ent::front::ast::Declaration* declaration;
+						
+						try {
+							declaration = parse_any_declaration(
+								identifier,
+								type_specifier,
+								ent::type::token_type::COMMA,
+								","
+							);
+						} catch(const std::exception& e) {
 							declaration = parse_any_declaration(
 								identifier,
 								type_specifier,

@@ -1,7 +1,8 @@
-let i: i8 = 12;
-
-if(true) {
-	let j: i8 = 13;
+fn myFn(val: i64) : void {
+	for(let i: i64 = 0; i < val; i = i + 1) {
+		i;
+	}
 }
 
-let j: i64 = 1;
+myFn(9);
+myFn(17);

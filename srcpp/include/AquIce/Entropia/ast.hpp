@@ -470,10 +470,10 @@ namespace ent {
                     FunctionCallExpression(Identifier* functionIdentifier, std::vector<Expression*> arguments) {
 						this->functionIdentifier = functionIdentifier;
 						this->arguments = arguments;
-						this->type = NodeType::binaryExpression;
+						this->type = NodeType::functionCallExpression;
 					}
 					virtual NodeType get_type() override {
-						return NodeType::binaryExpression;
+						return NodeType::functionCallExpression;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
 						bool has_args = this->arguments.size() > 0;
@@ -574,7 +574,6 @@ namespace ent {
 				virtual std::string type_id() override {
 					return "Declaration";
 				}
-			
 			};
 
 			class Program: public Scope {

@@ -76,17 +76,51 @@ namespace ent {
 		private:
 			Environment* parent = nullptr;
 			std::unordered_map<std::string, RuntimeValue*> values;
+			std::unordered_map<std::string, ent::front::ast::FunctionDeclaration*> functions;
 
 		public:
 			Environment(Environment* parent = nullptr) {
 				this->parent = parent;
 				this->values = std::unordered_map<std::string, RuntimeValue*>();
+				this->functions = std::unordered_map<std::string, ent::front::ast::FunctionDeclaration*>();
 			}
 
-			bool has(std::string key) {
-				if(this->values.find(key) == this->values.end()) {
+			bool has_value(std::string key) {
+				return this->values.find(key) != this->values.end();
+			}
+			RuntimeValue* set_value(std::string key, RuntimeValue* value) {
+				if(!this->has_value(key)) {
 					if(this->parent != nullptr) {
-						return parent->has(key);
+						return this->parent->set_value(key, value);
+					}
+					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
+				}	
+				this->values[key] = check_type_compatibility(this->get_value(key), value, key);
+
+				return value;
+			}
+			RuntimeValue* init_value(std::string key, RuntimeValue* value) {
+				if(this->has_value(key)) {
+					throw (ent::Error(ent::ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
+				}
+				this->values[key] = value;
+
+				return value;
+			}
+			RuntimeValue* get_value(std::string key) {
+				if(!this->has_value(key)) {
+					if(this->parent != nullptr) {
+						return this->parent->get_value(key);
+					}
+					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
+				}
+				return this->values[key];
+			}
+			
+			bool has_function(std::string key) {
+				if(this->functions.find(key) == this->functions.end()) {
+					if(this->parent != nullptr) {
+						return parent->has_function(key);
 					}
 
 					return false;
@@ -94,33 +128,22 @@ namespace ent {
 				
 				return true;
 			}
-			RuntimeValue* set(std::string key, RuntimeValue* value) {
-				if(!this->has(key)) {
-					if(this->parent != nullptr) {
-						return this->parent->set(key, value);
-					}
-					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
+			ent::front::ast::FunctionDeclaration* init_function(std::string key, ent::front::ast::FunctionDeclaration* function) {
+				if(this->has_function(key)) {
+					throw (ent::Error(ent::ErrorType::ENV_REDECLARING_EXISTING_FUNCTION_ERROR, "Trying to redeclare an existing function " + key)).error();
 				}
-				
-				this->values[key] = check_type_compatibility(this->get(key), value, key);
-				return value;
-			}
-			RuntimeValue* init(std::string key, RuntimeValue* value) {
-				if(this->has(key)) {
-					throw (ent::Error(ent::ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
-				}
-				this->values[key] = value;
+				this->functions[key] = function;
 
-				return value;
+				return function;
 			}
-			RuntimeValue* get(std::string key) {
-				if(!this->has(key)) {
+			ent::front::ast::FunctionDeclaration* get_function(std::string key) {
+				if(!this->has_function(key)) {
 					if(this->parent != nullptr) {
-						return this->parent->get(key);
+						return this->parent->get_function(key);
 					}
-					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
+					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_FUNCTION_ERROR, "Trying to get non-declared function " + key)).error();
 				}
-				return this->values[key];
+				return this->functions[key];
 			}
 		};
 	}

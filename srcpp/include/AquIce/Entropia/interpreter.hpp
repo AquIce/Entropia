@@ -91,10 +91,7 @@ namespace ent {
 	namespace runtime {
 		namespace interpreter {
 			RuntimeValue* evaluateIdentifier(ent::front::ast::Identifier* identifier, Environment* env) {
-				if(env->has(identifier->name)) {
-					return env->get(identifier->name);
-				}
-				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_IDENTIFIER_ERROR, "Invalid identifier: " + identifier->name)).error();
+				return env->get_value(identifier->name);
 			}
 
 			RuntimeValue* evaluateI8Expression(ent::front::ast::I8Expression* numericExpression) {
@@ -136,7 +133,7 @@ namespace ent {
 
 			RuntimeValue* cast_to_min_type(double num) {
 				if (std::isnan(num) || std::isinf(num) || num > std::numeric_limits<uint64_t>::max() || num < std::numeric_limits<int64_t>::min()) {
-					throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_IDENTIFIER_ERROR, std::string("The number is out of range for available types : ") + std::to_string(num))).error();
+					throw (ent::Error(ent::ErrorType::INTERPRETER_OUT_OF_RANGE_NUMBER, std::string("The number is out of range for available types : ") + std::to_string(num))).error();
 				}
 
 				if (num >= std::numeric_limits<int8_t>::min() && num <= std::numeric_limits<int8_t>::max() && num == static_cast<int8_t>(num)) {
@@ -843,19 +840,53 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
 			}
 
-			RuntimeValue* interpret(ent::front::ast::Scope* scope);
-
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
 				RuntimeValue* v = evaluateStatement(declaration->value, env);
 				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
-				RuntimeValue* value = env->init(
+				RuntimeValue* value = env->init_value(
 					declaration->identifier->name,
 					v
 				);
-				return declaration->isInFunctionSetup  ? new NullValue(false) : value;
+				return value;
 			}
 
-			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env = nullptr);
+			RuntimeValue* evaluateFunctionDeclaration(ent::front::ast::FunctionDeclaration* functionDeclaration, Environment* env) {
+				env->init_function(
+					functionDeclaration->identifier->name,
+					functionDeclaration
+				);
+
+				return new NullValue();
+			}
+
+			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env);
+
+			RuntimeValue* evaluateFunctionCallExpression(ent::front::ast::FunctionCallExpression* functionCallExpression, Environment* env) {
+				ent::front::ast::FunctionDeclaration* calledFunction = env->get_function(functionCallExpression->functionIdentifier->name);
+
+				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
+
+				if(functionCallExpression->arguments.size() != calledFunction->arguments.size()) {
+					throw (ent::Error(
+						ent::ErrorType::INTERPRETER_INVALID_NUMBER_OF_ARGS_FUNCTION_ERROR,
+						"Invalid number of args: " + functionCallExpression->arguments.size() + std::string(" instead of ") + std::to_string(calledFunction->arguments.size())
+					)).error();
+				}
+
+				for(u64 i = 0; i < functionCallExpression->arguments.size(); i++) {
+					functionBody.push_back(
+						ent::front::parser::make_declaration(calledFunction->arguments[i], functionCallExpression->arguments[i], true)
+					);
+				}
+
+				for(ent::front::ast::Statement* statement : calledFunction->body) {
+					functionBody.push_back(statement);
+				}
+
+				ent::front::ast::Scope* scope = new ent::front::ast::Scope(functionBody);
+
+				return evaluateScope(scope, env);
+			}
 
 			RuntimeValue* evaluateConditionnalStructure(ent::front::ast::ConditionnalStructure* conditionnalStructure, Environment* env) {
 				for(ent::front::ast::ConditionnalBlock* block : conditionnalStructure->conditionnalBlocks) {
@@ -926,14 +957,16 @@ namespace ent {
 					case ent::front::ast::NodeType::declaration:
 						return evaluateDeclaration((ent::front::ast::Declaration*)statement, env);
 					case ent::front::ast::NodeType::assignation:
-						return env->set(
+						return env->set_value(
 							((ent::front::ast::Assignation*)statement)->identifier->name,
 							evaluateStatement(((ent::front::ast::Assignation*)statement)->value, env)
 						);
 					case ent::front::ast::NodeType::functionDeclaration:
-						return new NullValue();
+						return evaluateFunctionDeclaration((ent::front::ast::FunctionDeclaration*)statement, env);
+					case ent::front::ast::NodeType::functionCallExpression:
+						return evaluateFunctionCallExpression((ent::front::ast::FunctionCallExpression*)statement, env);
 					case ent::front::ast::NodeType::scope:
-						return evaluateScope((ent::front::ast::Scope*)statement);
+						return evaluateScope((ent::front::ast::Scope*)statement, env);
 					case ent::front::ast::NodeType::conditionnalStructure:
 						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
 					case ent::front::ast::NodeType::forLoop:
@@ -952,12 +985,13 @@ namespace ent {
 
 				for(ent::front::ast::Statement* statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
+					std::cout << result->pretty_print() << std::endl;
 				}
 				return result;
 			}
 
 			RuntimeValue* interpret(ent::front::ast::Scope* scope) {
-				return evaluateScope(scope);
+				return evaluateScope(scope, nullptr);
 			}
 		}
 	}
