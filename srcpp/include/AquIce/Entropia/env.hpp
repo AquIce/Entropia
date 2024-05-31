@@ -94,10 +94,13 @@ namespace ent {
 						return this->parent->set_value(key, value);
 					}
 					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to set non-declared variable " + key)).error();
-				}	
+				}
+				
+				RuntimeValue* old_val = get_value(key);
+
 				this->values[key] = check_type_compatibility(this->get_value(key), value, key);
 
-				return value;
+				return old_val;
 			}
 			RuntimeValue* init_value(std::string key, RuntimeValue* value) {
 				if(this->has_value(key)) {

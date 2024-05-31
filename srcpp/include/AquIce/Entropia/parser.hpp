@@ -125,9 +125,24 @@ namespace ent {
 				return new ent::front::ast::ParenthesisExpression(content);
 			}
 
+			ent::front::ast::Expression* parse_non_pre_unary_expression() {
+				ent::front::ast::Expression* term = parse_parenthesis_expression();
+				if(peek().get_type() == ent::type::token_type::INCREMENT || peek().get_type() == ent::type::token_type::DECREMENT) {
+					std::string operator_symbol = eat().get_value();
+					if(term->get_type() != ent::front::ast::NodeType::identifier) {
+						throw (ent::Error(ent::ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR, "Trying to increment non-identifier")).error();
+					}
+					return new ent::front::ast::UnaryExpression(
+						term,
+						operator_symbol
+					);
+				}
+				return term;
+			}
+
 			ent::front::ast::Expression* parse_unary_expression() {
-				if(peek().get_type() != ent::type::token_type::NOT) {
-					return parse_parenthesis_expression();
+				if(peek().get_type() != ent::type::token_type::NOT && peek().get_type() != ent::type::token_type::BITWISE_NOT) {
+					return parse_non_pre_unary_expression();
 				}
 
 				std::string operator_symbol = eat().get_value();
@@ -188,7 +203,7 @@ namespace ent {
 					peek().get_value() == "<=" || peek().get_value() == ">=" ||
 					peek().get_value() == "^^" ||
 					peek().get_value() == "<<" || peek().get_value() == ">>" ||
-					peek().get_value() == "&" || peek().get_value() == "|"
+					peek().get_value() == "&" || peek().get_value() == "|" || peek().get_value() == "^"
 				) {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();

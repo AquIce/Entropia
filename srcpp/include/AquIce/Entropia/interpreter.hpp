@@ -54,6 +54,8 @@ return_T function_name(T* left, T* right, std::string op) { \
 		return cast_to_min_type(left->get_value() & right->get_value()); \
 	} if(op == "|") { \
 		return cast_to_min_type(left->get_value() | right->get_value()); \
+	} if(op == "^") { \
+		return cast_to_min_type(left->get_value() ^ right->get_value()); \
 	} \
 	throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error(); \
 }
@@ -886,6 +888,87 @@ namespace ent {
 			RuntimeValue* evaluateUnaryExpression(ent::front::ast::UnaryExpression* unaryExpression, Environment* env) {
 				if(unaryExpression->operator_symbol == "!") {
 					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
+				} if(unaryExpression->operator_symbol == "~") {
+					ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)unaryExpression->term;
+					switch(identifier->get_identifier_type()) {
+						case ent::front::ast::NodeType::i8Expression:
+							return new I8Value(~(((I8Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::i16Expression:
+							return new I16Value(~(((I16Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::i32Expression:
+							return new I32Value(~(((I32Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::i64Expression:
+							return new I64Value(~(((I64Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::u8Expression:
+							return new U8Value(~(((U8Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::u16Expression:
+							return new U16Value(~(((U16Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::u32Expression:
+							return new U32Value(~(((U32Value*)env->get_value(identifier->name)))->get_value());
+						case ent::front::ast::NodeType::u64Expression:
+							return new U64Value(~(((U64Value*)env->get_value(identifier->name)))->get_value());
+						default:
+							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
+					}
+				} if(unaryExpression->operator_symbol == "++" || unaryExpression->operator_symbol == "--") {
+					int offset = unaryExpression->operator_symbol == "++" ? 1 : -1;
+					ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)unaryExpression->term;
+					switch(identifier->get_identifier_type()) {
+						case ent::front::ast::NodeType::i8Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::I8Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::i16Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::I16Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::i32Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::I32Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::i64Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::I64Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::u8Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::U8Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::u16Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::U16Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::u32Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::U32Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::u64Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::U64Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::f32Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::F32Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						case ent::front::ast::NodeType::f64Expression:
+							return env->set_value(
+								identifier->name,
+								cast_to_min_type(((ent::runtime::F64Value*)env->get_value(identifier->name))->get_value() + offset)
+							);
+						default:
+							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
+					}
+				} if(unaryExpression->operator_symbol == "!") {
+					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
 				}
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
 			}
@@ -898,6 +981,13 @@ namespace ent {
 					v
 				);
 				return value;
+			}
+
+			RuntimeValue* evaluateAssignationExpression(ent::front::ast::Assignation* assignation, Environment* env) {
+				return env->set_value(
+					assignation->identifier->name,
+					evaluateStatement(assignation->value, env)
+				);
 			}
 
 			RuntimeValue* evaluateFunctionDeclaration(ent::front::ast::FunctionDeclaration* functionDeclaration, Environment* env) {
@@ -1007,10 +1097,7 @@ namespace ent {
 					case ent::front::ast::NodeType::declaration:
 						return evaluateDeclaration((ent::front::ast::Declaration*)statement, env);
 					case ent::front::ast::NodeType::assignation:
-						return env->set_value(
-							((ent::front::ast::Assignation*)statement)->identifier->name,
-							evaluateStatement(((ent::front::ast::Assignation*)statement)->value, env)
-						);
+						return evaluateAssignationExpression((ent::front::ast::Assignation*)statement, env);
 					case ent::front::ast::NodeType::functionDeclaration:
 						return evaluateFunctionDeclaration((ent::front::ast::FunctionDeclaration*)statement, env);
 					case ent::front::ast::NodeType::functionCallExpression:
@@ -1035,7 +1122,7 @@ namespace ent {
 
 				for(ent::front::ast::Statement* statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
-					std::cout << result->pretty_print() << std::endl;
+					std::cout << statement->pretty_print() << " -> " << result->pretty_print() << std::endl;
 				}
 				return result;
 			}

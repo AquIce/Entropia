@@ -44,11 +44,11 @@ Entropia is a C++ based programming language, implementing ownership and other u
     - [x] >>
     - [x] &
     - [x] |
-  - [ ] Unary operators
-    - [ ] ++
-    - [ ] --
-    - [ ] ^
-    - [ ] ~
+    - [x] ^
+  - [x] Unary operators
+    - [x] ++
+    - [x] --
+    - [x] ~
   - [ ] Assignment
     - [ ] (any)=
   - [ ] Ternaries
@@ -63,6 +63,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [ ] Declaration syntax
   - [ ] Member access syntax
   - [ ] ...
+- [ ] Add modules
 
 ## Extension
 

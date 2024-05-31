@@ -50,6 +50,11 @@ namespace ent {
 			BITWISE_RIGHT_SHIFT,
 			BITWISE_AND,
 			BITWISE_OR,
+			BITWISE_XOR,
+
+			INCREMENT,
+			DECREMENT,
+			BITWISE_NOT,
 
 			NOT,
 
@@ -136,6 +141,11 @@ namespace ent {
 					token_switch_case(BITWISE_RIGHT_SHIFT)
 					token_switch_case(BITWISE_AND)
 					token_switch_case(BITWISE_OR)
+					token_switch_case(BITWISE_XOR)
+
+					token_switch_case(INCREMENT)
+					token_switch_case(DECREMENT)
+					token_switch_case(BITWISE_NOT)
 
 					token_switch_case(BOOL)
 
