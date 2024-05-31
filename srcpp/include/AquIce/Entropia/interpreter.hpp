@@ -9,6 +9,55 @@
 #include "env.hpp"
 #include "errors.hpp"
 
+#define evaluateSameIntegerNumberExpression(return_T, function_name, T, max, min, overflow_error, underflow_error) \
+return_T function_name(T* left, T* right, std::string op) { \
+	if(op == "+") { \
+		return cast_to_min_type(left->get_value() + right->get_value()); \
+	} if(op == "-") { \
+		return cast_to_min_type(left->get_value() - right->get_value()); \
+	} if(op == "*") { \
+		return cast_to_min_type(left->get_value() * right->get_value()); \
+	} if(op == "/") { \
+		if(right->get_value() == 0) \
+			throw (ent::Error(ent::ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
+		return cast_to_min_type(left->get_value() / right->get_value()); \
+	} if(op == "%") { \
+		if(right->get_value() == 0) \
+			throw (ent::Error(ent::ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
+		return cast_to_min_type(left->get_value() % right->get_value()); \
+	} if(op == "==") { \
+		return new BooleanValue(left->get_value() == right->get_value()); \
+	} if(op == "!=") { \
+		return new BooleanValue(left->get_value() != right->get_value()); \
+	} if(op == "&&") { \
+		return new BooleanValue(left->IsTrue() && right->IsTrue()); \
+	} if(op == "||") { \
+		return new BooleanValue(left->IsTrue() || right->IsTrue()); \
+	} if(op == "<") { \
+		return new BooleanValue(left->get_value() < right->get_value()); \
+	} if(op == ">") { \
+		return new BooleanValue(left->get_value() > right->get_value()); \
+	} if(op == "<=") { \
+		return new BooleanValue(left->get_value() <= right->get_value()); \
+	} if(op == ">=") { \
+		return new BooleanValue(left->get_value() >= right->get_value()); \
+	} if(op == "^^") { \
+		return new BooleanValue( \
+			(left->IsTrue() || right->IsTrue()) && \
+			!(left->IsTrue() && right->IsTrue()) \
+		); \
+	} if(op == "<<") { \
+		return cast_to_min_type(left->get_value() << right->get_value()); \
+	} if(op == ">>") { \
+		return cast_to_min_type(left->get_value() >> right->get_value()); \
+	} if(op == "&") { \
+		return cast_to_min_type(left->get_value() & right->get_value()); \
+	} if(op == "|") { \
+		return cast_to_min_type(left->get_value() | right->get_value()); \
+	} \
+	throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error(); \
+}
+
 #define evaluateNumberExpression(return_T, function_name, big_T, little_T, max, min, overflow_error, underflow_error) \
 return_T function_name(big_T* left, little_T* right, std::string op) { \
 	if(op == "+") { \
@@ -158,9 +207,9 @@ namespace ent {
 			// * I8
 
 			// I8 - I8
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateI8BinaryExpression,
-				I8Value, I8Value,
+				I8Value,
 				INT8_MAX, INT8_MIN,
 				(ent::Error(ent::ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")),
 				(ent::Error(ent::ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow"))
@@ -169,9 +218,9 @@ namespace ent {
 			// * I16
 
 			// I16 - I16
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateI16BinaryExpression,
-				I16Value, I16Value,
+				I16Value,
 				INT16_MAX, INT16_MIN,
 				(ent::Error(ent::ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")),
 				(ent::Error(ent::ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow"))
@@ -198,9 +247,9 @@ namespace ent {
 			// * I32
 			
 			// I32 - I32
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateI32BinaryExpression,
-				I32Value, I32Value,
+				I32Value,
 				INT32_MAX, INT32_MIN,
 				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
 				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
@@ -245,9 +294,9 @@ namespace ent {
 			// * I64
 
 			// I64 - I64
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateI64BinaryExpression,
-				I64Value, I64Value,
+				I64Value,
 				INT64_MAX, INT64_MIN,
 				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
 				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
@@ -310,9 +359,9 @@ namespace ent {
 			// * U8
 
 			// U8 - U8
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateU8BinaryExpression,
-				U8Value, U8Value,
+				U8Value,
 				UINT8_MAX, 0,
 				(ent::Error(ent::ErrorType::U8_OVERFLOW_ERROR, "U8 Overflow")),
 				(ent::Error(ent::ErrorType::U8_UNDERFLOW_ERROR, "U8 Underflow"))
@@ -321,9 +370,9 @@ namespace ent {
 			// * U16
 
 			// U16 - U16
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateU16BinaryExpression,
-				U16Value, U16Value,
+				U16Value,
 				UINT16_MAX, 0,
 				(ent::Error(ent::ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")),
 				(ent::Error(ent::ErrorType::U16_UNDERFLOW_ERROR, "U16 Underflow"))
@@ -341,9 +390,9 @@ namespace ent {
 			// * U32
 
 			// U32 - U32
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateU32BinaryExpression,
-				U32Value, U32Value,
+				U32Value,
 				UINT32_MAX, 0,
 				(ent::Error(ent::ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")),
 				(ent::Error(ent::ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow"))
@@ -370,9 +419,9 @@ namespace ent {
 			// * U64
 
 			// U64 - U64
-			evaluateNumberExpression(
+			evaluateSameIntegerNumberExpression(
 				RuntimeValue*, evaluateU64BinaryExpression,
-				U64Value, U64Value,
+				U64Value,
 				UINT64_MAX, 0,
 				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
 				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
@@ -407,6 +456,7 @@ namespace ent {
 
 			// * F32
 
+			// F32 - F32
 			evaluateNumberExpression(
 				RuntimeValue*, evaluateF32BinaryExpression,
 				F32Value, F32Value,

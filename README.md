@@ -16,7 +16,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [x] If
   - [x] Else If
   - [x] Else
-  - [ ] Logical operators
+  - [x] Logical operators
     - [x] Binary operators
       - [x] ==
       - [x] !=

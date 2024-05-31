@@ -143,7 +143,7 @@ namespace ent {
 				// Parse the numeric expression first
 				ent::front::ast::Expression* left = parse_unary_expression();
 				// Parse the rest of the expression
-				while(peek().get_value() == "*" || peek().get_value() == "/") {
+				while(peek().get_value() == "*" || peek().get_value() == "/" || peek().get_value() == "%") {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
@@ -186,7 +186,9 @@ namespace ent {
 					peek().get_value() == "&&" || peek().get_value() == "||" ||
 					peek().get_value() == "<" || peek().get_value() == ">" ||
 					peek().get_value() == "<=" || peek().get_value() == ">=" ||
-					peek().get_value() == "^^"
+					peek().get_value() == "^^" ||
+					peek().get_value() == "<<" || peek().get_value() == ">>" ||
+					peek().get_value() == "&" || peek().get_value() == "|"
 				) {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();

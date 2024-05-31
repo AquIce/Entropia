@@ -41,6 +41,13 @@ namespace ent {
 			GREATER_THAN,
 			SMALLER_OR_EQUAL,
 			GREATER_OR_EQUAL,
+
+			MODULO,
+			BITWISE_LEFT_SHIFT,
+			BITWISE_RIGHT_SHIFT,
+			BITWISE_AND,
+			BITWISE_OR,
+
 			NOT,
 
 			BOOL,
@@ -116,6 +123,12 @@ namespace ent {
 					token_switch_case(SMALLER_OR_EQUAL)
 					token_switch_case(GREATER_OR_EQUAL)
 					token_switch_case(NOT)
+
+					token_switch_case(MODULO)
+					token_switch_case(BITWISE_LEFT_SHIFT)
+					token_switch_case(BITWISE_RIGHT_SHIFT)
+					token_switch_case(BITWISE_AND)
+					token_switch_case(BITWISE_OR)
 
 					token_switch_case(BOOL)
 
