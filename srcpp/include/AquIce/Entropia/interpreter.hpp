@@ -867,26 +867,28 @@ namespace ent {
 			}
 
 			RuntimeValue* evaluateForLoop(ent::front::ast::ForLoop* forLoop, Environment* env) {
-				evaluateStatement(forLoop->initStatement, env);
 
-				RuntimeValue* last = new RuntimeValue();
+				Environment* forEnv = new Environment(env);
 
-				while(evaluateStatement(forLoop->loopCondition, env)->IsTrue()) {
-					evaluateStatement(forLoop->iterationStatement, env);
-					last = evaluateScope(new ent::front::ast::Scope(forLoop->body), env);
+				evaluateStatement(forLoop->initStatement, forEnv);
+
+				while(evaluateStatement(forLoop->loopCondition, forEnv)->IsTrue()) {
+					evaluateStatement(forLoop->iterationStatement, forEnv);
+					evaluateScope(new ent::front::ast::Scope(forLoop->body), forEnv);
 				}
 
-				return last;
+				return new NullValue();
 			}
 
 			RuntimeValue* evaluateWhileLoop(ent::front::ast::WhileLoop* whileLoop, Environment* env) {
-				RuntimeValue* last = new RuntimeValue();
-				
-				while(evaluateStatement(whileLoop->loopCondition, env)->IsTrue()) {
-					last = evaluateScope(new ent::front::ast::Scope(whileLoop->body), env);
+
+				Environment* whileEnv = new Environment(env);
+
+				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->IsTrue()) {
+					evaluateScope(new ent::front::ast::Scope(whileLoop->body), whileEnv);
 				}
 
-				return last;
+				return new NullValue();
 			}
 
 			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
