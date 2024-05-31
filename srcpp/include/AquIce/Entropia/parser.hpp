@@ -359,9 +359,18 @@ namespace ent {
 			}
 
 			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
+				ent::type::token assignationTk = peek();
+				
+				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
+					(void)eat();
+				}
 				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
 
 				ent::front::ast::Expression* value = parse_expression();
+
+				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
+					value = new ent::front::ast::BinaryExpression(identifier, assignationTk.get_value(), value);
+				}
 
 				if(needsSemicolon) {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
@@ -417,7 +426,13 @@ namespace ent {
 					return identifier;
 				}
 
-				if(peek().get_type() == ent::type::token_type::ASSIGN) {
+				if(
+					peek().get_type() == ent::type::token_type::ASSIGN ||
+					peek().get_type() == ent::type::token_type::PLUS || peek().get_type() == ent::type::token_type::MINUS ||
+					peek().get_type() == ent::type::token_type::TIMES || peek().get_type() == ent::type::token_type::DIVIDED_BY ||
+					peek().get_type() == ent::type::token_type::MODULO ||
+					peek().get_type() == ent::type::token_type::BITWISE_AND || peek().get_type() == ent::type::token_type::BITWISE_OR || peek().get_type() == ent::type::token_type::BITWISE_XOR
+				) {
 					return parse_assignation(identifier, needsSemicolon);
 				}
 				if(peek().get_type() == ent::type::OPEN_PAREN) {
