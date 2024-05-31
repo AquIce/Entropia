@@ -136,7 +136,7 @@ namespace ent {
 			}
 
 			std::string identifier = "";
-			while(isalnum(src[0])) {
+			while(isalpha(src[0]) || src[0] == '_') {
 				identifier += shift(src);
 			}
 			return ent::type::token(ent::type::IDENTIFIER, identifier);
