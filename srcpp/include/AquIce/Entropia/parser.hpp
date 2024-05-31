@@ -391,6 +391,8 @@ namespace ent {
 			}
 
 			ent::front::ast::Statement* parse_identifier_starting_expression(bool needsSemicolon) {
+
+				ent::type::token identifier_token = peek();
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 				
 				if(needsSemicolon && peek().get_type() == ent::type::token_type::SEMICOLON) {
@@ -401,7 +403,19 @@ namespace ent {
 				if(peek().get_type() == ent::type::token_type::ASSIGN) {
 					return parse_assignation(identifier, needsSemicolon);
 				}
-				return parse_function_call(identifier, needsSemicolon);
+				if(peek().get_type() == ent::type::OPEN_PAREN) {
+					return parse_function_call(identifier, needsSemicolon);
+				}
+
+				tks.insert(tks.begin(), identifier_token);
+
+				ent::front::ast::Expression* expression = parse_expression();
+
+				if(needsSemicolon) {
+					(void)expect(ent::type::token_type::SEMICOLON, ";");
+				}
+
+				return expression;
 			}		
 
 			ent::front::ast::Statement* parse_statement(bool updateBefore = true, bool needsSemiColon = true);
