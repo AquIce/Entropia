@@ -1,8 +1,4 @@
 let i: i32 = 8;
 let j: i32 = 1;
 
-j % i;
-i << 1;
-i >> 1;
-i & j;
-i | j;
+(i + j) * i - j;

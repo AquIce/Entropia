@@ -12,8 +12,6 @@ case tk: \
 namespace ent {
 	namespace type {
 		enum token_type {
-			OPERATOR,
-
 			LET,
 			TYPE_SPECIFIER,
 			FN,
@@ -31,6 +29,11 @@ namespace ent {
 			SEMICOLON,
 			COMMA,
 			ASSIGN,
+
+			PLUS,
+			MINUS,
+			TIMES,
+			DIVIDED_BY,
 
 			EQUAL,
 			NOT_EQUAL,
@@ -94,7 +97,6 @@ namespace ent {
 			std::string pretty_print() {
 				std::string type = "";
 				switch(this->type) {
-					token_switch_case(OPERATOR)
 					token_switch_case(LET)
 					token_switch_case(TYPE_SPECIFIER)
 					token_switch_case(FN)
@@ -112,6 +114,11 @@ namespace ent {
 					token_switch_case(SEMICOLON)
 					token_switch_case(COMMA)
 					token_switch_case(ASSIGN)
+
+					token_switch_case(PLUS)
+					token_switch_case(MINUS)
+					token_switch_case(TIMES)
+					token_switch_case(DIVIDED_BY)
 
 					token_switch_case(EQUAL)
 					token_switch_case(NOT_EQUAL)
