@@ -6,6 +6,7 @@
 	- [Table of Contents](#table-of-contents)
 	- [1. Variables](#1-variables)
 		- [1.1. Datatypes](#11-datatypes)
+			- [1.1.1. Number Bases](#111-number-bases)
 		- [1.2. Declaration](#12-declaration)
 		- [1.3. Assignation](#13-assignation)
 		- [1.4. Declaration + Assignation](#14-declaration--assignation)
@@ -25,27 +26,33 @@
 			- [4.1.1. Binary Operators](#411-binary-operators)
 			- [4.1.2. Unary Operators](#412-unary-operators)
 		- [4.2. If Else](#42-if-else)
-		- [4.3. Switch](#43-switch)
-		- [4.4. Ternaries](#44-ternaries)
+		- [4.3. Switch ⚠️](#43-switch-️)
+		- [4.4. Ternaries ⚠️](#44-ternaries-️)
 	- [5. Loops](#5-loops)
 		- [5.1. For](#51-for)
 		- [5.2. While](#52-while)
-		- [5.3. For : ](#53-for--)
-	- [6. Classes](#6-classes)
-		- [6.1. Constructor / Destructor](#61-constructor--destructor)
-		- [6.2. Members](#62-members)
-			- [6.2.1. Internal Member Access](#621-internal-member-access)
-			- [6.2.2. External Member Access](#622-external-member-access)
-		- [6.3. Public / Private](#63-public--private)
-	- [7. Codespaces](#7-codespaces)
-		- [7.1. Creation](#71-creation)
-			- [7.1.1. Using](#711-using)
-		- [7.2. Importation](#72-importation)
-			- [7.2.1. System Import](#721-system-import)
-			- [7.2.2. Custom Import](#722-custom-import)
-			- [7.2.3. Alias Import](#723-alias-import)
-		- [7.3. Member Access](#73-member-access)
-	- [8. Prescedence order](#8-prescedence-order)
+		- [5.3. For :  ⚠️](#53-for---️)
+	- [6. Classes ⚠️](#6-classes-️)
+		- [6.1. Constructor / Destructor ⚠️](#61-constructor--destructor-️)
+		- [6.2. Members ⚠️](#62-members-️)
+			- [6.2.1. Internal Member Access ⚠️](#621-internal-member-access-️)
+			- [6.2.2. External Member Access ⚠️](#622-external-member-access-️)
+		- [6.3. Public / Private ⚠️](#63-public--private-️)
+		- [6.4. Inheritance](#64-inheritance)
+	- [7. Codespaces ⚠️](#7-codespaces-️)
+		- [7.1. Creation ⚠️](#71-creation-️)
+			- [7.1.1. Using ⚠️](#711-using-️)
+		- [7.2. Importation ⚠️](#72-importation-️)
+			- [7.2.1. System Import ⚠️](#721-system-import-️)
+			- [7.2.2. Custom Import ⚠️](#722-custom-import-️)
+			- [7.2.3. Alias Import ⚠️](#723-alias-import-️)
+		- [7.3. Member Access ⚠️](#73-member-access-️)
+	- [8. Error Handling](#8-error-handling)
+	- [9. Prescedence order](#9-prescedence-order)
+
+> Note:
+>
+> Sections whose title ends with ⚠️ means they are not yet implemented
 
 ## 1. Variables
 
@@ -69,6 +76,16 @@
 | Arrays | `[<Type>, <Length>]` | [\<Any Values>, ...] | `let x: [i8, 3] = [1, 2, 3];` |
 | Vectors | `[<Type>]` | [\<Any Values>, ...] | `let x: [i8] = [1, 2, 3, 4];` |
 | Maps | `[<KeyType> -> <ValueType>]` | [\<Any Key>: \<Any Value>, ...] | `let x: [str -> i8] = ["one": 1, "two": 2];` |
+
+#### 1.1.1. Number Bases
+
+| Base | Notation | Example (12) | Valid Types |
+| - | - | - | - |
+| Decimal | `<number>` | `12` | `i8`, `i16`, `i32`, `i64`<br> `u8`, `u16`, `u32`, `u64`<br>`f32`, `f64` 
+| Decimal | `0d<number>` | `0d12` | `i8`, `i16`, `i32`, `i64`<br> `u8`, `u16`, `u32`, `u64`
+| Hexadecimal | `0x<number>` | `0xc` | `i8`, `i16`, `i32`, `i64`<br> `u8`, `u16`, `u32`, `u64`
+| Binary | `0b<number>` | `0b1100` | `i8`, `i16`, `i32`, `i64`<br> `u8`, `u16`, `u32`, `u64`
+| Octal | `0o<number>` | `0o14` | `i8`, `i16`, `i32`, `i64`<br> `u8`, `u16`, `u32`, `u64`
 
 ### 1.2. Declaration
 
@@ -244,7 +261,7 @@ if(<condition>) {
 
 \<other_condition> is the condition to match to enter the `else if` block
 
-### 4.3. Switch
+### 4.3. Switch ⚠️
 
 ```
 switch(<value>) {
@@ -259,7 +276,7 @@ switch(<value>) {
 
 \<case> is the value to match to enter the following block of code
 
-### 4.4. Ternaries
+### 4.4. Ternaries ⚠️
 
 ```
 <condition> ? <value_if_true> : <value_if_false>;
@@ -297,7 +314,7 @@ while(<condition>) {
 
 \<condition> is the condition checked before each iteration
 
-### 5.3. For : <iterable>
+### 5.3. For : <iterable> ⚠️
 
 ```
 for(<type> <name> : <iterable>) {
@@ -311,7 +328,7 @@ for(<type> <name> : <iterable>) {
 
 \<iterable> is the iterable to iterate through
 
-## 6. Classes
+## 6. Classes ⚠️
 
 ```
 class <name> {
@@ -321,7 +338,7 @@ class <name> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-### 6.1. Constructor / Destructor
+### 6.1. Constructor / Destructor ⚠️
 
 ```
 class <name> {
@@ -344,7 +361,7 @@ class <name> {
 > 
 > `destructor` is called on each destruction of a class instance
 
-### 6.2. Members
+### 6.2. Members ⚠️
 
 ```
 class <name> {
@@ -365,7 +382,7 @@ class <name> {
 
 \<method_type> is any [valid datatype](#11-datatypes) or `void`
 
-#### 6.2.1. Internal Member Access
+#### 6.2.1. Internal Member Access ⚠️
 
 ```
 class <name> {
@@ -387,7 +404,7 @@ class <name> {
 > 
 > Use the `this` keyword with a dot (.) to access class members
 
-#### 6.2.2. External Member Access
+#### 6.2.2. External Member Access ⚠️
 
 ```
 let <var_name>: <class_name> = <class_name>(...);
@@ -404,7 +421,7 @@ let <var_name>: <class_name> = <class_name>(...);
 > 
 > Use the name of the instance with a dot (.) to access class members
 
-### 6.3. Public / Private
+### 6.3. Public / Private ⚠️
 
 ```
 class <name> {
@@ -417,9 +434,21 @@ class <name> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-## 7. Codespaces
+### 6.4. Inheritance
 
-### 7.1. Creation
+```
+class <child_class> extends <parent_class> {
+	...
+}
+```
+
+\<child_class> only contains `a-z`, `A-Z` or `_`
+
+\<parent_class> is the name of the class to inherit from
+
+## 7. Codespaces ⚠️
+
+### 7.1. Creation ⚠️
 
 ```
 codespace <name> {
@@ -429,7 +458,7 @@ codespace <name> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-#### 7.1.1. Using
+#### 7.1.1. Using ⚠️
 
 ```
 codespace <name> uses <other_codespace_name> {
@@ -445,9 +474,9 @@ codespace <name> uses <other_codespace_name> {
 > 
 > Using another codespace reduces the syntax from `<codespace>::<member>` to `member`, so be aware that this can raise conflicts
 
-### 7.2. Importation
+### 7.2. Importation ⚠️
 
-#### 7.2.1. System Import
+#### 7.2.1. System Import ⚠️
 
 ```
 use <system_codespace>;
@@ -455,7 +484,7 @@ use <system_codespace>;
 
 \<system_codespace> is the name of the system codespace to import
 
-#### 7.2.2. Custom Import
+#### 7.2.2. Custom Import ⚠️
 
 ```
 use <codespace_name> from '<filename>.etp';
@@ -465,7 +494,7 @@ use <codespace_name> from '<filename>.etp';
 
 \<filename> is the name of the file in which the custom codespace is
 
-#### 7.2.3. Alias Import
+#### 7.2.3. Alias Import ⚠️
 
 ```
 use <codespace_name> as <alias>;
@@ -475,13 +504,27 @@ use <codespace_name> as <alias>;
 
 \<alias> only contains `a-z`, `A-Z` or `_`
 
-### 7.3. Member Access
+### 7.3. Member Access ⚠️
 
 ```
 <codespace>::<member>
 ```
 
-## 8. Prescedence order
+## 8. Error Handling
+
+```
+use ErrorHandling as ErrH;
+
+try {
+	...
+} catch(<error_variable>: ErrH::Error) {
+	...
+}
+```
+
+\<error_name> only contains `a-z`, `A-Z` or `_`
+
+## 9. Prescedence order
 
 The higher an element is, the most prescedence it has (the first it is resolved)
 
