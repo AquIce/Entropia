@@ -75,22 +75,31 @@
 ```
 let <name>: <type>;
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<type> is any valid [datatype](#11-datatypes)
 
 ### 1.3. Assignation
+
 ```
 <name> = <value>;
 ```
+
 \<name> is the name of the variable to set
+
 \<value> is any valid value for the [datatype](#11-datatypes) of the variable
 
 ### 1.4. Declaration + Assignation
+
 ```
 let <name>: <type> = <value>;
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<type> is any [valid datatype](#11-datatypes)
+
 \<value> is any valid value for the [datatype](#11-datatypes) of the variable
 
 ## 2. Operators
@@ -120,13 +129,19 @@ let <name>: <type> = <value>;
 ### 2.3. Assignation Operators
 
 Any [binary](#21-binary-operators) single char  operator can be used like this:
+
 `<Value> <Operator>= <Other Value>`
+
 It applies the operator like this:
+
 `<Value> = <Value> <Operator> <Other Value>`
 
 > Example:
+> 
 > `x += 2`
+> 
 > Is the same as
+> 
 > `x = x + 2`
 
 ## 3. Functions
@@ -140,10 +155,13 @@ fn <name>(void): <return_type> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<return_type> is any [valid datatype](#11-datatypes) or `void`
 
 > Note:
+> 
 > The `void` keyword is mandatory, you will get an error if you forget it.
 
 #### 3.1.2. Arguments Function
@@ -153,9 +171,13 @@ fn <name>(<arg_name>: <arg_type>, ...): <return_type> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<arg_name> only contains `a-z`, `A-Z` or `_`
+
 \<arg_type> is any [valid datatype](#11-datatypes)
+
 \<return_type> is any [valid datatype](#11-datatypes) or `void`
 
 ### 3.2. Call
@@ -165,8 +187,11 @@ fn <name>(<arg_name>: <arg_type>, ...): <return_type> {
 ```
 <name>(void);
 ```
+
 \<name> is the name of the function to call
+
 > Note:
+> 
 > The `void` keyword is mandatory, you will get an error if you forget it.
 
 #### 3.2.2. Arguments Call
@@ -174,7 +199,9 @@ fn <name>(<arg_name>: <arg_type>, ...): <return_type> {
 ```
 <name>(<arg>, ...)
 ```
+
 \<name> is the name of the function to call
+
 \<arg> is the name of the argument to pass, matching the function argument type 
 
 ## 4. Conditions
@@ -212,7 +239,9 @@ if(<condition>) {
 	...
 }
 ```
+
 \<condition> is the condition to match to enter the `if` block
+
 \<other_condition> is the condition to match to enter the `else if` block
 
 ### 4.3. Switch
@@ -225,7 +254,9 @@ switch(<value>) {
 	...
 }
 ```
+
 \<value> is the value to test
+
 \<case> is the value to match to enter the following block of code
 
 ### 4.4. Ternaries
@@ -233,8 +264,11 @@ switch(<value>) {
 ```
 <condition> ? <value_if_true> : <value_if_false>;
 ```
+
 \<condition> is the condition to test
+
 \<value_if_true> is the value to return if the condition is true
+
 \<value_if_false> is the value to return if the condition is false
 
 ## 5. Loops
@@ -246,8 +280,11 @@ for(<init_statement>; <condition>; <iteration_statement>) {
 	...
 }
 ```
+
 \<init_statement> is the code executed before the loop
+
 \<condition> is the condition checked before each iteration
+
 \<init_statement> is the code executed before each iteration of the loop
 
 ### 5.2. While
@@ -257,6 +294,7 @@ while(<condition>) {
 	...
 }
 ```
+
 \<condition> is the condition checked before each iteration
 
 ### 5.3. For : <iterable>
@@ -266,8 +304,11 @@ for(<type> <name> : <iterable>) {
 	...
 }
 ```
+
 \<type> is the type of the elements of the iterable
+
 \<name> is the name of the element of the iterable
+
 \<iterable> is the iterable to iterate through
 
 ## 6. Classes
@@ -277,6 +318,7 @@ class <name> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
 
 ### 6.1. Constructor / Destructor
@@ -291,11 +333,15 @@ class <name> {
 	}
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 > Note:
+> 
 > `constructor` is called on each instanciation of the class
 
 > Note:
+> 
 > `destructor` is called on each destruction of a class instance
 
 ### 6.2. Members
@@ -308,10 +354,15 @@ class <name> {
 	}
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<member_name> only contains `a-z`, `A-Z` or `_`
+
 \<member_type> is any [valid datatype](#11-datatypes)
+
 \<method_name> only contains `a-z`, `A-Z` or `_`
+
 \<method_type> is any [valid datatype](#11-datatypes) or `void`
 
 #### 6.2.1. Internal Member Access
@@ -325,11 +376,15 @@ class <name> {
 	}
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<member_name> only contains `a-z`, `A-Z` or `_`
+
 \<member_type> is any [valid datatype](#11-datatypes)
 
 > Note:
+> 
 > Use the `this` keyword with a dot (.) to access class members
 
 #### 6.2.2. External Member Access
@@ -338,11 +393,15 @@ class <name> {
 let <var_name>: <class_name> = <class_name>(...);
 <var_name>.<member_name> = ...
 ```
+
 \<var_name> only contains `a-z`, `A-Z` or `_`
+
 \<class_name> is the name of the class to instanciate
+
 \<member_name> is the name of the class member to access
 
 > Note:
+> 
 > Use the name of the instance with a dot (.) to access class members
 
 ### 6.3. Public / Private
@@ -355,6 +414,7 @@ class <name> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
 
 ## 7. Codespaces
@@ -366,6 +426,7 @@ codespace <name> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
 
 #### 7.1.1. Using
@@ -375,10 +436,13 @@ codespace <name> uses <other_codespace_name> {
 	...
 }
 ```
+
 \<name> only contains `a-z`, `A-Z` or `_`
+
 \<other_codespace_name> is the name of a codespace to use
 
 > Note:
+> 
 > Using another codespace reduces the syntax from `<codespace>::<member>` to `member`, so be aware that this can raise conflicts
 
 ### 7.2. Importation
@@ -388,6 +452,7 @@ codespace <name> uses <other_codespace_name> {
 ```
 use <system_codespace>;
 ```
+
 \<system_codespace> is the name of the system codespace to import
 
 #### 7.2.2. Custom Import
@@ -395,7 +460,9 @@ use <system_codespace>;
 ```
 use <codespace_name> from '<filename>.etp';
 ```
+
 \<codespace_name> is the name of the custom codespace to import
+
 \<filename> is the name of the file in which the custom codespace is
 
 #### 7.2.3. Alias Import
@@ -403,7 +470,9 @@ use <codespace_name> from '<filename>.etp';
 ```
 use <codespace_name> as <alias>;
 ```
+
 \<codespace_name> is the name of the custom codespace to import
+
 \<alias> only contains `a-z`, `A-Z` or `_`
 
 ### 7.3. Member Access
