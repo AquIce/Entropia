@@ -138,6 +138,19 @@ return_T function_name(little_T* left, big_T* right, std::string op) { \
 evaluateNumberExpression(return_T, function_name_first, big_T, little_T, max, min, overflow_error, underflow_error) \
 evaluateNumberExpressionReverse(return_T, function_name_second, big_T, little_T, max, min, overflow_error, underflow_error)
 
+#define evaluateUnaryAssignationExpression(expression_type, value_type) \
+evaluateAssignationExpression( \
+	new ent::front::ast::Assignation( \
+		identifier, \
+		new ent::front::ast::BinaryExpression( \
+			new expression_type(((value_type)old_value)->get_value()), \
+			std::string(1, unaryExpression->operator_symbol[0]), \
+			new expression_type(1) \
+		) \
+	), \
+	env \
+)
+
 namespace ent {
 	namespace runtime {
 		namespace interpreter {
@@ -885,6 +898,8 @@ namespace ent {
 				return evaluateStatement(parenthesisExpression->content, env);
 			}
 
+			RuntimeValue* evaluateAssignationExpression(ent::front::ast::Assignation* assignation, Environment* env);
+
 			RuntimeValue* evaluateUnaryExpression(ent::front::ast::UnaryExpression* unaryExpression, Environment* env) {
 				if(unaryExpression->operator_symbol == "!") {
 					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
@@ -911,59 +926,30 @@ namespace ent {
 							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
 					}
 				} if(unaryExpression->operator_symbol == "++" || unaryExpression->operator_symbol == "--") {
-					int offset = unaryExpression->operator_symbol == "++" ? 1 : -1;
 					ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)unaryExpression->term;
-					switch(identifier->get_identifier_type()) {
-						case ent::front::ast::NodeType::i8Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::I8Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::i16Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::I16Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::i32Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::I32Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::i64Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::I64Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::u8Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::U8Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::u16Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::U16Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::u32Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::U32Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::u64Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::U64Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::f32Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::F32Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
-						case ent::front::ast::NodeType::f64Expression:
-							return env->set_value(
-								identifier->name,
-								cast_to_min_type(((ent::runtime::F64Value*)env->get_value(identifier->name))->get_value() + offset)
-							);
+					RuntimeValue* old_value = env->get_value(identifier->name);
+
+					switch(old_value->type()) {
+						case ent::runtime::ValueType::I8:
+							return evaluateUnaryAssignationExpression(ent::front::ast::I8Expression, ent::runtime::I8Value*);
+						case ent::runtime::ValueType::I16:
+							return evaluateUnaryAssignationExpression(ent::front::ast::I16Expression, ent::runtime::I16Value*);
+						case ent::runtime::ValueType::I32:
+							return evaluateUnaryAssignationExpression(ent::front::ast::I32Expression, ent::runtime::I32Value*);
+						case ent::runtime::ValueType::I64:
+							return evaluateUnaryAssignationExpression(ent::front::ast::I64Expression, ent::runtime::I64Value*);
+						case ent::runtime::ValueType::U8:
+							return evaluateUnaryAssignationExpression(ent::front::ast::U8Expression, ent::runtime::U8Value*);
+						case ent::runtime::ValueType::U16:
+							return evaluateUnaryAssignationExpression(ent::front::ast::U16Expression, ent::runtime::U16Value*);
+						case ent::runtime::ValueType::U32:
+							return evaluateUnaryAssignationExpression(ent::front::ast::U32Expression, ent::runtime::U32Value*);
+						case ent::runtime::ValueType::U64:
+							return evaluateUnaryAssignationExpression(ent::front::ast::U64Expression, ent::runtime::U64Value*);
+						case ent::runtime::ValueType::F32:
+							return evaluateUnaryAssignationExpression(ent::front::ast::F32Expression, ent::runtime::F32Value*);
+						case ent::runtime::ValueType::F64:
+							return evaluateUnaryAssignationExpression(ent::front::ast::F64Expression, ent::runtime::F64Value*);
 						default:
 							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
 					}
@@ -1044,8 +1030,8 @@ namespace ent {
 				evaluateStatement(forLoop->initStatement, forEnv);
 
 				while(evaluateStatement(forLoop->loopCondition, forEnv)->IsTrue()) {
-					evaluateStatement(forLoop->iterationStatement, forEnv);
 					evaluateScope(new ent::front::ast::Scope(forLoop->body), forEnv);
+					evaluateStatement(forLoop->iterationStatement, forEnv);
 				}
 
 				return new NullValue();

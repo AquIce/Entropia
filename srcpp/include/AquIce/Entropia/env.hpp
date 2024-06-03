@@ -117,7 +117,7 @@ namespace ent {
 					}
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
 				}
-				return this->values[key];
+				return this->values.at(key);
 			}
 			
 			bool has_function(std::string key) {
@@ -146,7 +146,7 @@ namespace ent {
 					}
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_FUNCTION_ERROR, "Trying to get non-declared function " + key)).error();
 				}
-				return this->functions[key];
+				return this->functions.at(key);
 			}
 		};
 	}

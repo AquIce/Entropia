@@ -426,15 +426,28 @@ namespace ent {
 					return identifier;
 				}
 
+				ent::type::token op = ent::type::token(ent::type::token_type::EOF_TOKEN, "");
+
 				if(
-					peek().get_type() == ent::type::token_type::ASSIGN ||
 					peek().get_type() == ent::type::token_type::PLUS || peek().get_type() == ent::type::token_type::MINUS ||
 					peek().get_type() == ent::type::token_type::TIMES || peek().get_type() == ent::type::token_type::DIVIDED_BY ||
 					peek().get_type() == ent::type::token_type::MODULO ||
 					peek().get_type() == ent::type::token_type::BITWISE_AND || peek().get_type() == ent::type::token_type::BITWISE_OR || peek().get_type() == ent::type::token_type::BITWISE_XOR
 				) {
+					op = eat();
+				}
+
+				if(peek().get_type() == ent::type::token_type::ASSIGN) {
+					if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
+						tks.insert(tks.begin(), op);
+					}
 					return parse_assignation(identifier, needsSemicolon);
 				}
+
+				if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
+					tks.insert(tks.begin(), op);
+				}
+
 				if(peek().get_type() == ent::type::OPEN_PAREN) {
 					return parse_function_call(identifier, needsSemicolon);
 				}
