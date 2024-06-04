@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 	// Test parser
 
-	ent::front::ast::Program* program;
+	std::shared_ptr<ent::front::ast::Program> program;
 	try {
 		program = ent::front::parser::parse(tokens);
 	} catch (const std::exception& e) {
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
 	// Test interpreter
 
-	ent::runtime::RuntimeValue* result;
+	std::shared_ptr<ent::runtime::RuntimeValue> result;
 	try {
 		result = ent::runtime::interpreter::interpret(program);
 	} catch (const std::exception& e) {

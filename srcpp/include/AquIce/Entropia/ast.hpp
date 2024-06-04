@@ -107,9 +107,9 @@ namespace ent {
 			class Scope: public Statement {
 			public:
 				enum NodeType type = NodeType::scope;
-				std::vector<Statement*> body;
+				std::vector<std::shared_ptr<Statement>> body;
 
-				Scope(std::vector<Statement*> body) {
+				Scope(std::vector<std::shared_ptr<Statement>> body) {
 					this->body = body;
 					this->type = NodeType::scope;
 				}
@@ -431,9 +431,9 @@ namespace ent {
 			class ParenthesisExpression: public Expression {
 			public:
 				enum NodeType type = NodeType::parenthesisExpression;
-				Expression* content;
+				std::shared_ptr<Expression> content;
 
-				ParenthesisExpression(Expression* content) {
+				ParenthesisExpression(std::shared_ptr<Expression> content) {
 					this->content = content;
 					this->type = NodeType::booleanExpression;
 				}
@@ -448,16 +448,16 @@ namespace ent {
 				}
 			};
 
-			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol);
+			enum NodeType get_operator_return_type(std::shared_ptr<Expression> left, std::string operator_symbol);
 
             class BinaryExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::binaryExpression;
-                    Expression* left;
-                    Expression* right;
+                    std::shared_ptr<Expression> left;
+                    std::shared_ptr<Expression> right;
 					enum NodeType returnType;
                     std::string operator_symbol;
-                    BinaryExpression(Expression* left, std::string operator_symbol, Expression* right) {
+                    BinaryExpression(std::shared_ptr<Expression> left, std::string operator_symbol, std::shared_ptr<Expression> right) {
 						this->left = left;
 						this->operator_symbol = operator_symbol;
 						this->right = right;
@@ -481,10 +481,10 @@ namespace ent {
 			 class UnaryExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::unaryExpression;
-                    Expression* term;
+                    std::shared_ptr<Expression> term;
 					enum NodeType returnType;
                     std::string operator_symbol;
-                    UnaryExpression(Expression* term, std::string operator_symbol) {
+                    UnaryExpression(std::shared_ptr<Expression> term, std::string operator_symbol) {
 						this->term = term;
 						this->operator_symbol = operator_symbol;
 						this->type = NodeType::unaryExpression;
@@ -504,7 +504,7 @@ namespace ent {
 					}
             };
 
-			enum NodeType get_operator_return_type(Expression* left, std::string operator_symbol) {
+			enum NodeType get_operator_return_type(std::shared_ptr<Expression> left, std::string operator_symbol) {
 				if(operator_symbol == "==" || operator_symbol == "!=" ||
 					operator_symbol == "&&" || operator_symbol == "||" ||
 					operator_symbol == "<" || operator_symbol == ">" ||
@@ -514,10 +514,10 @@ namespace ent {
 					return NodeType::booleanExpression;
 				};
 				if(left->get_type() == NodeType::binaryExpression) {
-					return ((BinaryExpression*)left)->get_return_type();
+					return std::dynamic_pointer_cast<BinaryExpression>(left)->get_return_type();
 				}
 				if(left->get_type() == NodeType::identifier) {
-					return ((Identifier*)left)->get_identifier_type();
+					return std::dynamic_pointer_cast<Identifier>(left)->get_identifier_type();
 				}
 				return left->get_type();
 			}
@@ -525,10 +525,10 @@ namespace ent {
 			class FunctionCallExpression: public Expression {
                 public:
                     enum NodeType type = NodeType::functionCallExpression;
-					Identifier* functionIdentifier;
-                    std::vector<Expression*> arguments;
+					std::shared_ptr<Identifier> functionIdentifier;
+                    std::vector<std::shared_ptr<Expression>> arguments;
 
-                    FunctionCallExpression(Identifier* functionIdentifier, std::vector<Expression*> arguments) {
+                    FunctionCallExpression(std::shared_ptr<Identifier> functionIdentifier, std::vector<std::shared_ptr<Expression>> arguments) {
 						this->functionIdentifier = functionIdentifier;
 						this->arguments = arguments;
 						this->type = NodeType::functionCallExpression;
@@ -553,9 +553,9 @@ namespace ent {
 			class Assignation: public Statement {
 			public:
 				enum NodeType type = NodeType::assignation;
-				Identifier* identifier;
-				Expression* value;
-				Assignation(Identifier* identifier, Expression* value) {
+				std::shared_ptr<Identifier> identifier;
+				std::shared_ptr<Expression> value;
+				Assignation(std::shared_ptr<Identifier> identifier, std::shared_ptr<Expression> value) {
 					this->identifier = identifier;
 					this->value = value;
 					this->type = NodeType::assignation;
@@ -575,18 +575,18 @@ namespace ent {
 			class Declaration: public Statement {
 			public:
 				enum NodeType type = NodeType::declaration;
-				Identifier* identifier;
+				std::shared_ptr<Identifier> identifier;
 				bool isMutable = false;
-				Expression* value;
+				std::shared_ptr<Expression> value;
 				bool isInFunctionSetup = false;
-				Declaration(Identifier* identifier, Expression* value, bool isMutable, bool isInFunctionSetup = false) {
+				Declaration(std::shared_ptr<Identifier> identifier, std::shared_ptr<Expression> value, bool isMutable, bool isInFunctionSetup = false) {
 					this->identifier = identifier;
 					this->isMutable = isMutable;
 					this->value = value;
 					this->type = NodeType::declaration;
 					this->isInFunctionSetup = isInFunctionSetup;
 				}
-				Declaration(Assignation* assignation, bool isMutable) {
+				Declaration(std::shared_ptr<Assignation> assignation, bool isMutable) {
 					this->identifier = assignation->identifier;
 					this->value = assignation->value;
 					this->type = NodeType::declaration;
@@ -607,12 +607,12 @@ namespace ent {
 			class FunctionDeclaration: public Statement {
 			public:
 				enum NodeType type = NodeType::functionDeclaration;
-				Identifier* identifier;
+				std::shared_ptr<Identifier> identifier;
 				std::string returnType;
-				std::vector<Declaration*> arguments;
-				std::vector<Statement*> body;
+				std::vector<std::shared_ptr<Declaration>> arguments;
+				std::vector<std::shared_ptr<Statement>> body;
 
-				FunctionDeclaration(Identifier* identifier, std::string returnType, std::vector<Declaration*> arguments, std::vector<Statement*> body) {
+				FunctionDeclaration(std::shared_ptr<Identifier> identifier, std::string returnType, std::vector<std::shared_ptr<Declaration>> arguments, std::vector<std::shared_ptr<Statement>> body) {
 					this->identifier = identifier;
 					this->returnType = returnType;
 					this->arguments = arguments;
@@ -644,7 +644,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::program;
 
-				Program(std::vector<Statement*> body) : Scope(body) {
+				Program(std::vector<std::shared_ptr<Statement>> body) : Scope(body) {
 					this->type = NodeType::program;
 				}
 				virtual NodeType get_type() override {
@@ -666,10 +666,10 @@ namespace ent {
 			class ConditionnalBlock: public Scope {
 			public:
 				enum NodeType type = NodeType::conditionnalBlock;
-				Expression* condition;
-				ConditionnalBlock* before;
+				std::shared_ptr<Expression> condition;
+				std::shared_ptr<ConditionnalBlock> before;
 
-				ConditionnalBlock(std::vector<Statement*> body, Expression* condition, ConditionnalBlock* before = nullptr) : Scope(body) {
+				ConditionnalBlock(std::vector<std::shared_ptr<Statement>> body, std::shared_ptr<Expression> condition, std::shared_ptr<ConditionnalBlock> before = nullptr) : Scope(body) {
 					this->type = NodeType::program;
 					this->condition = condition;
 					this->before = before;
@@ -698,9 +698,9 @@ namespace ent {
 			class ConditionnalStructure: public Statement {
 			public:
 				enum NodeType type = NodeType::conditionnalStructure;
-				std::vector<ConditionnalBlock*> conditionnalBlocks;
+				std::vector<std::shared_ptr<ConditionnalBlock>> conditionnalBlocks;
 
-				ConditionnalStructure(std::vector<ConditionnalBlock*> conditionnalBlocks) {
+				ConditionnalStructure(std::vector<std::shared_ptr<ConditionnalBlock>> conditionnalBlocks) {
 					this->type = NodeType::conditionnalBlock;
 					this->conditionnalBlocks = conditionnalBlocks;
 				}
@@ -709,7 +709,7 @@ namespace ent {
 				}
 				virtual std::string pretty_print(int indent = 0) override {
 					std::string pretty = "";
-					for(ConditionnalBlock* block : this->conditionnalBlocks) {
+					for(std::shared_ptr<ConditionnalBlock> block : this->conditionnalBlocks) {
 						pretty += block->pretty_print(indent + 1) + "\n";
 					}
 					return pretty;
@@ -721,9 +721,9 @@ namespace ent {
 
 			class Loop: public Scope {
 			public:
-				Expression* loopCondition;
+				std::shared_ptr<Expression> loopCondition;
 
-				Loop(Expression* loopCondition, std::vector<Statement*> body) : Scope(body) {
+				Loop(std::shared_ptr<Expression> loopCondition, std::vector<std::shared_ptr<Statement>> body) : Scope(body) {
 					this->loopCondition = loopCondition;
 				}
 			};
@@ -731,10 +731,10 @@ namespace ent {
 			class ForLoop: public Loop {
 			public:
 				enum NodeType type = NodeType::forLoop;
-				Statement* initStatement;
-				Statement* iterationStatement;
+				std::shared_ptr<Statement> initStatement;
+				std::shared_ptr<Statement> iterationStatement;
 
-				ForLoop(Statement* initStatement, Expression* loopCondition, Statement* iterationStatement, std::vector<Statement*> body): Loop(loopCondition, body) {
+				ForLoop(std::shared_ptr<Statement> initStatement, std::shared_ptr<Expression> loopCondition, std::shared_ptr<Statement> iterationStatement, std::vector<std::shared_ptr<Statement>> body): Loop(loopCondition, body) {
 					this->type = NodeType::forLoop;
 					this->initStatement = initStatement;
 					this->iterationStatement = iterationStatement;
@@ -763,7 +763,7 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::whileLoop;
 
-				WhileLoop(Expression* loopCondition, std::vector<Statement*> body): Loop(loopCondition, body) {
+				WhileLoop(std::shared_ptr<Expression> loopCondition, std::vector<std::shared_ptr<Statement>> body): Loop(loopCondition, body) {
 					this->type = NodeType::whileLoop;
 				}
 				virtual NodeType get_type() override {

@@ -10,7 +10,7 @@
 #include "errors.hpp"
 
 #define evaluateSameIntegerNumberExpression(return_T, function_name, T, max, min, overflow_error, underflow_error) \
-return_T function_name(T* left, T* right, std::string op) { \
+std::shared_ptr<return_T> function_name(std::shared_ptr<T> left, std::shared_ptr<T> right, std::string op) { \
 	if(op == "+") { \
 		return cast_to_min_type(left->get_value() + right->get_value()); \
 	} if(op == "-") { \
@@ -26,23 +26,23 @@ return_T function_name(T* left, T* right, std::string op) { \
 			throw (ent::Error(ent::ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
 		return cast_to_min_type(left->get_value() % right->get_value()); \
 	} if(op == "==") { \
-		return new BooleanValue(left->get_value() == right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() == right->get_value()); \
 	} if(op == "!=") { \
-		return new BooleanValue(left->get_value() != right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() != right->get_value()); \
 	} if(op == "&&") { \
-		return new BooleanValue(left->IsTrue() && right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() && right->IsTrue()); \
 	} if(op == "||") { \
-		return new BooleanValue(left->IsTrue() || right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() || right->IsTrue()); \
 	} if(op == "<") { \
-		return new BooleanValue(left->get_value() < right->get_value()); \
-	} if(op == ">") { \
-		return new BooleanValue(left->get_value() > right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() < right->get_value()); \
+	} if(op == "*") { \
+		return std::make_shared<BooleanValue>(left->get_value() > right->get_value()); \
 	} if(op == "<=") { \
-		return new BooleanValue(left->get_value() <= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() <= right->get_value()); \
 	} if(op == ">=") { \
-		return new BooleanValue(left->get_value() >= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() >= right->get_value()); \
 	} if(op == "^^") { \
-		return new BooleanValue( \
+		return std::make_shared<BooleanValue>( \
 			(left->IsTrue() || right->IsTrue()) && \
 			!(left->IsTrue() && right->IsTrue()) \
 		); \
@@ -61,7 +61,7 @@ return_T function_name(T* left, T* right, std::string op) { \
 }
 
 #define evaluateNumberExpression(return_T, function_name, big_T, little_T, max, min, overflow_error, underflow_error) \
-return_T function_name(big_T* left, little_T* right, std::string op) { \
+std::shared_ptr<return_T> function_name(std::shared_ptr<big_T> left, std::shared_ptr<little_T> right, std::string op) { \
 	if(op == "+") { \
 		return cast_to_min_type(left->get_value() + right->get_value()); \
 	} if(op == "-") { \
@@ -73,23 +73,23 @@ return_T function_name(big_T* left, little_T* right, std::string op) { \
 			throw (ent::Error(ent::ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
 		return cast_to_min_type(left->get_value() / right->get_value()); \
 	} if(op == "==") { \
-		return new BooleanValue(left->get_value() == right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() == right->get_value()); \
 	} if(op == "!=") { \
-		return new BooleanValue(left->get_value() != right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() != right->get_value()); \
 	} if(op == "&&") { \
-		return new BooleanValue(left->IsTrue() && right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() && right->IsTrue()); \
 	} if(op == "||") { \
-		return new BooleanValue(left->IsTrue() || right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() || right->IsTrue()); \
 	} if(op == "<") { \
-		return new BooleanValue(left->get_value() < right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() < right->get_value()); \
 	} if(op == ">") { \
-		return new BooleanValue(left->get_value() > right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() > right->get_value()); \
 	} if(op == "<=") { \
-		return new BooleanValue(left->get_value() <= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() <= right->get_value()); \
 	} if(op == ">=") { \
-		return new BooleanValue(left->get_value() >= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() >= right->get_value()); \
 	} if(op == "^^") { \
-		return new BooleanValue( \
+		return std::make_shared<BooleanValue>( \
 			(left->IsTrue() || right->IsTrue()) && \
 			!(left->IsTrue() && right->IsTrue()) \
 		); \
@@ -98,7 +98,7 @@ return_T function_name(big_T* left, little_T* right, std::string op) { \
 }
 
 #define evaluateNumberExpressionReverse(return_T, function_name, big_T, little_T, max, min, overflow_error, underflow_error) \
-return_T function_name(little_T* left, big_T* right, std::string op) { \
+std::shared_ptr<return_T> function_name(std::shared_ptr<little_T> left, std::shared_ptr<big_T> right, std::string op) { \
 	if(op == "+") { \
 		return cast_to_min_type(left->get_value() + right->get_value()); \
 	} if(op == "-") { \
@@ -110,23 +110,23 @@ return_T function_name(little_T* left, big_T* right, std::string op) { \
 			throw (ent::Error(ent::ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR, "Division by zero")).error(); \
 		return cast_to_min_type(left->get_value() / right->get_value()); \
 	} if(op == "==") { \
-		return new BooleanValue(left->get_value() == right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() == right->get_value()); \
 	} if(op == "!=") { \
-		return new BooleanValue(left->get_value() != right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() != right->get_value()); \
 	} if(op == "&&") { \
-		return new BooleanValue(left->IsTrue() && right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() && right->IsTrue()); \
 	} if(op == "||") { \
-		return new BooleanValue(left->IsTrue() || right->IsTrue()); \
+		return std::make_shared<BooleanValue>(left->IsTrue() || right->IsTrue()); \
 	} if(op == "<") { \
-		return new BooleanValue(left->get_value() < right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() < right->get_value()); \
 	} if(op == ">") { \
-		return new BooleanValue(left->get_value() > right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() > right->get_value()); \
 	} if(op == "<=") { \
-		return new BooleanValue(left->get_value() <= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() <= right->get_value()); \
 	} if(op == ">=") { \
-		return new BooleanValue(left->get_value() >= right->get_value()); \
+		return std::make_shared<BooleanValue>(left->get_value() >= right->get_value()); \
 	} if(op == "^^") { \
-		return new BooleanValue( \
+		return std::make_shared<BooleanValue>( \
 			(left->IsTrue() || right->IsTrue()) && \
 			!(left->IsTrue() && right->IsTrue()) \
 		); \
@@ -140,12 +140,12 @@ evaluateNumberExpressionReverse(return_T, function_name_second, big_T, little_T,
 
 #define evaluateUnaryAssignationExpression(expression_type, value_type) \
 evaluateAssignationExpression( \
-	new ent::front::ast::Assignation( \
+	std::make_shared<ent::front::ast::Assignation>( \
 		identifier, \
-		new ent::front::ast::BinaryExpression( \
-			new expression_type(((value_type)old_value)->get_value()), \
+		std::make_shared<ent::front::ast::BinaryExpression>( \
+			std::make_shared<expression_type>(std::dynamic_pointer_cast<value_type>(old_value)->get_value()), \
 			std::string(1, unaryExpression->operator_symbol[0]), \
-			new expression_type(1) \
+			std::make_shared<expression_type>(1) \
 		) \
 	), \
 	env \
@@ -154,93 +154,93 @@ evaluateAssignationExpression( \
 namespace ent {
 	namespace runtime {
 		namespace interpreter {
-			RuntimeValue* evaluateIdentifier(ent::front::ast::Identifier* identifier, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateIdentifier(std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<Environment> env) {
 				return env->get_value(identifier->name);
 			}
 
-			RuntimeValue* evaluateI8Expression(ent::front::ast::I8Expression* numericExpression) {
-				return new I8Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateI8Expression(std::shared_ptr<ent::front::ast::I8Expression> numericExpression) {
+				return std::make_shared<I8Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateI16Expression(ent::front::ast::I16Expression* numericExpression) {
-				return new I16Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateI16Expression(std::shared_ptr<ent::front::ast::I16Expression> numericExpression) {
+				return std::make_shared<I16Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateI32Expression(ent::front::ast::I32Expression* numericExpression) {
-				return new I32Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateI32Expression(std::shared_ptr<ent::front::ast::I32Expression> numericExpression) {
+				return std::make_shared<I32Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateI64Expression(ent::front::ast::I64Expression* numericExpression) {
-				return new I64Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateI64Expression(std::shared_ptr<ent::front::ast::I64Expression> numericExpression) {
+				return std::make_shared<I64Value>(numericExpression->value);
 			}
 			
-			RuntimeValue* evaluateU8Expression(ent::front::ast::U8Expression* numericExpression) {
-				return new U8Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateU8Expression(std::shared_ptr<ent::front::ast::U8Expression> numericExpression) {
+				return std::make_shared<U8Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateU16Expression(ent::front::ast::U16Expression* numericExpression) {
-				return new U16Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateU16Expression(std::shared_ptr<ent::front::ast::U16Expression> numericExpression) {
+				return std::make_shared<U16Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateU32Expression(ent::front::ast::U32Expression* numericExpression) {
-				return new U32Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateU32Expression(std::shared_ptr<ent::front::ast::U32Expression> numericExpression) {
+				return std::make_shared<U32Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateU64Expression(ent::front::ast::U64Expression* numericExpression) {
-				return new U64Value(numericExpression->value);
-			}
-
-			RuntimeValue* evaluateF32Expression(ent::front::ast::F32Expression* numericExpression) {
-				return new F32Value(numericExpression->value);
-			}
-			RuntimeValue* evaluateF64Expression(ent::front::ast::F64Expression* numericExpression) {
-				return new F64Value(numericExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateU64Expression(std::shared_ptr<ent::front::ast::U64Expression> numericExpression) {
+				return std::make_shared<U64Value>(numericExpression->value);
 			}
 
-			RuntimeValue* evaluateBooleanExpression(ent::front::ast::BooleanExpression* booleanExpression) {
-				return new BooleanValue(booleanExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateF32Expression(std::shared_ptr<ent::front::ast::F32Expression> numericExpression) {
+				return std::make_shared<F32Value>(numericExpression->value);
 			}
-			RuntimeValue* evaluateCharExpression(ent::front::ast::CharExpression* charExpression) {
-				return new CharValue(charExpression->value);
-			}
-			RuntimeValue* evaluateStrExpression(ent::front::ast::StrExpression* strExpression) {
-				return new StrValue(strExpression->value);
+			std::shared_ptr<RuntimeValue> evaluateF64Expression(std::shared_ptr<ent::front::ast::F64Expression> numericExpression) {
+				return std::make_shared<F64Value>(numericExpression->value);
 			}
 
-			RuntimeValue* cast_to_min_type(double num) {
+			std::shared_ptr<RuntimeValue> evaluateBooleanExpression(std::shared_ptr<ent::front::ast::BooleanExpression> booleanExpression) {
+				return std::make_shared<BooleanValue>(booleanExpression->value);
+			}
+			std::shared_ptr<RuntimeValue> evaluateCharExpression(std::shared_ptr<ent::front::ast::CharExpression> charExpression) {
+				return std::make_shared<CharValue>(charExpression->value);
+			}
+			std::shared_ptr<RuntimeValue> evaluateStrExpression(std::shared_ptr<ent::front::ast::StrExpression> strExpression) {
+				return std::make_shared<StrValue>(strExpression->value);
+			}
+
+			std::shared_ptr<RuntimeValue> cast_to_min_type(double num) {
 				if (std::isnan(num) || std::isinf(num) || num > std::numeric_limits<uint64_t>::max() || num < std::numeric_limits<int64_t>::min()) {
 					throw (ent::Error(ent::ErrorType::INTERPRETER_OUT_OF_RANGE_NUMBER, std::string("The number is out of range for available types : ") + std::to_string(num))).error();
 				}
 
 				if (num >= std::numeric_limits<int8_t>::min() && num <= std::numeric_limits<int8_t>::max() && num == static_cast<int8_t>(num)) {
-					return new I8Value(static_cast<int8_t>(num));
+					return std::make_shared<I8Value>(static_cast<int8_t>(num));
 				} else if (num >= std::numeric_limits<int16_t>::min() && num <= std::numeric_limits<int16_t>::max() && num == static_cast<int16_t>(num)) {
-					return new I16Value(static_cast<int16_t>(num));
+					return std::make_shared<I16Value>(static_cast<int16_t>(num));
 				} else if (num >= std::numeric_limits<int32_t>::min() && num <= std::numeric_limits<int32_t>::max() && num == static_cast<int32_t>(num)) {
-					return new I32Value(static_cast<int32_t>(num));
+					return std::make_shared<I32Value>(static_cast<int32_t>(num));
 				} else if (num >= std::numeric_limits<int64_t>::min() && num <= std::numeric_limits<int64_t>::max() && num == static_cast<int64_t>(num)) {
-					return new I64Value(static_cast<int64_t>(num));
+					return std::make_shared<I64Value>(static_cast<int64_t>(num));
 				} else if (num >= 0 && num <= std::numeric_limits<uint64_t>::max() && num == static_cast<uint64_t>(num)) {
-					return new U64Value(static_cast<uint64_t>(num));
+					return std::make_shared<U64Value>(static_cast<uint64_t>(num));
 				}
 
 				if (num >= -std::numeric_limits<float>::max() && num <= std::numeric_limits<float>::max() && static_cast<float>(num) == num) {
-					return new F32Value(static_cast<float>(num));
+					return std::make_shared<F32Value>(static_cast<float>(num));
 				}
 
-				return new F64Value(num);
+				return std::make_shared<F64Value>(num);
 			}
 
-			// * I8
+			// > I8
 
 			// I8 - I8
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateI8BinaryExpression,
+				RuntimeValue, evaluateI8BinaryExpression,
 				I8Value,
 				INT8_MAX, INT8_MIN,
 				(ent::Error(ent::ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")),
 				(ent::Error(ent::ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow"))
 			)
 
-			// * I16
+			// > I16
 
 			// I16 - I16
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateI16BinaryExpression,
+				RuntimeValue, evaluateI16BinaryExpression,
 				I16Value,
 				INT16_MAX, INT16_MIN,
 				(ent::Error(ent::ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")),
@@ -248,7 +248,7 @@ namespace ent {
 			)
 			// I16 - I8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI16I8BinaryExpression, evaluateI8I16BinaryExpression,
 				I16Value, I8Value,
 				INT16_MAX, INT16_MIN,
@@ -257,7 +257,7 @@ namespace ent {
 			)
 			// I16 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI16U8BinaryExpression, evaluateU8I16BinaryExpression,
 				I16Value, U8Value,
 				INT16_MAX, INT16_MIN,
@@ -265,11 +265,11 @@ namespace ent {
 				(ent::Error(ent::ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow"))
 			)
 
-			// * I32
+			// > I32
 			
 			// I32 - I32
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateI32BinaryExpression,
+				RuntimeValue, evaluateI32BinaryExpression,
 				I32Value,
 				INT32_MAX, INT32_MIN,
 				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
@@ -277,7 +277,7 @@ namespace ent {
 			)
 			// I32 - I8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI32I8BinaryExpression, evaluateI8I32BinaryExpression,
 				I32Value, I8Value,
 				INT32_MAX, INT32_MIN,
@@ -286,7 +286,7 @@ namespace ent {
 			)
 			// I32 - I16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI32I16BinaryExpression, evaluateI16I32BinaryExpression,
 				I32Value, I16Value,
 				INT32_MAX, INT32_MIN,
@@ -295,7 +295,7 @@ namespace ent {
 			)
 			// I32 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI32U8BinaryExpression, evaluateU8I32BinaryExpression,
 				I32Value, U8Value,
 				INT32_MAX, INT32_MIN,
@@ -304,7 +304,7 @@ namespace ent {
 			)
 			// I32 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI32U16BinaryExpression, evaluateU16I32BinaryExpression,
 				I32Value, U16Value,
 				INT32_MAX, INT32_MIN,
@@ -312,11 +312,11 @@ namespace ent {
 				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 
-			// * I64
+			// > I64
 
 			// I64 - I64
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateI64BinaryExpression,
+				RuntimeValue, evaluateI64BinaryExpression,
 				I64Value,
 				INT64_MAX, INT64_MIN,
 				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
@@ -324,7 +324,7 @@ namespace ent {
 			)
 			// I64 - I8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64I8BinaryExpression, evaluateI8I64BinaryExpression,
 				I64Value, I8Value,
 				INT64_MAX, INT64_MIN,
@@ -333,7 +333,7 @@ namespace ent {
 			)
 			// I64 - I16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64I16BinaryExpression, evaluateI16I64BinaryExpression,
 				I64Value, I16Value,
 				INT64_MAX, INT64_MIN,
@@ -342,7 +342,7 @@ namespace ent {
 			)
 			// I64 - I32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64I32BinaryExpression, evaluateI32I64BinaryExpression,
 				I64Value, I32Value,
 				INT64_MAX, INT64_MIN,
@@ -351,7 +351,7 @@ namespace ent {
 			)
 			// I64 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64U8BinaryExpression, evaluateU8I64BinaryExpression,
 				I64Value, U8Value,
 				INT64_MAX, INT64_MIN,
@@ -360,7 +360,7 @@ namespace ent {
 			)
 			// I64 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64U16BinaryExpression, evaluateU16I64BinaryExpression,
 				I64Value, U16Value,
 				INT64_MAX, INT64_MIN,
@@ -369,7 +369,7 @@ namespace ent {
 			)
 			// I64 - U32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateI64U32BinaryExpression, evaluateU32I64BinaryExpression,
 				I64Value, U32Value,
 				INT64_MAX, INT64_MIN,
@@ -377,22 +377,22 @@ namespace ent {
 				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 
-			// * U8
+			// > U8
 
 			// U8 - U8
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateU8BinaryExpression,
+				RuntimeValue, evaluateU8BinaryExpression,
 				U8Value,
 				UINT8_MAX, 0,
 				(ent::Error(ent::ErrorType::U8_OVERFLOW_ERROR, "U8 Overflow")),
 				(ent::Error(ent::ErrorType::U8_UNDERFLOW_ERROR, "U8 Underflow"))
 			)
 
-			// * U16
+			// > U16
 
 			// U16 - U16
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateU16BinaryExpression,
+				RuntimeValue, evaluateU16BinaryExpression,
 				U16Value,
 				UINT16_MAX, 0,
 				(ent::Error(ent::ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")),
@@ -400,7 +400,7 @@ namespace ent {
 			)
 			// U16 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU16U8BinaryExpression, evaluateU8U16BinaryExpression,
 				U16Value, U8Value,
 				UINT16_MAX, 0,
@@ -408,11 +408,11 @@ namespace ent {
 				(ent::Error(ent::ErrorType::U16_UNDERFLOW_ERROR, "U16 Underflow"))
 			)
 
-			// * U32
+			// > U32
 
 			// U32 - U32
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateU32BinaryExpression,
+				RuntimeValue, evaluateU32BinaryExpression,
 				U32Value,
 				UINT32_MAX, 0,
 				(ent::Error(ent::ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")),
@@ -420,7 +420,7 @@ namespace ent {
 			)
 			// U32 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU32U8BinaryExpression, evaluateU8U32BinaryExpression,
 				U32Value, U8Value,
 				UINT32_MAX, 0,
@@ -429,7 +429,7 @@ namespace ent {
 			)
 			// U32 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU32U16BinaryExpression, evaluateU16U32BinaryExpression,
 				U32Value, U16Value,
 				UINT32_MAX, 0,
@@ -437,11 +437,11 @@ namespace ent {
 				(ent::Error(ent::ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow"))
 			)
 
-			// * U64
+			// > U64
 
 			// U64 - U64
 			evaluateSameIntegerNumberExpression(
-				RuntimeValue*, evaluateU64BinaryExpression,
+				RuntimeValue, evaluateU64BinaryExpression,
 				U64Value,
 				UINT64_MAX, 0,
 				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
@@ -449,7 +449,7 @@ namespace ent {
 			)
 			// U64 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU64U8BinaryExpression, evaluateU8U64BinaryExpression,
 				U64Value, U8Value,
 				UINT64_MAX, 0,
@@ -458,7 +458,7 @@ namespace ent {
 			)
 			// U64 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU64U16BinaryExpression, evaluateU16U64BinaryExpression,
 				U64Value, U16Value,
 				UINT64_MAX, 0,
@@ -467,7 +467,7 @@ namespace ent {
 			)
 			// U64 - U32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateU64U32BinaryExpression, evaluateU32U64BinaryExpression,
 				U64Value, U32Value,
 				UINT64_MAX, 0,
@@ -475,11 +475,11 @@ namespace ent {
 				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
 			)
 
-			// * F32
+			// > F32
 
 			// F32 - F32
 			evaluateNumberExpression(
-				RuntimeValue*, evaluateF32BinaryExpression,
+				RuntimeValue, evaluateF32BinaryExpression,
 				F32Value, F32Value,
 				FLT_MAX, FLT_MIN,
 				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
@@ -487,7 +487,7 @@ namespace ent {
 			)
 			// F32 - I8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32I8BinaryExpression, evaluateI8F32BinaryExpression,
 				F32Value, I8Value,
 				FLT_MAX, FLT_MIN,
@@ -496,7 +496,7 @@ namespace ent {
 			)
 			// F32 - I16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32I16BinaryExpression, evaluateI16F32BinaryExpression,
 				F32Value, I16Value,
 				FLT_MAX, FLT_MIN,
@@ -505,7 +505,7 @@ namespace ent {
 			)
 			// F32 - I32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32I32BinaryExpression, evaluateI32F32BinaryExpression,
 				F32Value, I32Value,
 				FLT_MAX, FLT_MIN,
@@ -514,7 +514,7 @@ namespace ent {
 			)
 			// F32 - I64
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32I64BinaryExpression, evaluateI64F32BinaryExpression,
 				F32Value, I64Value,
 				FLT_MAX, FLT_MIN,
@@ -523,7 +523,7 @@ namespace ent {
 			)
 			// F32 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32U8BinaryExpression, evaluateU8F32BinaryExpression,
 				F32Value, U8Value,
 				FLT_MAX, FLT_MIN,
@@ -532,7 +532,7 @@ namespace ent {
 			)
 			// F32 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32U16BinaryExpression, evaluateU16F32BinaryExpression,
 				F32Value, U16Value,
 				FLT_MAX, FLT_MIN,
@@ -541,7 +541,7 @@ namespace ent {
 			)
 			// F32 - U32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32U32BinaryExpression, evaluateU32F32BinaryExpression,
 				F32Value, U32Value,
 				FLT_MAX, FLT_MIN,
@@ -550,7 +550,7 @@ namespace ent {
 			)
 			// F32 - U64
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF32U64BinaryExpression, evaluateU64F32BinaryExpression,
 				F32Value, U64Value,
 				FLT_MAX, FLT_MIN,
@@ -558,10 +558,10 @@ namespace ent {
 				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 
-			// * F64
+			// > F64
 
 			evaluateNumberExpression(
-				RuntimeValue*, evaluateF64BinaryExpression,
+				RuntimeValue, evaluateF64BinaryExpression,
 				F64Value, F64Value,
 				DBL_MAX, DBL_MIN,
 				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
@@ -569,7 +569,7 @@ namespace ent {
 			)
 			// F64 - I8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64I8BinaryExpression, evaluateI8F64BinaryExpression,
 				F64Value, I8Value,
 				DBL_MAX, DBL_MIN,
@@ -578,7 +578,7 @@ namespace ent {
 			)
 			// F64 - I16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64I16BinaryExpression, evaluateI16F64BinaryExpression,
 				F64Value, I16Value,
 				DBL_MAX, DBL_MIN,
@@ -587,7 +587,7 @@ namespace ent {
 			)
 			// F64 - I32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64I32BinaryExpression, evaluateI32F64BinaryExpression,
 				F64Value, I32Value,
 				DBL_MAX, DBL_MIN,
@@ -596,7 +596,7 @@ namespace ent {
 			)
 			// F64 - I64
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64I64BinaryExpression, evaluateI64F64BinaryExpression,
 				F64Value, I64Value,
 				DBL_MAX, DBL_MIN,
@@ -605,7 +605,7 @@ namespace ent {
 			)
 			// F64 - U8
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64U8BinaryExpression, evaluateU8F64BinaryExpression,
 				F64Value, U8Value,
 				DBL_MAX, DBL_MIN,
@@ -614,7 +614,7 @@ namespace ent {
 			)
 			// F64 - U16
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64U16BinaryExpression, evaluateU16F64BinaryExpression,
 				F64Value, U16Value,
 				DBL_MAX, DBL_MIN,
@@ -623,7 +623,7 @@ namespace ent {
 			)
 			// F64 - U32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64U32BinaryExpression, evaluateU32F64BinaryExpression,
 				F64Value, U32Value,
 				DBL_MAX, DBL_MIN,
@@ -632,7 +632,7 @@ namespace ent {
 			)
 			// F64 - U64
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64U64BinaryExpression, evaluateU64F64BinaryExpression,
 				F64Value, U64Value,
 				DBL_MAX, DBL_MIN,
@@ -641,7 +641,7 @@ namespace ent {
 			)
 			// F64 - F32
 			evaluateNumberExpressionBoth(
-				RuntimeValue*,
+				RuntimeValue,
 				evaluateF64F32BinaryExpression, evaluateF32F64BinaryExpression,
 				F64Value, F32Value,
 				DBL_MAX, DBL_MIN,
@@ -649,25 +649,25 @@ namespace ent {
 				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 
-			RuntimeValue* evaluateBooleanBinaryExpression(BooleanValue* left, BooleanValue * right, std::string op) {
+			std::shared_ptr<RuntimeValue> evaluateBooleanBinaryExpression(std::shared_ptr<BooleanValue> left, std::shared_ptr<BooleanValue> right, std::string op) {
 				if(op == "==") {
-					return new BooleanValue(left->get_value() == right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() == right->get_value());
 				} if(op == "!=") {
-					return new BooleanValue(left->get_value() != right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() != right->get_value());
 				} if(op == "&&") {
-					return new BooleanValue(left->get_value() && right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() && right->get_value());
 				} if(op == "||") {
-					return new BooleanValue(left->get_value() || right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() || right->get_value());
 				} if(op == "<") {
-					return new BooleanValue(left->get_value() < right->get_value());
-				} if(op == ">") {
-					return new BooleanValue(left->get_value() > right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() < right->get_value());
+				} if(op == "*") {
+					return std::make_shared<BooleanValue>(left->get_value() > right->get_value());
 				} if(op == "<=") {
-					return new BooleanValue(left->get_value() <= right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() <= right->get_value());
 				} if(op == ">=") {
-					return new BooleanValue(left->get_value() >= right->get_value());
+					return std::make_shared<BooleanValue>(left->get_value() >= right->get_value());
 				} if(op == "^^") {
-					return new BooleanValue(
+					return std::make_shared<BooleanValue>(
 						(left->get_value() || right->get_value()) &&
 						!(left->get_value() && right->get_value())
 					);
@@ -675,207 +675,207 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + op)).error();
 			}
 
-			RuntimeValue* evaluateNumberBinaryExpression(ent::front::ast::BinaryExpression* binaryExpression, NumberValue* left, NumberValue* right) {
+			std::shared_ptr<RuntimeValue> evaluateNumberBinaryExpression(std::shared_ptr<ent::front::ast::BinaryExpression> binaryExpression, std::shared_ptr<NumberValue> left, std::shared_ptr<NumberValue> right) {
 				switch(left->type()) {
 					case ValueType::I8:
 							switch(right->type()) {
 								case ValueType::I8:
-									return evaluateI8BinaryExpression((I8Value*)left, (I8Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<I8Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I16:
-									return evaluateI8I16BinaryExpression((I8Value*)left, (I16Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8I16BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<I16Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I32:
-									return evaluateI8I32BinaryExpression((I8Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8I32BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I64:
-									return evaluateI8I64BinaryExpression((I8Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8I64BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 								case ValueType::F32:
-									return evaluateI8F32BinaryExpression((I8Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8F32BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 								case ValueType::F64:
-									return evaluateI8F64BinaryExpression((I8Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+									return evaluateI8F64BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 								default:
 									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I8 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 							}
 					case ValueType::I16:
 							switch(right->type()) {
 								case ValueType::I8:
-									return evaluateI16I8BinaryExpression((I16Value*)left, (I8Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16I8BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<I8Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I16:
-									return evaluateI16BinaryExpression((I16Value*)left, (I16Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<I16Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I32:
-									return evaluateI16I32BinaryExpression((I16Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16I32BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 								case ValueType::I64:
-									return evaluateI16I64BinaryExpression((I16Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16I64BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 								case ValueType::U8:
-									return evaluateI16U8BinaryExpression((I16Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16U8BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 								case ValueType::F32:
-									return evaluateI16F32BinaryExpression((I16Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16F32BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 								case ValueType::F64:
-									return evaluateI16F64BinaryExpression((I16Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+									return evaluateI16F64BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 								default:
 									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I16 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 							}
 					case ValueType::I32:
 						switch(right->type()) {
 							case ValueType::I8:
-								return evaluateI32I8BinaryExpression((I32Value*)left, (I8Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32I8BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<I8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I16:
-								return evaluateI32I16BinaryExpression((I32Value*)left, (I16Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32I16BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<I16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I32:
-								return evaluateI32BinaryExpression((I32Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateI32I64BinaryExpression((I32Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32I64BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U8:
-								return evaluateI32U8BinaryExpression((I32Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32U8BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateI32U16BinaryExpression((I32Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32U16BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateI32F32BinaryExpression((I32Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32F32BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateI32F64BinaryExpression((I32Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateI32F64BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::I64:
 						switch(right->type()) {
 							case ValueType::I8:
-								return evaluateI64I8BinaryExpression((I64Value*)left, (I8Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64I8BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<I8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I16:
-								return evaluateI64I16BinaryExpression((I64Value*)left, (I16Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64I16BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<I16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I32:
-								return evaluateI64I32BinaryExpression((I64Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64I32BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateI64BinaryExpression((I64Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U8:
-								return evaluateI64U8BinaryExpression((I64Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64U8BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateI64U16BinaryExpression((I64Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64U16BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateI64U32BinaryExpression((I64Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64U32BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateI64F32BinaryExpression((I64Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64F32BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateI64F64BinaryExpression((I64Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateI64F64BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::U8:
 						switch(right->type()) {
 							case ValueType::I16:
-								return evaluateU8I16BinaryExpression((U8Value*)left, (I16Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8I16BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<I16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I32:
-								return evaluateU8I32BinaryExpression((U8Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8I32BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateU8I64BinaryExpression((U8Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8I64BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U8:
-								return evaluateU8BinaryExpression((U8Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateU8U16BinaryExpression((U8Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8U16BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateU8U32BinaryExpression((U8Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8U32BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateU8F32BinaryExpression((U8Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8F32BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateU8F64BinaryExpression((U8Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU8F64BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U8 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::U16:
 						switch(right->type()) {
 							case ValueType::I32:
-								return evaluateU16I32BinaryExpression((U16Value*)left, (I32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16I32BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<I32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateU16I64BinaryExpression((U16Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16I64BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U8:
-								return evaluateU16U8BinaryExpression((U16Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16U8BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateU16BinaryExpression((U16Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateU16U32BinaryExpression((U16Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16U32BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateU16F32BinaryExpression((U16Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16F32BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateU16F64BinaryExpression((U16Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU16F64BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U16 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::U32:
 						switch(right->type()) {
 							case ValueType::I64:
-								return evaluateU32I64BinaryExpression((U32Value*)left, (I64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32I64BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<I64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U8:
-								return evaluateU32U8BinaryExpression((U32Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32U8BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateU32U16BinaryExpression((U32Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32U16BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateU32BinaryExpression((U32Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateU32F32BinaryExpression((U32Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32F32BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateU32F64BinaryExpression((U32Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU32F64BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::U64:
 						switch(right->type()) {
 							case ValueType::U8:
-								return evaluateU64U8BinaryExpression((U64Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateU64U8BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateU64U16BinaryExpression((U64Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateU64U16BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateU64U32BinaryExpression((U64Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU64U32BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateU64F32BinaryExpression((U64Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateU64F32BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateU64F64BinaryExpression((U64Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateU64F64BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::F32:
 						switch(right->type()) {
 							case ValueType::U8:
-								return evaluateF32U8BinaryExpression((F32Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U8BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateF32U16BinaryExpression((F32Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U16BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateF32U32BinaryExpression((F32Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U32BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U64:
-								return evaluateF32U64BinaryExpression((F32Value*)left, (U64Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U64BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I8:
-								return evaluateF32U8BinaryExpression((F32Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U8BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I16:
-								return evaluateF32U16BinaryExpression((F32Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U16BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I32:
-								return evaluateF32U32BinaryExpression((F32Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U32BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateF32U32BinaryExpression((F32Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32U32BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateF32BinaryExpression((F32Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateF32F64BinaryExpression((F32Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateF32F64BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
 					case ValueType::F64:
 						switch(right->type()) {
 							case ValueType::U8:
-								return evaluateF64U8BinaryExpression((F64Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U8BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U16:
-								return evaluateF64U16BinaryExpression((F64Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U16BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U32:
-								return evaluateF64U32BinaryExpression((F64Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U32BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::U64:
-								return evaluateF64U64BinaryExpression((F64Value*)left, (U64Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U64BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U64Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I8:
-								return evaluateF64U8BinaryExpression((F64Value*)left, (U8Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U8BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U8Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I16:
-								return evaluateF64U16BinaryExpression((F64Value*)left, (U16Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U16BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U16Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I32:
-								return evaluateF64U32BinaryExpression((F64Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U32BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::I64:
-								return evaluateF64U32BinaryExpression((F64Value*)left, (U32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64U32BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<U32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F32:
-								return evaluateF64F32BinaryExpression((F64Value*)left, (F32Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64F32BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<F32Value>(right), binaryExpression->operator_symbol);
 							case ValueType::F64:
-								return evaluateF64BinaryExpression((F64Value*)left, (F64Value*)right, binaryExpression->operator_symbol);
+								return evaluateF64BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
 								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 						}
@@ -884,92 +884,98 @@ namespace ent {
 				}
 			}
 
-			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env);
+			std::shared_ptr<RuntimeValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env);
 
-			RuntimeValue* evaluateBinaryExpression(ent::front::ast::BinaryExpression* binaryExpression, Environment* env) {
-				RuntimeValue* left = evaluateStatement(binaryExpression->left, env);
-				RuntimeValue* right = evaluateStatement(binaryExpression->right, env);
+			std::shared_ptr<RuntimeValue> evaluateBinaryExpression(std::shared_ptr<ent::front::ast::BinaryExpression> binaryExpression, std::shared_ptr<Environment> env) {
+				std::shared_ptr<RuntimeValue> left = evaluateStatement(binaryExpression->left, env);
+				std::shared_ptr<RuntimeValue> right = evaluateStatement(binaryExpression->right, env);
 
 				// Both operands are numbers
 				if(IsNumericType(left->type()) && IsNumericType(right->type())) {
-					RuntimeValue* val = evaluateNumberBinaryExpression(binaryExpression, (NumberValue*)left, (NumberValue*)right);
+					std::shared_ptr<RuntimeValue> val = evaluateNumberBinaryExpression(binaryExpression, std::dynamic_pointer_cast<NumberValue>(left), std::dynamic_pointer_cast<NumberValue>(right));
 					return val;
 				} else if(left->type() == ValueType::BOOL && right->type() == ValueType::BOOL) {
-					return evaluateBooleanBinaryExpression((BooleanValue*)left, (BooleanValue*)right, binaryExpression->operator_symbol);
+					return evaluateBooleanBinaryExpression(std::dynamic_pointer_cast<BooleanValue>(left), std::dynamic_pointer_cast<BooleanValue>(right), binaryExpression->operator_symbol);
 				}
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 			}
 
-			RuntimeValue* evaluateParenthesisExpression(ent::front::ast::ParenthesisExpression* parenthesisExpression, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateParenthesisExpression(std::shared_ptr<ent::front::ast::ParenthesisExpression> parenthesisExpression, std::shared_ptr<Environment> env) {
 				return evaluateStatement(parenthesisExpression->content, env);
 			}
 
-			RuntimeValue* evaluateAssignationExpression(ent::front::ast::Assignation* assignation, Environment* env);
+			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env);
 
-			RuntimeValue* evaluateUnaryExpression(ent::front::ast::UnaryExpression* unaryExpression, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateUnaryExpression(std::shared_ptr<ent::front::ast::UnaryExpression> unaryExpression, std::shared_ptr<Environment> env) {
 				if(unaryExpression->operator_symbol == "!") {
-					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
+					return std::make_shared<BooleanValue>(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
 				} if(unaryExpression->operator_symbol == "~") {
-					ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)unaryExpression->term;
-					switch(identifier->get_identifier_type()) {
+					ent::front::ast::NodeType term_type = unaryExpression->term->get_type();
+					std::shared_ptr<RuntimeValue> term_value = evaluateStatement(unaryExpression->term, env);
+
+					if(term_type == ent::front::ast::NodeType::identifier) {
+						std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(unaryExpression->term);
+						term_type = identifier->get_identifier_type();
+						term_value = env->get_value(identifier->name);
+					}
+					
+					switch(term_type) {
 						case ent::front::ast::NodeType::i8Expression:
-							return new I8Value(~(((I8Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<I8Value>(~std::dynamic_pointer_cast<I8Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::i16Expression:
-							return new I16Value(~(((I16Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<I16Value>(~std::dynamic_pointer_cast<I16Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::i32Expression:
-							return new I32Value(~(((I32Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<I32Value>(~std::dynamic_pointer_cast<I32Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::i64Expression:
-							return new I64Value(~(((I64Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<I64Value>(~std::dynamic_pointer_cast<I64Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::u8Expression:
-							return new U8Value(~(((U8Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<U8Value>(~std::dynamic_pointer_cast<U8Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::u16Expression:
-							return new U16Value(~(((U16Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<U16Value>(~std::dynamic_pointer_cast<U16Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::u32Expression:
-							return new U32Value(~(((U32Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<U32Value>(~std::dynamic_pointer_cast<U32Value>(term_value)->get_value());
 						case ent::front::ast::NodeType::u64Expression:
-							return new U64Value(~(((U64Value*)env->get_value(identifier->name)))->get_value());
+							return std::make_shared<U64Value>(~std::dynamic_pointer_cast<U64Value>(term_value)->get_value());
 						default:
-							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
+							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for bitwise not: " + unaryExpression->term->pretty_print())).error();
 					}
 				} if(unaryExpression->operator_symbol == "++" || unaryExpression->operator_symbol == "--") {
-					ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)unaryExpression->term;
-					RuntimeValue* old_value = env->get_value(identifier->name);
+					std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(unaryExpression->term);
+					std::shared_ptr<RuntimeValue> old_value = env->get_value(identifier->name);
 
 					switch(old_value->type()) {
 						case ent::runtime::ValueType::I8:
-							return evaluateUnaryAssignationExpression(ent::front::ast::I8Expression, ent::runtime::I8Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::I8Expression, ent::runtime::I8Value);
 						case ent::runtime::ValueType::I16:
-							return evaluateUnaryAssignationExpression(ent::front::ast::I16Expression, ent::runtime::I16Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::I16Expression, ent::runtime::I16Value);
 						case ent::runtime::ValueType::I32:
-							return evaluateUnaryAssignationExpression(ent::front::ast::I32Expression, ent::runtime::I32Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::I32Expression, ent::runtime::I32Value);
 						case ent::runtime::ValueType::I64:
-							return evaluateUnaryAssignationExpression(ent::front::ast::I64Expression, ent::runtime::I64Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::I64Expression, ent::runtime::I64Value);
 						case ent::runtime::ValueType::U8:
-							return evaluateUnaryAssignationExpression(ent::front::ast::U8Expression, ent::runtime::U8Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::U8Expression, ent::runtime::U8Value);
 						case ent::runtime::ValueType::U16:
-							return evaluateUnaryAssignationExpression(ent::front::ast::U16Expression, ent::runtime::U16Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::U16Expression, ent::runtime::U16Value);
 						case ent::runtime::ValueType::U32:
-							return evaluateUnaryAssignationExpression(ent::front::ast::U32Expression, ent::runtime::U32Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::U32Expression, ent::runtime::U32Value);
 						case ent::runtime::ValueType::U64:
-							return evaluateUnaryAssignationExpression(ent::front::ast::U64Expression, ent::runtime::U64Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::U64Expression, ent::runtime::U64Value);
 						case ent::runtime::ValueType::F32:
-							return evaluateUnaryAssignationExpression(ent::front::ast::F32Expression, ent::runtime::F32Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::F32Expression, ent::runtime::F32Value);
 						case ent::runtime::ValueType::F64:
-							return evaluateUnaryAssignationExpression(ent::front::ast::F64Expression, ent::runtime::F64Value*);
+							return evaluateUnaryAssignationExpression(ent::front::ast::F64Expression, ent::runtime::F64Value);
 						default:
 							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
 					}
-				} if(unaryExpression->operator_symbol == "!") {
-					return new BooleanValue(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
 				}
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
 			}
 
-			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
-				RuntimeValue* v = evaluateStatement(declaration->value, env);
+			std::shared_ptr<RuntimeValue> evaluateDeclaration(std::shared_ptr<ent::front::ast::Declaration> declaration, std::shared_ptr<Environment> env) {
+				std::shared_ptr<RuntimeValue> v = evaluateStatement(declaration->value, env);
 				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
-				std::cout << declaration->identifier->name << std::string(declaration->isMutable ? " mut" : " const") << std::endl;
-				RuntimeValue* value = env->init_value(
+
+				std::shared_ptr<RuntimeValue> value = env->init_value(
 					declaration->identifier->name,
 					v,
 					declaration->isMutable
@@ -977,28 +983,28 @@ namespace ent {
 				return value;
 			}
 
-			RuntimeValue* evaluateAssignationExpression(ent::front::ast::Assignation* assignation, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env) {
 				return env->set_value(
 					assignation->identifier->name,
 					evaluateStatement(assignation->value, env)
 				);
 			}
 
-			RuntimeValue* evaluateFunctionDeclaration(ent::front::ast::FunctionDeclaration* functionDeclaration, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateFunctionDeclaration(std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration, std::shared_ptr<Environment> env) {
 				env->init_function(
 					functionDeclaration->identifier->name,
 					functionDeclaration
 				);
 
-				return new NullValue();
+				return std::shared_ptr<NullValue>();
 			}
 
-			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env);
+			std::shared_ptr<RuntimeValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env);
 
-			RuntimeValue* evaluateFunctionCallExpression(ent::front::ast::FunctionCallExpression* functionCallExpression, Environment* env) {
-				ent::front::ast::FunctionDeclaration* calledFunction = env->get_function(functionCallExpression->functionIdentifier->name);
+			std::shared_ptr<RuntimeValue> evaluateFunctionCallExpression(std::shared_ptr<ent::front::ast::FunctionCallExpression> functionCallExpression, std::shared_ptr<Environment> env) {
+				std::shared_ptr<ent::front::ast::FunctionDeclaration> calledFunction = env->get_function(functionCallExpression->functionIdentifier->name);
 
-				std::vector<ent::front::ast::Statement*> functionBody = std::vector<ent::front::ast::Statement*>();
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> functionBody = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				if(functionCallExpression->arguments.size() != calledFunction->arguments.size()) {
 					throw (ent::Error(
@@ -1013,119 +1019,119 @@ namespace ent {
 					);
 				}
 
-				for(ent::front::ast::Statement* statement : calledFunction->body) {
+				for(std::shared_ptr<ent::front::ast::Statement> statement : calledFunction->body) {
 					functionBody.push_back(statement);
 				}
 
-				ent::front::ast::Scope* scope = new ent::front::ast::Scope(functionBody);
+				std::shared_ptr<ent::front::ast::Scope> scope = std::make_shared<ent::front::ast::Scope>(functionBody);
 
 				return evaluateScope(scope, env);
 			}
 
-			RuntimeValue* evaluateConditionnalStructure(ent::front::ast::ConditionnalStructure* conditionnalStructure, Environment* env) {
-				for(ent::front::ast::ConditionnalBlock* block : conditionnalStructure->conditionnalBlocks) {
+			std::shared_ptr<RuntimeValue> evaluateConditionnalStructure(std::shared_ptr<ent::front::ast::ConditionnalStructure> conditionnalStructure, std::shared_ptr<Environment> env) {
+				for(std::shared_ptr<ent::front::ast::ConditionnalBlock> block : conditionnalStructure->conditionnalBlocks) {
 					if(block->condition == nullptr || evaluateStatement(block->condition, env)->IsTrue()) {
-						return evaluateScope(new ent::front::ast::Scope(block->body), env);
+						return evaluateScope(std::make_shared<ent::front::ast::Scope>(block->body), env);
 					}
 				}
-				return new NullValue();
+				return std::shared_ptr<NullValue>();
 			}
 
-			RuntimeValue* evaluateForLoop(ent::front::ast::ForLoop* forLoop, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env) {
 
-				Environment* forEnv = new Environment(env);
+				std::shared_ptr<Environment> forEnv = std::shared_ptr<Environment>(env);
 
 				evaluateStatement(forLoop->initStatement, forEnv);
 
 				while(evaluateStatement(forLoop->loopCondition, forEnv)->IsTrue()) {
-					evaluateScope(new ent::front::ast::Scope(forLoop->body), forEnv);
+					evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv);
 					evaluateStatement(forLoop->iterationStatement, forEnv);
 				}
 
-				return new NullValue();
+				return std::shared_ptr<NullValue>();
 			}
 
-			RuntimeValue* evaluateWhileLoop(ent::front::ast::WhileLoop* whileLoop, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateWhileLoop(std::shared_ptr<ent::front::ast::WhileLoop> whileLoop, std::shared_ptr<Environment> env) {
 
-				Environment* whileEnv = new Environment(env);
+				std::shared_ptr<Environment> whileEnv = std::make_shared<Environment>(env);
 
 				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->IsTrue()) {
-					evaluateScope(new ent::front::ast::Scope(whileLoop->body), whileEnv);
+					evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv);
 				}
 
-				return new NullValue();
+				return std::shared_ptr<NullValue>();
 			}
 
-			RuntimeValue* evaluateStatement(ent::front::ast::Statement* statement, Environment* env) {
+			std::shared_ptr<RuntimeValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
-						return evaluateIdentifier((ent::front::ast::Identifier*)statement, env);
+						return evaluateIdentifier(std::dynamic_pointer_cast<ent::front::ast::Identifier>(statement), env);
 					case ent::front::ast::NodeType::i8Expression:
-						return evaluateI8Expression((ent::front::ast::I8Expression*)statement);
+						return evaluateI8Expression(std::dynamic_pointer_cast<ent::front::ast::I8Expression>(statement));
 					case ent::front::ast::NodeType::i16Expression:
-						return evaluateI16Expression((ent::front::ast::I16Expression*)statement);
+						return evaluateI16Expression(std::dynamic_pointer_cast<ent::front::ast::I16Expression>(statement));
 					case ent::front::ast::NodeType::i32Expression:
-						return evaluateI32Expression((ent::front::ast::I32Expression*)statement);
+						return evaluateI32Expression(std::dynamic_pointer_cast<ent::front::ast::I32Expression>(statement));
 					case ent::front::ast::NodeType::i64Expression:
-						return evaluateI64Expression((ent::front::ast::I64Expression*)statement);
+						return evaluateI64Expression(std::dynamic_pointer_cast<ent::front::ast::I64Expression>(statement));
 					case ent::front::ast::NodeType::u8Expression:
-						return evaluateU8Expression((ent::front::ast::U8Expression*)statement);
+						return evaluateU8Expression(std::dynamic_pointer_cast<ent::front::ast::U8Expression>(statement));
 					case ent::front::ast::NodeType::u16Expression:
-						return evaluateU16Expression((ent::front::ast::U16Expression*)statement);
+						return evaluateU16Expression(std::dynamic_pointer_cast<ent::front::ast::U16Expression>(statement));
 					case ent::front::ast::NodeType::u32Expression:
-						return evaluateU32Expression((ent::front::ast::U32Expression*)statement);
+						return evaluateU32Expression(std::dynamic_pointer_cast<ent::front::ast::U32Expression>(statement));
 					case ent::front::ast::NodeType::u64Expression:
-						return evaluateU64Expression((ent::front::ast::U64Expression*)statement);
+						return evaluateU64Expression(std::dynamic_pointer_cast<ent::front::ast::U64Expression>(statement));
 					case ent::front::ast::NodeType::f32Expression:
-						return evaluateF32Expression((ent::front::ast::F32Expression*)statement);
+						return evaluateF32Expression(std::dynamic_pointer_cast<ent::front::ast::F32Expression>(statement));
 					case ent::front::ast::NodeType::f64Expression:
-						return evaluateF64Expression((ent::front::ast::F64Expression*)statement);
+						return evaluateF64Expression(std::dynamic_pointer_cast<ent::front::ast::F64Expression>(statement));
 					case ent::front::ast::NodeType::binaryExpression:
-						return evaluateBinaryExpression((ent::front::ast::BinaryExpression*)statement, env);
+						return evaluateBinaryExpression(std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(statement), env);
 					case ent::front::ast::NodeType::parenthesisExpression:
-						return evaluateParenthesisExpression((ent::front::ast::ParenthesisExpression*)statement, env);
+						return evaluateParenthesisExpression(std::dynamic_pointer_cast<ent::front::ast::ParenthesisExpression>(statement), env);
 					case ent::front::ast::NodeType::unaryExpression:
-						return evaluateUnaryExpression((ent::front::ast::UnaryExpression*)statement, env);
+						return evaluateUnaryExpression(std::dynamic_pointer_cast<ent::front::ast::UnaryExpression>(statement), env);
 					case ent::front::ast::NodeType::booleanExpression:
-						return evaluateBooleanExpression((ent::front::ast::BooleanExpression*)statement);
+						return evaluateBooleanExpression(std::dynamic_pointer_cast<ent::front::ast::BooleanExpression>(statement));
 					case ent::front::ast::NodeType::charExpression:
-						return evaluateCharExpression((ent::front::ast::CharExpression*)statement);
+						return evaluateCharExpression(std::dynamic_pointer_cast<ent::front::ast::CharExpression>(statement));
 					case ent::front::ast::NodeType::strExpression:
-						return evaluateStrExpression((ent::front::ast::StrExpression*)statement);
+						return evaluateStrExpression(std::dynamic_pointer_cast<ent::front::ast::StrExpression>(statement));
 					case ent::front::ast::NodeType::declaration:
-						return evaluateDeclaration((ent::front::ast::Declaration*)statement, env);
+						return evaluateDeclaration(std::dynamic_pointer_cast<ent::front::ast::Declaration>(statement), env);
 					case ent::front::ast::NodeType::assignation:
-						return evaluateAssignationExpression((ent::front::ast::Assignation*)statement, env);
+						return evaluateAssignationExpression(std::dynamic_pointer_cast<ent::front::ast::Assignation>(statement), env);
 					case ent::front::ast::NodeType::functionDeclaration:
-						return evaluateFunctionDeclaration((ent::front::ast::FunctionDeclaration*)statement, env);
+						return evaluateFunctionDeclaration(std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(statement), env);
 					case ent::front::ast::NodeType::functionCallExpression:
-						return evaluateFunctionCallExpression((ent::front::ast::FunctionCallExpression*)statement, env);
+						return evaluateFunctionCallExpression(std::dynamic_pointer_cast<ent::front::ast::FunctionCallExpression>(statement), env);
 					case ent::front::ast::NodeType::scope:
-						return evaluateScope((ent::front::ast::Scope*)statement, env);
+						return evaluateScope(std::dynamic_pointer_cast<ent::front::ast::Scope>(statement), env);
 					case ent::front::ast::NodeType::conditionnalStructure:
-						return evaluateConditionnalStructure((ent::front::ast::ConditionnalStructure*)statement, env);
+						return evaluateConditionnalStructure(std::dynamic_pointer_cast<ent::front::ast::ConditionnalStructure>(statement), env);
 					case ent::front::ast::NodeType::forLoop:
-						return evaluateForLoop((ent::front::ast::ForLoop*)statement, env);
+						return evaluateForLoop(std::dynamic_pointer_cast<ent::front::ast::ForLoop>(statement), env);
 					case ent::front::ast::NodeType::whileLoop:
-						return evaluateWhileLoop((ent::front::ast::WhileLoop*)statement, env);
+						return evaluateWhileLoop(std::dynamic_pointer_cast<ent::front::ast::WhileLoop>(statement), env);
 					default:
 						throw (ent::Error(ent::ErrorType::INTERPRETER_UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
 			}
 
-			RuntimeValue* evaluateScope(ent::front::ast::Scope* scope, Environment* parent_env) {
-				Environment* scope_env = new Environment(parent_env);
+			std::shared_ptr<RuntimeValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env) {
+				std::shared_ptr<Environment> scope_env = std::make_shared<Environment>(parent_env);
 
-				RuntimeValue* result;
+				std::shared_ptr<RuntimeValue> result;
 
-				for(ent::front::ast::Statement* statement : scope->body) {
+				for(std::shared_ptr<ent::front::ast::Statement> statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
 					std::cout << statement->pretty_print() << " -> " << result->pretty_print() << std::endl;
 				}
 				return result;
 			}
 
-			RuntimeValue* interpret(ent::front::ast::Scope* scope) {
+			std::shared_ptr<RuntimeValue> interpret(std::shared_ptr<ent::front::ast::Scope> scope) {
 				return evaluateScope(scope, nullptr);
 			}
 		}

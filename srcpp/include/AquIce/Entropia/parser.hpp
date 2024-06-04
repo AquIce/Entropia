@@ -11,10 +11,10 @@ namespace ent {
 
 			std::vector<ent::type::token> tks;
 
-			std::vector<ent::front::ast::Identifier*> original_identifiers;
+			std::vector<std::shared_ptr<ent::front::ast::Identifier>> original_identifiers;
 
-			ent::front::ast::Identifier* get_original_identifier(ent::front::ast::Identifier* identifier) {
-				for(ent::front::ast::Identifier* original_identifier : original_identifiers) {
+			std::shared_ptr<ent::front::ast::Identifier> get_original_identifier(std::shared_ptr<ent::front::ast::Identifier> identifier) {
+				for(std::shared_ptr<ent::front::ast::Identifier> original_identifier : original_identifiers) {
 					if(identifier->name == original_identifier->name) {
 						return original_identifier;
 					}
@@ -23,11 +23,11 @@ namespace ent {
 				return identifier;
 			}
 
-			ent::front::ast::Program* program = new ent::front::ast::Program(
-				std::vector<ent::front::ast::Statement*>()
+			std::shared_ptr<ent::front::ast::Program> program = std::make_shared<ent::front::ast::Program>(
+				std::vector<std::shared_ptr<ent::front::ast::Statement>>()
 			);
 
-			ent::front::ast::ConditionnalBlock* before = nullptr;
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> before = nullptr;
 
 			ent::type::token peek() {
 				return tks.front();
@@ -51,95 +51,95 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + peek().get_value())).error();
 			}
 
-			ent::front::ast::Expression* parse_identifier() {
+			std::shared_ptr<ent::front::ast::Expression> parse_identifier() {
 				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
 					std::string value = peek().get_value();
 					(void)eat();
-					return get_original_identifier(new ent::front::ast::Identifier(value));
+					return get_original_identifier(std::make_shared<ent::front::ast::Identifier>(value));
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + peek().get_value())).error();
 			}
 
-			ent::front::ast::Expression* parse_expression();
+			std::shared_ptr<ent::front::ast::Expression> parse_expression();
 
-			ent::front::ast::Expression* parse_native_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_native_expression() {
 				// If the current token is a number
 				if(peek().get_type() == ent::type::token_type::I8) {
 					// Parse the number
 					i8 value = types::stoi8(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::I8Expression(value);
+					return std::make_shared<ent::front::ast::I8Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::I16) {
 					// Parse the number
 					i16 value = types::stoi16(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::I16Expression(value);
+					return std::make_shared<ent::front::ast::I16Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::I32) {
 					// Parse the number
 					i32 value = types::stoi32(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::I32Expression(value);
+					return std::make_shared<ent::front::ast::I32Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::I64) {
 					// Parse the number
 					i64 value = types::stoi64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::I64Expression(value);
+					return std::make_shared<ent::front::ast::I64Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::U64) {
 					// Parse the number
 					u64 value = types::stou64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return new ent::front::ast::U64Expression(value);
+					return std::make_shared<ent::front::ast::U64Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::F32) {
 					// Parse the number
 					float value = types::stof32(peek().get_value());
 					(void)eat();
 					// Return the float expression
-					return new ent::front::ast::F32Expression(value);
+					return std::make_shared<ent::front::ast::F32Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::F64) {
 					// Parse the number
 					double value = types::stof64(peek().get_value());
 					(void)eat();
 					// Return the float expression
-					return new ent::front::ast::F64Expression(value);
+					return std::make_shared<ent::front::ast::F64Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::BOOL) {
 					bool value = eat().get_value() == "true";
-					return new ent::front::ast::BooleanExpression(value);
+					return std::make_shared<ent::front::ast::BooleanExpression>(value);
 				} else if(peek().get_type() == ent::type::token_type::CHAR) {
 					char value = eat().get_value()[0];
-					return new ent::front::ast::CharExpression(value);
+					return std::make_shared<ent::front::ast::CharExpression>(value);
 				} else if(peek().get_type() == ent::type::token_type::STR) {
 					std::string value = eat().get_value();
-					return new ent::front::ast::StrExpression(value);
+					return std::make_shared<ent::front::ast::StrExpression>(value);
 				}
 				return parse_identifier();
 			}
 
-			ent::front::ast::Expression* parse_parenthesis_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_parenthesis_expression() {
 				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
 					return parse_native_expression();
 				}
 				(void)eat();
-				ent::front::ast::Expression* content = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> content = parse_expression();
 				if(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS, "Invalid expression in parenthesis")).error();
 				}
 				(void)eat();
-				return new ent::front::ast::ParenthesisExpression(content);
+				return std::make_shared<ent::front::ast::ParenthesisExpression>(content);
 			}
 
-			ent::front::ast::Expression* parse_non_pre_unary_expression() {
-				ent::front::ast::Expression* term = parse_parenthesis_expression();
+			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression() {
+				std::shared_ptr<ent::front::ast::Expression> term = parse_parenthesis_expression();
 				if(peek().get_type() == ent::type::token_type::INCREMENT || peek().get_type() == ent::type::token_type::DECREMENT) {
 					std::string operator_symbol = eat().get_value();
 					if(term->get_type() != ent::front::ast::NodeType::identifier) {
 						throw (ent::Error(ent::ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR, "Trying to increment non-identifier")).error();
 					}
-					return new ent::front::ast::UnaryExpression(
+					return std::make_shared<ent::front::ast::UnaryExpression>(
 						term,
 						operator_symbol
 					);
@@ -147,31 +147,31 @@ namespace ent {
 				return term;
 			}
 
-			ent::front::ast::Expression* parse_unary_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_unary_expression() {
 				if(peek().get_type() != ent::type::token_type::NOT && peek().get_type() != ent::type::token_type::BITWISE_NOT) {
 					return parse_non_pre_unary_expression();
 				}
 
 				std::string operator_symbol = eat().get_value();
-				ent::front::ast::Expression* term = parse_parenthesis_expression();
+				std::shared_ptr<ent::front::ast::Expression> term = parse_parenthesis_expression();
 				
-				return new ent::front::ast::UnaryExpression(
+				return std::make_shared<ent::front::ast::UnaryExpression>(
 					term,
 					operator_symbol
 				);
 			}
 
-			ent::front::ast::Expression* parse_multiplicative_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_multiplicative_expression() {
 				// Parse the numeric expression first
-				ent::front::ast::Expression* left = parse_unary_expression();
+				std::shared_ptr<ent::front::ast::Expression> left = parse_unary_expression();
 				// Parse the rest of the expression
-				while(peek().get_value() == "*" || peek().get_value() == "/" || peek().get_value() == "%") {
+				while(peek().get_value() == ">" || peek().get_value() == "/" || peek().get_value() == "%") {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
-					ent::front::ast::Expression* right = parse_unary_expression();
+					std::shared_ptr<ent::front::ast::Expression> right = parse_unary_expression();
 					// Set the left as a binary expression
-					left = new ent::front::ast::BinaryExpression(
+					left = std::make_shared<ent::front::ast::BinaryExpression>(
 						left,
 						operator_symbol,
 						right
@@ -180,17 +180,17 @@ namespace ent {
 				return left;
 			}
 
-			ent::front::ast::Expression* parse_additive_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_additive_expression() {
 				// Parse the multiplicative expression first
-				ent::front::ast::Expression* left = parse_multiplicative_expression();
+				std::shared_ptr<ent::front::ast::Expression> left = parse_multiplicative_expression();
 				// Parse the rest of the expression
 				while(peek().get_value() == "+" || peek().get_value() == "-") {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
-					ent::front::ast::Expression* right = parse_multiplicative_expression();
+					std::shared_ptr<ent::front::ast::Expression> right = parse_multiplicative_expression();
 					// Set the left as a binary expression
-					left = new ent::front::ast::BinaryExpression(
+					left = std::make_shared<ent::front::ast::BinaryExpression>(
 						left,
 						operator_symbol,
 						right
@@ -199,9 +199,9 @@ namespace ent {
 				return left;
 			}
 
-			ent::front::ast::Expression* parse_logical_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_logical_expression() {
 				// Parse the multiplicative expression first
-				ent::front::ast::Expression* left = parse_additive_expression();
+				std::shared_ptr<ent::front::ast::Expression> left = parse_additive_expression();
 				// Parse the rest of the expression
 				while(
 					peek().get_value() == "==" || peek().get_value() == "!=" ||
@@ -215,9 +215,9 @@ namespace ent {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
-					ent::front::ast::Expression* right = parse_additive_expression();
+					std::shared_ptr<ent::front::ast::Expression> right = parse_additive_expression();
 					// Set the left as a binary expression
-					left = new ent::front::ast::BinaryExpression(
+					left = std::make_shared<ent::front::ast::BinaryExpression>(
 						left,
 						operator_symbol,
 						right
@@ -226,26 +226,26 @@ namespace ent {
 				return left;
 			}
 
-			ent::front::ast::Expression* parse_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_expression() {
 				return parse_logical_expression();
 			}
 
-			ent::front::ast::Assignation* expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, ent::front::ast::Identifier* identifier, ent::front::ast::Expression* value) {
+			std::shared_ptr<ent::front::ast::Assignation> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
 				// Value is an identifier
 				if(value->get_type() == ent::front::ast::NodeType::identifier) {
-					ent::front::ast::Identifier* value_identifier = (ent::front::ast::Identifier*)value;
+					std::shared_ptr<ent::front::ast::Identifier> value_identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(value);
 					if(is_valid_cast(value_identifier->get_identifier_type(), type)) {
 						identifier->set_identifier_type(type);
-						return new ent::front::ast::Assignation(identifier, value_identifier);
+						return std::make_shared<ent::front::ast::Assignation>(identifier, value_identifier);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
 				// Value is a binary expression
 				if(value->get_type() == ent::front::ast::NodeType::binaryExpression) {
-					ent::front::ast::BinaryExpression* value_binary_expression = (ent::front::ast::BinaryExpression*)value;
+					std::shared_ptr<ent::front::ast::BinaryExpression> value_binary_expression = std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(value);
 					if(is_valid_cast(value_binary_expression->get_return_type(), type)) {
 						identifier->set_identifier_type(type);
-						return new ent::front::ast::Assignation(identifier, (ent::front::ast::BinaryExpression*)value);
+						return std::make_shared<ent::front::ast::Assignation>(identifier, std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(value));
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
@@ -255,10 +255,10 @@ namespace ent {
 				}
 				// Valid cast
 				identifier->set_identifier_type(type);
-				return new ent::front::ast::Assignation(identifier, value);
+				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
 			}
 
-			ent::front::ast::Declaration* parse_any_declaration(bool isMutable, ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
+			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
 				ent::type::token next = peek();
 
 				if(next.get_type() != ent::type::token_type::ASSIGN) {
@@ -270,43 +270,43 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i8Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::I8Expression>(), isMutable);
 					} else if(type == "i16") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i16Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I16Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::I16Expression>(), isMutable);
 					} else if(type == "i32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I32Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::I32Expression>(), isMutable);
 					} else if(type == "i64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I64Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::I64Expression>(), isMutable);
 					} else if(type == "u8") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u8Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U8Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::U8Expression>(), isMutable);
 					} else if(type == "u16") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u16Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U16Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::U16Expression>(), isMutable);
 					} else if(type == "u32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U32Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::U32Expression>(), isMutable);
 					} else if(type == "u64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U64Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::U64Expression>(), isMutable);
 					} else if(type == "f32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::f32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F32Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::F32Expression>(), isMutable);
 					} else if(type == "f64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::f64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::F64Expression>(), isMutable);
 					} else if(type == "bool") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::booleanExpression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::BooleanExpression>(), isMutable);
 					} else if(type == "char") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::charExpression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::CharExpression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::CharExpression>(), isMutable);
 					} else if(type == "str") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::strExpression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::StrExpression(), isMutable);
+						return std::make_shared<ent::front::ast::Declaration>(identifier, std::make_shared<ent::front::ast::StrExpression>(), isMutable);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
@@ -314,7 +314,7 @@ namespace ent {
 				return nullptr;
 			}
 
-			ent::front::ast::Statement* parse_declaration(bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::Statement> parse_declaration(bool needsSemicolon) {
 
 
 				bool isMutable = false;
@@ -324,13 +324,13 @@ namespace ent {
 					isMutable = true;
 				}
 
-				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 				expect(ent::type::token_type::COLON, ":");
 				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
 
 				ent::type::token next = peek();
 
-				ent::front::ast::Declaration* statement = parse_any_declaration(
+				std::shared_ptr<ent::front::ast::Declaration> statement = parse_any_declaration(
 					isMutable,
 					identifier,
 					type_specifier,
@@ -344,7 +344,7 @@ namespace ent {
 				}
 				// Means next.get_type() == ent::type::token_type::ASSIGN
 				(void)eat();
-				ent::front::ast::Expression* value = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 				std::string type = type_specifier.get_value();
 				if(needsSemicolon) {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
@@ -352,40 +352,40 @@ namespace ent {
 				if(type == "void") {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value), isMutable);
 				} else if(type == "i16") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value), isMutable);
 				} else if(type == "i32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value), isMutable);
 				} else if(type == "i64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value), isMutable);
 				} else if(type == "u8") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value), isMutable);
 				} else if(type == "u16") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value), isMutable);
 				} else if(type == "u32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value), isMutable);
 				} else if(type == "u64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value), isMutable);
 				} else if(type == "f32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value), isMutable);
 				} else if(type == "f64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value), isMutable);
 				} else if(type == "bool") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value), isMutable);
 				} else if(type == "char") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::charExpression, "char", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::charExpression, "char", identifier, value), isMutable);
 				} else if(type == "str") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::strExpression, "str", identifier, value), isMutable);
+					return std::make_shared<ent::front::ast::Declaration>(expect_type_assignation_expression(ent::front::ast::NodeType::strExpression, "str", identifier, value), isMutable);
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
 
-			ent::front::ast::Declaration* make_declaration(ent::front::ast::Declaration* declarationExpression, ent::front::ast::Expression* value, bool isInFunctionSetup = false) {
-				return new ent::front::ast::Declaration(declarationExpression->identifier, value, isInFunctionSetup);
+			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isInFunctionSetup = false) {
+				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isInFunctionSetup);
 			}
 
-			ent::front::ast::Statement* parse_assignation(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::Statement> parse_assignation(std::shared_ptr<ent::front::ast::Identifier> identifier, bool needsSemicolon) {
 				ent::type::token assignationTk = peek();
 				
 				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
@@ -393,45 +393,45 @@ namespace ent {
 				}
 				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
 
-				ent::front::ast::Expression* value = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 
 				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
-					value = new ent::front::ast::BinaryExpression(identifier, assignationTk.get_value(), value);
+					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, assignationTk.get_value(), value);
 				}
 
 				if(needsSemicolon) {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
 				}
 				
-				return new ent::front::ast::Assignation(identifier, value);
+				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
 			}
 
-			std::vector<ent::front::ast::Statement*> get_child_nodes(ent::front::ast::Statement* statement) {
+			std::vector<std::shared_ptr<ent::front::ast::Statement>> get_child_nodes(std::shared_ptr<ent::front::ast::Statement> statement) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::functionDeclaration:
-						return ((ent::front::ast::FunctionDeclaration*)statement)->body;
+						return std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(statement)->body;
 					case ent::front::ast::NodeType::program:
-						return ((ent::front::ast::Program*)statement)->body;
+						return std::dynamic_pointer_cast<ent::front::ast::Program>(statement)->body;
 					default:
-						return std::vector<ent::front::ast::Statement*>();
+						return std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 				}
 			}
 
-			ent::front::ast::Statement* parse_function_call(ent::front::ast::Identifier* identifier, bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::Statement> parse_function_call(std::shared_ptr<ent::front::ast::Identifier> identifier, bool needsSemicolon) {
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
 
-				std::vector<ent::front::ast::Expression*> arguments = std::vector<ent::front::ast::Expression*>();
+				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
 				
 				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
 				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
-					arguments.push_back((ent::front::ast::Expression*)parse_expression());
+					arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
 
 					while(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
 						(void)expect(ent::type::token_type::COMMA, "comma");
-						arguments.push_back((ent::front::ast::Expression*)parse_expression());
+						arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
 					}
 				}
 
@@ -440,13 +440,13 @@ namespace ent {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
 				}
 
-				return new ent::front::ast::FunctionCallExpression(identifier, arguments);
+				return std::make_shared<ent::front::ast::FunctionCallExpression>(identifier, arguments);
 			}
 
-			ent::front::ast::Statement* parse_identifier_starting_expression(bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::Statement> parse_identifier_starting_expression(bool needsSemicolon) {
 
 				ent::type::token identifier_token = peek();
-				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 				
 				if(needsSemicolon && peek().get_type() == ent::type::token_type::SEMICOLON) {
 					(void)eat();
@@ -481,7 +481,7 @@ namespace ent {
 
 				tks.insert(tks.begin(), identifier_token);
 
-				ent::front::ast::Expression* expression = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
 
 				if(needsSemicolon) {
 					(void)expect(ent::type::token_type::SEMICOLON, ";");
@@ -490,13 +490,13 @@ namespace ent {
 				return expression;
 			}		
 
-			ent::front::ast::Statement* parse_statement(bool updateBefore = true, bool needsSemiColon = true);
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore = true, bool needsSemiColon = true);
 
-			ent::front::ast::Statement* parse_function_declaration() {
-				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration() {
+				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
 
-				std::vector<ent::front::ast::Declaration*> arguments = std::vector<ent::front::ast::Declaration*>();
+				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
 
 				if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
@@ -514,11 +514,11 @@ namespace ent {
 							isMutable = true;
 						}
 
-						ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
+						std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 						expect(ent::type::token_type::COLON, ":");
 						ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
 
-						ent::front::ast::Declaration* declaration;
+						std::shared_ptr<ent::front::ast::Declaration> declaration;
 						
 						try {
 							declaration = parse_any_declaration(
@@ -550,7 +550,7 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace at start of function");
 
-				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
@@ -558,10 +558,10 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of function");
 				
-				return new ent::front::ast::FunctionDeclaration(identifier, returnType, arguments, body);
+				return std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
 			}
 
-			ent::front::ast::ConditionnalBlock* parse_conditionnal_block() {
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_conditionnal_block() {
 
 				enum ConditionType {
 					IF,
@@ -578,7 +578,7 @@ namespace ent {
 					conditionType = peek().get_type() == ent::type::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
 				}
 
-				ent::front::ast::Expression* condition = nullptr;
+				std::shared_ptr<ent::front::ast::Expression> condition = nullptr;
 
 				if(conditionType != ConditionType::ELSE) {
 					(void)expect(ent::type::token_type::IF, "if keyword");
@@ -599,7 +599,7 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before body");
 
-				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement(false));
@@ -607,7 +607,7 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after body");
 
-				ent::front::ast::ConditionnalBlock* conditionnalBlock = new ent::front::ast::ConditionnalBlock(body, condition);
+				std::shared_ptr<ent::front::ast::ConditionnalBlock> conditionnalBlock = std::make_shared<ent::front::ast::ConditionnalBlock>(body, condition);
 
 				if(conditionType != ConditionType::IF) {
 					conditionnalBlock->before = before;
@@ -618,30 +618,30 @@ namespace ent {
 				return conditionnalBlock;
 			}
 
-			ent::front::ast::ConditionnalStructure* parse_conditionnal_structure() {
+			std::shared_ptr<ent::front::ast::ConditionnalStructure> parse_conditionnal_structure() {
 
-				std::vector<ent::front::ast::ConditionnalBlock*> blocks = std::vector<ent::front::ast::ConditionnalBlock*>();
+				std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>> blocks = std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>>();
 
 				while(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
 					blocks.push_back(parse_conditionnal_block());
 				}
 
-				return new ent::front::ast::ConditionnalStructure(blocks);
+				return std::make_shared<ent::front::ast::ConditionnalStructure>(blocks);
 			}
 
-			ent::front::ast::ForLoop* parse_for_loop() {
+			std::shared_ptr<ent::front::ast::ForLoop> parse_for_loop() {
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after for keyword");
 
-				ent::front::ast::Statement* initStatement = parse_statement(true, false);
+				std::shared_ptr<ent::front::ast::Statement> initStatement = parse_statement(true, false);
 				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for init statement");
-				ent::front::ast::Expression* loopCondition = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> loopCondition = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for condition");
-				ent::front::ast::Statement* iterationStatement = parse_statement(true, false);
+				std::shared_ptr<ent::front::ast::Statement> iterationStatement = parse_statement(true, false);
 
 				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before for body");
 
-				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
@@ -649,19 +649,19 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after for body");
 
-				return new ent::front::ast::ForLoop(initStatement, loopCondition, iterationStatement, body);
+				return std::make_shared<ent::front::ast::ForLoop>(initStatement, loopCondition, iterationStatement, body);
 			}
 
-			ent::front::ast::WhileLoop* parse_while_loop() {
+			std::shared_ptr<ent::front::ast::WhileLoop> parse_while_loop() {
 				(void)eat();
 
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after while keyword");
-				ent::front::ast::Expression* loopCondition = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> loopCondition = parse_expression();
 				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after while condition");
 
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before while body");
 
-				std::vector<ent::front::ast::Statement*> body = std::vector<ent::front::ast::Statement*>();
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
@@ -669,25 +669,25 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after while body");
 
-				return new ent::front::ast::WhileLoop(loopCondition, body);
+				return std::make_shared<ent::front::ast::WhileLoop>(loopCondition, body);
 			}
 
-			ent::front::ast::Statement* parse_statement(bool updateBefore, bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
 
 				if(peek().get_type() == ent::type::token_type::LET) {
 					(void)eat();
-					ent::front::ast::Statement* declaration = parse_declaration(needsSemicolon);
+					std::shared_ptr<ent::front::ast::Statement> declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return declaration;
 				}
 				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
-					ent::front::ast::Statement* expression = parse_identifier_starting_expression(needsSemicolon);
+					std::shared_ptr<ent::front::ast::Statement> expression = parse_identifier_starting_expression(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return expression;
 				}
 				if(peek().get_type() == ent::type::token_type::FN) {
 					(void)eat();
-					ent::front::ast::Statement* function_declaration = parse_function_declaration();
+					std::shared_ptr<ent::front::ast::Statement> function_declaration = parse_function_declaration();
 					if(updateBefore) { before = nullptr; }
 					return function_declaration;
 				}
@@ -696,24 +696,24 @@ namespace ent {
 				}
 				if(peek().get_type() == ent::type::token_type::FOR) {
 					(void)eat();
-					ent::front::ast::Statement* for_loop = parse_for_loop();
+					std::shared_ptr<ent::front::ast::Statement> for_loop = parse_for_loop();
 					if(updateBefore) { before = nullptr; }
 					return for_loop;
 				}
 				if(peek().get_type() == ent::type::token_type::WHILE) {
-					ent::front::ast::Statement* whileLoop = parse_while_loop();
+					std::shared_ptr<ent::front::ast::Statement> whileLoop = parse_while_loop();
 					if(updateBefore) { before = nullptr; }
 					return whileLoop;
 				}
 
-				ent::front::ast::Expression* expression = parse_expression();
+				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
 				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
 				if(updateBefore) { before = nullptr; }
 
 				return expression;
 			}
 
-			ent::front::ast::Program* parse(std::vector<ent::type::token> tokens) {
+			std::shared_ptr<ent::front::ast::Program> parse(std::vector<ent::type::token> tokens) {
 				tks = tokens;
 
 				while(!eof()) {

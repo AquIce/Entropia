@@ -37,9 +37,6 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [ ] For : (requires arrays/strings)
 - [x] Add concept of subEnv to allow scoping variables (add scope attribute to fn, if, for, ...)
 - [x] Make parenthesis precedence
-- [ ] Edit get_operator_return_type to not only checking left (could allow this: let a: i8 = 1 + 1024)
-- [ ] Add logical operators between all types (ex: i8 - bool)
-- [ ] Fix memory leak (new -> shared_ptr)
 - [ ] Add comments
   - [ ] Single line
   - [ ] Multi line
