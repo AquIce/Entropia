@@ -90,12 +90,18 @@
 ### 1.2. Declaration
 
 ```
-let <name>: <type>;
+let [mut] <name>: <type>;
 ```
+
+\[mut] is used to make a variable mutable
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
 \<type> is any valid [datatype](#11-datatypes)
+
+> Note:
+>
+> All variables are immutable by default
 
 ### 1.3. Assignation
 
