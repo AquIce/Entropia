@@ -33,6 +33,7 @@ namespace ent {
 				parenthesisExpression,
 				booleanExpression,
 				charExpression,
+				strExpression,
 				identifier,
 				conditionnalBlock,
 				conditionnalStructure,
@@ -405,6 +406,25 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "CharExpression";
+				}
+			};
+
+			class StrExpression: public Expression {
+			public:
+				enum NodeType type = NodeType::strExpression;
+				std::string value;
+				StrExpression(std::string value = "") {
+					this->value = value;
+					this->type = NodeType::strExpression;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::strExpression;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "StrExpression(\"" + this->value + "\")";
+				}
+				virtual std::string type_id() override {
+					return "StrExpression";
 				}
 			};
 

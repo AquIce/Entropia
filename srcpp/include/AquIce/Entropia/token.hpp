@@ -62,6 +62,7 @@ namespace ent {
 			BOOL,
 
 			CHAR,
+			STR,
 
 			I8,
 			I16,
@@ -154,6 +155,7 @@ namespace ent {
 					token_switch_case(BOOL)
 
 					token_switch_case(CHAR)
+					token_switch_case(STR)
 
 					token_switch_case(I8)
 					token_switch_case(I16)

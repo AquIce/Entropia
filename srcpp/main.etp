@@ -1,4 +1,1 @@
-let c: char = '\n';
-let d: char = '\t';
-let e: char = 'r';
-let f: char = '\0';
+let c: str = "\n'\tr\0";

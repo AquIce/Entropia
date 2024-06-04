@@ -76,16 +76,28 @@ namespace ent {
 		}
 
 		char get_char(std::string& src) {
-			(void)shift(src);
 			char litteral = shift(src)[0];
-			if(src[0] == ENT__CHAR_DELIMITER) {
-				(void)shift(src);
+			if(litteral != ENT__ESCAPE_CHARACTER) {
 				return litteral;
 			}
+			char c = shift(src)[0];
 			std::string escaped = "\\";
-			litteral = escape_char(escaped + shift(src)[0]);
-			(void)shift(src);
+			escaped.push_back(c);
+
+			try {
+				litteral = escape_char(escaped);
+			} catch(const std::exception& e) {
+				throw (ent::Error(ErrorType::LEXER_INVALID_ESCAPE_CHARACTER_ERROR, "Invalid escape character :" + escaped)).error();
+			}
 			return litteral;
+		}
+
+		std::string get_string(std::string& src) {
+			std::string buffer = "";
+			while(src[0] != ENT__STRING_DELIMITER) {
+				buffer += get_char(src);
+			}
+			return buffer;
 		}
 
 		ent::type::token get_number_token(NumberValue n) {
@@ -159,6 +171,7 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "f64")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "bool")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "char")
+			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "str")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "void")
 			check_for_str_token(ent::type::token_type::BOOL, "true")
 			check_for_str_token(ent::type::token_type::BOOL, "false")
@@ -174,8 +187,17 @@ namespace ent {
 			}
 
 			if(src[0] == ENT__CHAR_DELIMITER) {
+				(void)shift(src);
 				char char_value = get_char(src);
+				(void)shift(src);
 				return ent::type::token(ent::type::token_type::CHAR, std::string(1, char_value));
+			}
+
+			if(src[0] == ENT__STRING_DELIMITER) {
+				(void)shift(src);
+				std::string string_value = get_string(src);
+				(void)shift(src);
+				return ent::type::token(ent::type::token_type::STR, string_value);
 			}
 
 			std::string identifier = "";

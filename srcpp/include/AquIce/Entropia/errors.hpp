@@ -15,6 +15,7 @@ namespace ent {
 		LEXER_INVALID_NUMBER_FORMAT_ERROR,
 		LEXER_INVALID_CHARACTER_FORMAT_ERROR,
 		LEXER_VALUE_OUT_OF_RANGE_ERROR,
+		LEXER_INVALID_ESCAPE_CHARACTER_ERROR,
 
 		PARSER_EXPECTED_OTHER_ERROR,
 		PARSER_INVALID_VOID_VARIABLE_ERROR,
@@ -90,6 +91,8 @@ namespace ent {
 				error_switch_case(ErrorType::LEXER_INVALID_NUMBER_FORMAT_ERROR)
 				error_switch_case(ErrorType::LEXER_INVALID_CHARACTER_FORMAT_ERROR)
 				error_switch_case(ErrorType::LEXER_VALUE_OUT_OF_RANGE_ERROR)
+				error_switch_case(ErrorType::LEXER_INVALID_ESCAPE_CHARACTER_ERROR)
+
 				error_switch_case(ErrorType::PARSER_EXPECTED_OTHER_ERROR)
 				error_switch_case(ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR)
 				error_switch_case(ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR)
@@ -97,6 +100,7 @@ namespace ent {
 				error_switch_case(ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE)
 				error_switch_case(ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS)
 				error_switch_case(ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR)
+
 				error_switch_case(ErrorType::I8_OVERFLOW_ERROR)
 				error_switch_case(ErrorType::I8_UNDERFLOW_ERROR)
 				error_switch_case(ErrorType::I16_OVERFLOW_ERROR)
@@ -118,6 +122,7 @@ namespace ent {
 				error_switch_case(ErrorType::F64_OVERFLOW_ERROR)
 				error_switch_case(ErrorType::F64_UNDERFLOW_ERROR)
 				error_switch_case(ErrorType::GLOBAL_OVERFLOW_ERROR)
+
 				error_switch_case(ErrorType::INTERPRETER_DIVISION_BY_ZERO_ERROR)
 				error_switch_case(ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR)
 				error_switch_case(ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR)
@@ -125,6 +130,7 @@ namespace ent {
 				error_switch_case(ErrorType::INTERPRETER_OUT_OF_RANGE_NUMBER)
 				error_switch_case(ErrorType::NON_MATCHED_NUMBER_OPERANDS_ERROR)
 				error_switch_case(ErrorType::INTERPRETER_UNKNOWN_STATEMENT_ERROR)
+
 				error_switch_case(ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR)
 				error_switch_case(ErrorType::ENV_SETTING_NON_EXISTING_VARIABLE_ERROR)
 				error_switch_case(ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR)

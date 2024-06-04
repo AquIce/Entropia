@@ -25,6 +25,7 @@ namespace ent {
 			BOOL,
 
 			CHAR,
+			STR,
 		};
 
 		class RuntimeValue {
@@ -362,6 +363,27 @@ namespace ent {
 			}
 			virtual bool IsTrue() {
 				return value != '\0';
+			}
+		};
+
+		class StrValue : public RuntimeValue {
+		private:
+			std::string value;
+		public:
+			StrValue(std::string value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::STR;
+			}
+			std::string get_value() {
+				return this->value;
+			}
+			virtual std::string pretty_print() override {
+				return this->value;
+			}
+			virtual bool IsTrue() {
+				return value.size() > 0;
 			}
 		};
 	}

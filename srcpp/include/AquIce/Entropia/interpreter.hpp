@@ -197,6 +197,9 @@ namespace ent {
 			RuntimeValue* evaluateCharExpression(ent::front::ast::CharExpression* charExpression) {
 				return new CharValue(charExpression->value);
 			}
+			RuntimeValue* evaluateStrExpression(ent::front::ast::StrExpression* strExpression) {
+				return new StrValue(strExpression->value);
+			}
 
 			RuntimeValue* cast_to_min_type(double num) {
 				if (std::isnan(num) || std::isinf(num) || num > std::numeric_limits<uint64_t>::max() || num < std::numeric_limits<int64_t>::min()) {
@@ -1087,6 +1090,8 @@ namespace ent {
 						return evaluateBooleanExpression((ent::front::ast::BooleanExpression*)statement);
 					case ent::front::ast::NodeType::charExpression:
 						return evaluateCharExpression((ent::front::ast::CharExpression*)statement);
+					case ent::front::ast::NodeType::strExpression:
+						return evaluateStrExpression((ent::front::ast::StrExpression*)statement);
 					case ent::front::ast::NodeType::declaration:
 						return evaluateDeclaration((ent::front::ast::Declaration*)statement, env);
 					case ent::front::ast::NodeType::assignation:

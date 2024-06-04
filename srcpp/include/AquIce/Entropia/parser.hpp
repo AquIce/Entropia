@@ -109,9 +109,12 @@ namespace ent {
 				} else if(peek().get_type() == ent::type::token_type::BOOL) {
 					bool value = eat().get_value() == "true";
 					return new ent::front::ast::BooleanExpression(value);
-				}else if(peek().get_type() == ent::type::token_type::CHAR) {
+				} else if(peek().get_type() == ent::type::token_type::CHAR) {
 					char value = eat().get_value()[0];
 					return new ent::front::ast::CharExpression(value);
+				} else if(peek().get_type() == ent::type::token_type::STR) {
+					std::string value = eat().get_value();
+					return new ent::front::ast::StrExpression(value);
 				}
 				return parse_identifier();
 			}
@@ -301,6 +304,9 @@ namespace ent {
 					} else if(type == "char") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::charExpression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::CharExpression(), isMutable);
+					} else if(type == "str") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::strExpression);
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::StrExpression(), isMutable);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
@@ -369,6 +375,8 @@ namespace ent {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value), isMutable);
 				} else if(type == "char") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::charExpression, "char", identifier, value), isMutable);
+				} else if(type == "str") {
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::strExpression, "str", identifier, value), isMutable);
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
