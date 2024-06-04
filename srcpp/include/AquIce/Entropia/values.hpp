@@ -23,6 +23,8 @@ namespace ent {
 			F64,
 
 			BOOL,
+
+			CHAR,
 		};
 
 		class RuntimeValue {
@@ -339,6 +341,27 @@ namespace ent {
 			}
 			virtual bool IsTrue() {
 				return value;
+			}
+		};
+
+		class CharValue : public RuntimeValue {
+		private:
+			char value;
+		public:
+			CharValue(char value) {
+				this->value = value;
+			}
+			virtual ValueType type() override {
+				return ValueType::CHAR;
+			}
+			char get_value() {
+				return this->value;
+			}
+			virtual std::string pretty_print() override {
+				return std::string(1, this->value);
+			}
+			virtual bool IsTrue() {
+				return value != '\0';
 			}
 		};
 	}

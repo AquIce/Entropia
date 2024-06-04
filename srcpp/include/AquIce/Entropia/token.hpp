@@ -61,6 +61,8 @@ namespace ent {
 
 			BOOL,
 
+			CHAR,
+
 			I8,
 			I16,
 			I32,
@@ -150,6 +152,8 @@ namespace ent {
 					token_switch_case(BITWISE_NOT)
 
 					token_switch_case(BOOL)
+
+					token_switch_case(CHAR)
 
 					token_switch_case(I8)
 					token_switch_case(I16)

@@ -32,6 +32,7 @@ namespace ent {
 				f64Expression,
 				parenthesisExpression,
 				booleanExpression,
+				charExpression,
 				identifier,
 				conditionnalBlock,
 				conditionnalStructure,
@@ -364,6 +365,46 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "BooleanExpression";
+				}
+			};
+
+			class CharExpression: public Expression {
+			private:
+				std::string format_char(char c) {
+					try {
+						return std::unordered_map<char, std::string>({
+							{'\a', "\\a"},
+							{'\b', "\\b"},
+							{'\f', "\\f"},
+							{'\n', "\\n"},
+							{'\r', "\\r"},
+							{'\t', "\\t"},
+							{'\v', "\\v"},
+							{'\\', "\\\\"},
+							{'\'', "\\'"},
+							{'\"', "\\\""},
+							{'\?', "\\?"},
+							{'\0', "\\0"}
+						}).at(this->value);
+					} catch(const std::exception& e) {
+						return std::string(1, c);
+					}
+				}
+			public:
+				enum NodeType type = NodeType::charExpression;
+				char value;
+				CharExpression(char value = '\0') {
+					this->value = value;
+					this->type = NodeType::charExpression;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::charExpression;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "CharExpression('" + format_char(this->value) + "')";
+				}
+				virtual std::string type_id() override {
+					return "CharExpression";
 				}
 			};
 

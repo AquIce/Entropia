@@ -55,6 +55,8 @@ namespace ent {
 					return new F64Value(0);
 				case ent::front::ast::NodeType::booleanExpression:
 					return new BooleanValue(false);
+				case ent::front::ast::NodeType::charExpression:
+					return new CharValue('\0');
 				default:
 					throw (ent::Error(ent::ErrorType::ENV_INVALID_TYPE_ERROR, "Trying to get sample value for invalid type to variable")).error();
 			}

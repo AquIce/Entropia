@@ -13,6 +13,7 @@ namespace ent {
 
 	enum ErrorType {
 		LEXER_INVALID_NUMBER_FORMAT_ERROR,
+		LEXER_INVALID_CHARACTER_FORMAT_ERROR,
 		LEXER_VALUE_OUT_OF_RANGE_ERROR,
 
 		PARSER_EXPECTED_OTHER_ERROR,
@@ -87,6 +88,7 @@ namespace ent {
 			std::string type = "";
 			switch(this->type) {
 				error_switch_case(ErrorType::LEXER_INVALID_NUMBER_FORMAT_ERROR)
+				error_switch_case(ErrorType::LEXER_INVALID_CHARACTER_FORMAT_ERROR)
 				error_switch_case(ErrorType::LEXER_VALUE_OUT_OF_RANGE_ERROR)
 				error_switch_case(ErrorType::PARSER_EXPECTED_OTHER_ERROR)
 				error_switch_case(ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR)

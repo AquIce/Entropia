@@ -61,7 +61,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Add default to const (mut)
 - [ ] Add other datatypes
   - [x] Booleans
-  - [ ] Characters
+  - [x] Characters
   - [ ] Strings
   - [ ] Arrays
   - [ ] Maps

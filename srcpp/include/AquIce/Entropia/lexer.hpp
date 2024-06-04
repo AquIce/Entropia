@@ -2,10 +2,16 @@
 #define __ENT_FRONT_LEX__
 
 #include <vector>
+#include <unordered_map>
 
 #include "token.hpp"
 #include "errors.hpp"
 #include "../types/numbers.hpp"
+
+#define ENT__DECIMAL_SEPARATOR '.'
+#define ENT__CHAR_DELIMITER '\''
+#define ENT__STRING_DELIMITER '"'
+#define ENT__ESCAPE_CHARACTER '\\'
 
 #define check_for_chr_token(tk_type, value) \
 if(src[0] == value) { \
@@ -30,6 +36,23 @@ std::string shift(std::string& str, int n) {
 	return first;
 }
 
+char escape_char(std::string escaped) {
+	return std::unordered_map<std::string, char>({
+		{"\\a", '\a'},
+		{"\\b", '\b'},
+		{"\\f", '\f'},
+		{"\\n", '\n'},
+		{"\\r", '\r'},
+		{"\\t", '\t'},
+		{"\\v", '\v'},
+		{"\\\\", '\\'},
+		{"\\'", '\''},
+		{"\\\"", '\"'},
+		{"\\?", '\?'},
+		{"\\0", '\0'}
+	}).at(escaped);
+}
+
 namespace ent {
 	namespace front {
 		struct NumberValue {
@@ -40,8 +63,8 @@ namespace ent {
 		struct NumberValue get_number(std::string& src) {
 			std::string rvalue = "";
 			bool is_integer = true;
-			while(src[0] == '.' || isdigit(src[0])) {
-				if(src[0] == '.') {
+			while(src[0] == ENT__DECIMAL_SEPARATOR || isdigit(src[0])) {
+				if(src[0] == ENT__DECIMAL_SEPARATOR) {
 					if(!is_integer) {
 						throw (ent::Error(ErrorType::LEXER_INVALID_NUMBER_FORMAT_ERROR, "Invalid number format")).error();
 					}
@@ -50,6 +73,19 @@ namespace ent {
 				rvalue += shift(src);
 			}
 			return NumberValue{rvalue, is_integer};
+		}
+
+		char get_char(std::string& src) {
+			(void)shift(src);
+			char litteral = shift(src)[0];
+			if(src[0] == ENT__CHAR_DELIMITER) {
+				(void)shift(src);
+				return litteral;
+			}
+			std::string escaped = "\\";
+			litteral = escape_char(escaped + shift(src)[0]);
+			(void)shift(src);
+			return litteral;
 		}
 
 		ent::type::token get_number_token(NumberValue n) {
@@ -122,6 +158,7 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "f32")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "f64")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "bool")
+			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "char")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "void")
 			check_for_str_token(ent::type::token_type::BOOL, "true")
 			check_for_str_token(ent::type::token_type::BOOL, "false")
@@ -131,9 +168,14 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::FOR, "for")
 			check_for_str_token(ent::type::token_type::WHILE, "while")
 			
-			if(isdigit(src[0]) || src[0] == '.') {
+			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);
 				return get_number_token(number);
+			}
+
+			if(src[0] == ENT__CHAR_DELIMITER) {
+				char char_value = get_char(src);
+				return ent::type::token(ent::type::token_type::CHAR, std::string(1, char_value));
 			}
 
 			std::string identifier = "";

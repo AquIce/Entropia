@@ -47,6 +47,7 @@ namespace ent {
 				if(peek().get_type() == type) {
 					return eat();
 				}
+				std::cout << "EXPERR " << peek().pretty_print() << std::endl;
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + peek().get_value())).error();
 			}
 
@@ -61,7 +62,7 @@ namespace ent {
 
 			ent::front::ast::Expression* parse_expression();
 
-			ent::front::ast::Expression* parse_numeric_expression() {
+			ent::front::ast::Expression* parse_native_expression() {
 				// If the current token is a number
 				if(peek().get_type() == ent::type::token_type::I8) {
 					// Parse the number
@@ -108,13 +109,16 @@ namespace ent {
 				} else if(peek().get_type() == ent::type::token_type::BOOL) {
 					bool value = eat().get_value() == "true";
 					return new ent::front::ast::BooleanExpression(value);
+				}else if(peek().get_type() == ent::type::token_type::CHAR) {
+					char value = eat().get_value()[0];
+					return new ent::front::ast::CharExpression(value);
 				}
 				return parse_identifier();
 			}
 
 			ent::front::ast::Expression* parse_parenthesis_expression() {
 				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
-					return parse_numeric_expression();
+					return parse_native_expression();
 				}
 				(void)eat();
 				ent::front::ast::Expression* content = parse_expression();
@@ -294,6 +298,9 @@ namespace ent {
 					} else if(type == "bool") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::booleanExpression);
 						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression(), isMutable);
+					} else if(type == "char") {
+						identifier->set_identifier_type(ent::front::ast::NodeType::charExpression);
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::CharExpression(), isMutable);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
@@ -360,6 +367,8 @@ namespace ent {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value), isMutable);
 				} else if(type == "bool") {
 					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value), isMutable);
+				} else if(type == "char") {
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::charExpression, "char", identifier, value), isMutable);
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}

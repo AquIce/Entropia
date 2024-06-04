@@ -1,10 +1,4 @@
-fn range(mut min: i32, mut max: i32): void {
-	for(let mut i: i32 = min; i < max; i++) {
-		i;
-	}
-}
-
-let mut i: i32 = 0;
-let mut j: i32 = 10;
-
-range(i, j);
+let c: char = '\n';
+let d: char = '\t';
+let e: char = 'r';
+let f: char = '\0';
