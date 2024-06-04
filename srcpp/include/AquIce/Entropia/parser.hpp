@@ -251,7 +251,7 @@ namespace ent {
 				return new ent::front::ast::Assignation(identifier, value);
 			}
 
-			ent::front::ast::Declaration* parse_any_declaration(ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
+			ent::front::ast::Declaration* parse_any_declaration(bool isMutable, ent::front::ast::Identifier* identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
 				ent::type::token next = peek();
 
 				if(next.get_type() != ent::type::token_type::ASSIGN) {
@@ -263,37 +263,37 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i8Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I8Expression(), isMutable);
 					} else if(type == "i16") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i16Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I16Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I16Expression(), isMutable);
 					} else if(type == "i32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I32Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I32Expression(), isMutable);
 					} else if(type == "i64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::i64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I64Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::I64Expression(), isMutable);
 					} else if(type == "u8") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u8Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U8Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U8Expression(), isMutable);
 					} else if(type == "u16") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u16Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U16Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U16Expression(), isMutable);
 					} else if(type == "u32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U32Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U32Expression(), isMutable);
 					} else if(type == "u64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::u64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U64Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::U64Expression(), isMutable);
 					} else if(type == "f32") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::f32Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F32Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F32Expression(), isMutable);
 					} else if(type == "f64") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::f64Expression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::F64Expression(), isMutable);
 					} else if(type == "bool") {
 						identifier->set_identifier_type(ent::front::ast::NodeType::booleanExpression);
-						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression());
+						return new ent::front::ast::Declaration(identifier, new ent::front::ast::BooleanExpression(), isMutable);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
@@ -302,6 +302,15 @@ namespace ent {
 			}
 
 			ent::front::ast::Statement* parse_declaration(bool needsSemicolon) {
+
+
+				bool isMutable = false;
+
+				if(peek().get_type() == ent::type::token_type::MUTABLE) {
+					(void)eat();
+					isMutable = true;
+				}
+
 				ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 				expect(ent::type::token_type::COLON, ":");
 				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
@@ -309,6 +318,7 @@ namespace ent {
 				ent::type::token next = peek();
 
 				ent::front::ast::Declaration* statement = parse_any_declaration(
+					isMutable,
 					identifier,
 					type_specifier,
 					ent::type::token_type::SEMICOLON,
@@ -329,27 +339,27 @@ namespace ent {
 				if(type == "void") {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 				} else if(type == "i8") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i8Expression, "i8", identifier, value), isMutable);
 				} else if(type == "i16") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i16Expression, "i16", identifier, value), isMutable);
 				} else if(type == "i32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i32Expression, "i32", identifier, value), isMutable);
 				} else if(type == "i64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::i64Expression, "i64", identifier, value), isMutable);
 				} else if(type == "u8") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u8Expression, "u8", identifier, value), isMutable);
 				} else if(type == "u16") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u16Expression, "u16", identifier, value), isMutable);
 				} else if(type == "u32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u32Expression, "u32", identifier, value), isMutable);
 				} else if(type == "u64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::u64Expression, "u64", identifier, value), isMutable);
 				} else if(type == "f32") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f32Expression, "f32", identifier, value), isMutable);
 				} else if(type == "f64") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::f64Expression, "f64", identifier, value), isMutable);
 				} else if(type == "bool") {
-					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value));
+					return new ent::front::ast::Declaration(expect_type_assignation_expression(ent::front::ast::NodeType::booleanExpression, "bool", identifier, value), isMutable);
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
@@ -479,6 +489,14 @@ namespace ent {
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
 				} else {
 					while(true) {
+
+						bool isMutable = false;
+
+						if(peek().get_type() == ent::type::token_type::MUTABLE) {
+							(void)eat();
+							isMutable = true;
+						}
+
 						ent::front::ast::Identifier* identifier = (ent::front::ast::Identifier*)parse_identifier();
 						expect(ent::type::token_type::COLON, ":");
 						ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
@@ -487,6 +505,7 @@ namespace ent {
 						
 						try {
 							declaration = parse_any_declaration(
+								isMutable,
 								identifier,
 								type_specifier,
 								ent::type::token_type::COMMA,
@@ -494,6 +513,7 @@ namespace ent {
 							);
 						} catch(const std::exception& e) {
 							declaration = parse_any_declaration(
+								isMutable,
 								identifier,
 								type_specifier,
 								ent::type::token_type::CLOSE_PAREN,

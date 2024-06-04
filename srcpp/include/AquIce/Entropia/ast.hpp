@@ -515,24 +515,27 @@ namespace ent {
 			public:
 				enum NodeType type = NodeType::declaration;
 				Identifier* identifier;
+				bool isMutable = false;
 				Expression* value;
 				bool isInFunctionSetup = false;
-				Declaration(Identifier* identifier, Expression* value, bool isInFunctionSetup = false) {
+				Declaration(Identifier* identifier, Expression* value, bool isMutable, bool isInFunctionSetup = false) {
 					this->identifier = identifier;
+					this->isMutable = isMutable;
 					this->value = value;
 					this->type = NodeType::declaration;
 					this->isInFunctionSetup = isInFunctionSetup;
 				}
-				Declaration(Assignation* assignation) {
+				Declaration(Assignation* assignation, bool isMutable) {
 					this->identifier = assignation->identifier;
 					this->value = assignation->value;
 					this->type = NodeType::declaration;
+					this->isMutable = isMutable;
 				}
 				virtual NodeType get_type() override {
 					return NodeType::declaration;
 				}
 				virtual std::string pretty_print(int indent = 0) override {
-					return std::string(indent, '\t') + "Declaration\n" + std::string(indent + 1, '\t') + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+					return std::string(indent, '\t') + "Declaration\n" + std::string(indent + 1, '\t') + std::string(this->isMutable ? "mut " : "const ") + this->identifier->name + ",\n" + this->value->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
 				}
 				virtual std::string type_id() override {
 					return "Declaration";

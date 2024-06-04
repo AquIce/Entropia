@@ -72,16 +72,21 @@ namespace ent {
 			throw (ent::Error(ent::ErrorType::ENV_INVALID_TYPE_ERROR, "Trying to assign invalid type to variable " + key)).error();
 		}
 
+		typedef struct EnvValue {
+			RuntimeValue* value;
+			bool isMutable;
+		} EnvValue;
+
 		class Environment {
 		private:
 			Environment* parent = nullptr;
-			std::unordered_map<std::string, RuntimeValue*> values;
+			std::unordered_map<std::string, EnvValue*> values;
 			std::unordered_map<std::string, ent::front::ast::FunctionDeclaration*> functions;
 
 		public:
 			Environment(Environment* parent = nullptr) {
 				this->parent = parent;
-				this->values = std::unordered_map<std::string, RuntimeValue*>();
+				this->values = std::unordered_map<std::string, EnvValue*>();
 				this->functions = std::unordered_map<std::string, ent::front::ast::FunctionDeclaration*>();
 			}
 
@@ -98,15 +103,19 @@ namespace ent {
 				
 				RuntimeValue* old_val = get_value(key);
 
-				this->values[key] = check_type_compatibility(this->get_value(key), value, key);
+				EnvValue* dest = this->values.at(key);
+				if(!dest->isMutable) {
+					throw (ent::Error(ent::ErrorType::ENV_SETTING_NON_MUTABLE_VARIABLE_ERROR, "Trying to set non-mutable variable " + key)).error();
+				}
+				this->values.at(key)->value = check_type_compatibility(this->get_value(key), value, key);
 
 				return old_val;
 			}
-			RuntimeValue* init_value(std::string key, RuntimeValue* value) {
+			RuntimeValue* init_value(std::string key, RuntimeValue* value, bool isMutable) {
 				if(this->has_value(key)) {
 					throw (ent::Error(ent::ErrorType::ENV_REDECLARING_EXISTING_VARIABLE_ERROR, "Trying to redeclare an existing variable " + key)).error();
 				}
-				this->values[key] = value;
+				this->values[key] = new EnvValue({value, isMutable});
 
 				return value;
 			}
@@ -117,7 +126,7 @@ namespace ent {
 					}
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_VARIABLE_ERROR, "Trying to get non-declared variable " + key)).error();
 				}
-				return this->values.at(key);
+				return this->values.at(key)->value;
 			}
 			
 			bool has_function(std::string key) {

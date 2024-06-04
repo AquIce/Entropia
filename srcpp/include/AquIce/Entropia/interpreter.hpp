@@ -962,9 +962,11 @@ namespace ent {
 			RuntimeValue* evaluateDeclaration(ent::front::ast::Declaration* declaration, Environment* env) {
 				RuntimeValue* v = evaluateStatement(declaration->value, env);
 				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
+				std::cout << declaration->identifier->name << std::string(declaration->isMutable ? " mut" : " const") << std::endl;
 				RuntimeValue* value = env->init_value(
 					declaration->identifier->name,
-					v
+					v,
+					declaration->isMutable
 				);
 				return value;
 			}

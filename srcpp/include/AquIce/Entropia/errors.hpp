@@ -59,6 +59,7 @@ namespace ent {
 		ENV_GETTING_NON_EXISTING_VARIABLE_ERROR,
 		ENV_REDECLARING_EXISTING_FUNCTION_ERROR,
 		ENV_GETTING_NON_EXISTING_FUNCTION_ERROR,
+		ENV_SETTING_NON_MUTABLE_VARIABLE_ERROR,
 
 		ENV_INVALID_TYPE_ERROR,
 	};
@@ -128,6 +129,7 @@ namespace ent {
 				error_switch_case(ErrorType::ENV_REDECLARING_EXISTING_FUNCTION_ERROR)
 				error_switch_case(ErrorType::ENV_GETTING_NON_EXISTING_FUNCTION_ERROR)
 				error_switch_case(ErrorType::ENV_INVALID_TYPE_ERROR)
+				error_switch_case(ErrorType::ENV_SETTING_NON_MUTABLE_VARIABLE_ERROR)
 			}
 			return std::runtime_error(type + ": " + this->message);
 		}

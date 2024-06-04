@@ -110,6 +110,7 @@ namespace ent {
 			check_for_chr_token(ent::type::token_type::BITWISE_NOT, '~')
 			check_for_str_token(ent::type::token_type::XOR, "^^")
 			check_for_str_token(ent::type::token_type::LET, "let")
+			check_for_str_token(ent::type::token_type::MUTABLE, "mut")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i8")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i16")
 			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i32")

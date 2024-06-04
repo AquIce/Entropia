@@ -13,6 +13,7 @@ namespace ent {
 	namespace type {
 		enum token_type {
 			LET,
+			MUTABLE,
 			TYPE_SPECIFIER,
 			FN,
 
@@ -103,6 +104,7 @@ namespace ent {
 				std::string type = "";
 				switch(this->type) {
 					token_switch_case(LET)
+					token_switch_case(MUTABLE)
 					token_switch_case(TYPE_SPECIFIER)
 					token_switch_case(FN)
 
