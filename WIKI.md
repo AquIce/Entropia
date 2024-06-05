@@ -26,7 +26,7 @@
 			- [4.1.1. Binary Operators](#411-binary-operators)
 			- [4.1.2. Unary Operators](#412-unary-operators)
 		- [4.2. If Else](#42-if-else)
-		- [4.3. Switch ⚠️](#43-switch-️)
+		- [4.3. Match ⚠️](#43-match-️)
 		- [4.4. Ternaries ⚠️](#44-ternaries-️)
 	- [5. Loops](#5-loops)
 		- [5.1. For](#51-for)
@@ -116,8 +116,10 @@ let [mut] <name>: <type>;
 ### 1.4. Declaration + Assignation
 
 ```
-let <name>: <type> = <value>;
+let [mut] <name>: <type> = <value>;
 ```
+
+\[mut] is used to make a variable mutable
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
@@ -190,12 +192,14 @@ fn <name>(void): <return_type> {
 #### 3.1.2. Arguments Function
 
 ```
-fn <name>(<arg_name>: <arg_type>, ...): <return_type> {
+fn <name>([mut] <arg_name>: <arg_type>, ...): <return_type> {
 	...
 }
 ```
 
 \<name> only contains `a-z`, `A-Z` or `_`
+
+\[mut] is used to make a argument mutable
 
 \<arg_name> only contains `a-z`, `A-Z` or `_`
 
@@ -267,10 +271,10 @@ if(<condition>) {
 
 \<other_condition> is the condition to match to enter the `else if` block
 
-### 4.3. Switch ⚠️
+### 4.3. Match ⚠️
 
 ```
-switch(<value>) {
+match(<value>) {
 	<case> => {
 		...
 	},
