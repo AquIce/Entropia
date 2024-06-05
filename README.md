@@ -3,6 +3,8 @@ Entropia is a C++ based programming language, implementing ownership and other u
 
 # TODO
 
+## Language Features
+
 - [x] Add variables
   - [x] Declaration syntax
   - [x] Assignment syntax
@@ -35,8 +37,6 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [x] For
   - [x] While
   - [ ] For : (requires arrays/strings)
-- [x] Add concept of subEnv to allow scoping variables (add scope attribute to fn, if, for, ...)
-- [x] Make parenthesis precedence
 - [ ] Add comments
   - [ ] Single line
   - [ ] Multi line
@@ -55,7 +55,6 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [x] Assignment
     - [x] (any)=
   - [ ] Ternaries
-- [x] Add default to const (mut)
 - [ ] Add other datatypes
   - [x] Booleans
   - [x] Characters
@@ -67,7 +66,14 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [ ] Member access syntax
   - [ ] ...
 - [ ] Add modules
-- [ ] Compiling language
+
+## Fixes / Additionnal features
+
+- [x] Add concept of subEnv to allow scoping variables (add scope attribute to fn, if, for, ...)
+- [x] Make parenthesis precedence
+- [x] Add default to const (mut)
+- [ ] Add support for negative numbers
+- [ ] Compile language
 
 ## Extension
 
