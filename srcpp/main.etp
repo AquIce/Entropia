@@ -1,7 +1,11 @@
+/*
+	Returns the max of 2 numbers
+*/
 fn max(a: i32, b: i32): i32 {
+	// a is bigger than b
 	if(a >= b) {
 		return a;
-	} else {
+	} else { // b is bigger than a
 		return b;
 	}
 }

@@ -212,15 +212,49 @@ namespace ent {
 
 			std::vector<ent::type::token> tokens;
 
+			bool single_line_comment = false;
+			bool multi_line_comment = false;
+
 			while(src.length() > 0) {
-				
+
+				std::cout << src << " " << single_line_comment << " " << multi_line_comment << std::endl;
+
 				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
-					shift(src);
+					if(src[0] == '\n') {
+						single_line_comment = false;
+					}
+					(void)shift(src);
 					continue;
-				} else {
+				}
+				if(src.rfind("//", 0) == 0) {
+					(void)shift(src, 2);
+					single_line_comment = true;
+					continue;
+				}
+				if(src.rfind("/*", 0) == 0) {
+					(void)shift(src, 2);
+					multi_line_comment = true;
+					continue;
+				}
+				if(src.rfind("*/", 0) == 0) {
+					(void)shift(src, 2);
+					if(!multi_line_comment) {
+						throw (ent::Error(ErrorType::LEXER_LONELY_CLOSING_COMMENT_ERROR, "Comment being closed without being opened")).error();
+					}
+					multi_line_comment = false;
+					continue;
+				}
+				if(!single_line_comment && ! multi_line_comment) {
 					tokens.push_back(get_token(src));
+				} else {
+					(void)shift(src);
 				}
 			}
+			
+			if(multi_line_comment) {
+				throw (ent::Error(ErrorType::LEXER_UNCLOSED_COMMENT_ERROR, "Comment being opened and not closed before EOF")).error();
+			}
+			
 			// Add an EOF token to the end of the list
 			tokens.push_back(ent::type::token());
 
