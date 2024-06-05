@@ -38,6 +38,7 @@ namespace ent {
 				identifier,
 				conditionnalBlock,
 				conditionnalStructure,
+				matchStructure,
 				forLoop,
 				whileLoop,
             };
@@ -685,20 +686,8 @@ namespace ent {
             };
 
 			class ConditionnalBlock: public Scope {
-			public:
-				enum NodeType type = NodeType::conditionnalBlock;
-				std::shared_ptr<Expression> condition;
-				std::shared_ptr<ConditionnalBlock> before;
-
-				ConditionnalBlock(std::vector<std::shared_ptr<Statement>> body, std::shared_ptr<Expression> condition, std::shared_ptr<ConditionnalBlock> before = nullptr) : Scope(body) {
-					this->type = NodeType::program;
-					this->condition = condition;
-					this->before = before;
-				}
-				virtual NodeType get_type() override {
-					return NodeType::conditionnalBlock;
-				}
-				virtual std::string pretty_print(int indent = 0) override {
+			private:
+				std::string if_else_pretty_print(int indent) {
 					std::string pretty = std::string(indent, '\t');
 					pretty += condition == nullptr ? "else" : 
 						(
@@ -711,6 +700,37 @@ namespace ent {
 					pretty += std::string(indent, '\t') + "}";
 					return pretty;
 				}
+				std::string match_case_pretty_print(int indent) {
+					std::string pretty = std::string(indent, '\t') + "(\n";
+					pretty += this->condition->pretty_print(indent + 1);
+					pretty += std::string(indent, '\t') + "\n) => {";
+					for(u64 i = 0; i < this->body.size(); i++) {
+						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
+					}
+					pretty += std::string(indent, '\t') + "}";
+					return pretty;
+				}
+			public:
+				enum NodeType type = NodeType::conditionnalBlock;
+				std::shared_ptr<Expression> condition;
+				std::shared_ptr<ConditionnalBlock> before;
+				bool isMatch;
+
+				ConditionnalBlock(std::vector<std::shared_ptr<Statement>> body, std::shared_ptr<Expression> condition, bool isMatch, std::shared_ptr<ConditionnalBlock> before = nullptr) : Scope(body) {
+					this->type = NodeType::program;
+					this->condition = condition;
+					this->before = before;
+					this->isMatch = isMatch;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::conditionnalBlock;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					if(this->isMatch) {
+						return match_case_pretty_print(indent);
+					}
+					return if_else_pretty_print(indent);
+				}
 				virtual std::string type_id() override {
 					return "ConditionnalBlock";
 				}
@@ -722,7 +742,7 @@ namespace ent {
 				std::vector<std::shared_ptr<ConditionnalBlock>> conditionnalBlocks;
 
 				ConditionnalStructure(std::vector<std::shared_ptr<ConditionnalBlock>> conditionnalBlocks) {
-					this->type = NodeType::conditionnalBlock;
+					this->type = NodeType::conditionnalStructure;
 					this->conditionnalBlocks = conditionnalBlocks;
 				}
 				virtual NodeType get_type() override {
@@ -737,6 +757,35 @@ namespace ent {
 				}
 				virtual std::string type_id() override {
 					return "ConditionnalStructure";
+				}
+            };
+
+			class MatchStructure: public Statement {
+			public:
+				enum NodeType type = NodeType::matchStructure;
+				std::shared_ptr<ent::front::ast::Expression> matchExpression;
+				std::vector<std::shared_ptr<ConditionnalBlock>> casesBlocks;
+
+				MatchStructure(std::shared_ptr<ent::front::ast::Expression> matchExpression, std::vector<std::shared_ptr<ConditionnalBlock>> casesBlocks) {
+					this->type = NodeType::matchStructure;
+					this->matchExpression = matchExpression;
+					this->casesBlocks = casesBlocks;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::matchStructure;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = "match(\n";
+					pretty += matchExpression->pretty_print(indent + 1);
+					pretty += "\n" + std::string(indent, '\t') + ") {";
+					for(std::shared_ptr<ConditionnalBlock> block : this->casesBlocks) {
+						pretty += block->pretty_print(indent + 1) + "\n";
+					}
+					pretty += "}";
+					return pretty;
+				}
+				virtual std::string type_id() override {
+					return "MatchStructure";
 				}
             };
 

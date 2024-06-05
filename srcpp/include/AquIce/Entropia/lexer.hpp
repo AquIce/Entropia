@@ -134,6 +134,7 @@ namespace ent {
 			check_for_chr_token(ent::type::token_type::SEMICOLON, ';')
 			check_for_chr_token(ent::type::token_type::COMMA, ',')
 			check_for_str_token(ent::type::EQUAL, "==")
+			check_for_str_token(ent::type::MATCH_ARROW, "=>")
 			check_for_chr_token(ent::type::token_type::ASSIGN, '=')
 			check_for_str_token(ent::type::token_type::SMALLER_OR_EQUAL, "<=")
 			check_for_str_token(ent::type::token_type::GREATER_OR_EQUAL, ">=")
@@ -181,6 +182,8 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::ELSE, "else")
 			check_for_str_token(ent::type::token_type::FOR, "for")
 			check_for_str_token(ent::type::token_type::WHILE, "while")
+			check_for_str_token(ent::type::token_type::MATCH, "match")
+			check_for_str_token(ent::type::token_type::DEFAULT, "default")
 			
 			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);
@@ -216,9 +219,6 @@ namespace ent {
 			bool multi_line_comment = false;
 
 			while(src.length() > 0) {
-
-				std::cout << src << " " << single_line_comment << " " << multi_line_comment << std::endl;
-
 				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
 					if(src[0] == '\n') {
 						single_line_comment = false;

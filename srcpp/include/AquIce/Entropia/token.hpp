@@ -22,6 +22,8 @@ namespace ent {
 			ELSE,
 			FOR,
 			WHILE,
+			MATCH,
+			DEFAULT,
 
 			OPEN_PAREN,
 			CLOSE_PAREN,
@@ -31,6 +33,7 @@ namespace ent {
 			SEMICOLON,
 			COMMA,
 			ASSIGN,
+			MATCH_ARROW,
 
 			PLUS,
 			MINUS,
@@ -117,6 +120,8 @@ namespace ent {
 					token_switch_case(ELSE)
 					token_switch_case(FOR)
 					token_switch_case(WHILE)
+					token_switch_case(MATCH)
+					token_switch_case(DEFAULT)
 
 					token_switch_case(OPEN_PAREN)
 					token_switch_case(CLOSE_PAREN)
@@ -126,6 +131,7 @@ namespace ent {
 					token_switch_case(SEMICOLON)
 					token_switch_case(COMMA)
 					token_switch_case(ASSIGN)
+					token_switch_case(MATCH_ARROW)
 
 					token_switch_case(PLUS)
 					token_switch_case(MINUS)

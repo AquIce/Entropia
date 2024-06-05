@@ -616,7 +616,7 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after body");
 
-				std::shared_ptr<ent::front::ast::ConditionnalBlock> conditionnalBlock = std::make_shared<ent::front::ast::ConditionnalBlock>(body, condition);
+				std::shared_ptr<ent::front::ast::ConditionnalBlock> conditionnalBlock = std::make_shared<ent::front::ast::ConditionnalBlock>(body, condition, false);
 
 				if(conditionType != ConditionType::IF) {
 					conditionnalBlock->before = before;
@@ -681,7 +681,55 @@ namespace ent {
 				return std::make_shared<ent::front::ast::WhileLoop>(loopCondition, body);
 			}
 
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_match_case() {
+
+				std::shared_ptr<ent::front::ast::Expression> caseToMatch = nullptr;
+
+				if(peek().get_type() != ent::type::token_type::DEFAULT) {
+					caseToMatch = parse_expression();
+				}
+
+				(void)expect(ent::type::token_type::MATCH_ARROW, "match arrow after expression");
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before match case body");
+
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
+
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement(false));
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after match case body");
+
+				return std::make_shared<ent::front::ast::ConditionnalBlock>(body, caseToMatch, true);
+			}
+
+			std::shared_ptr<ent::front::ast::MatchStructure> parse_match_structure() {
+
+				std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>> cases = std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>>();
+
+				(void)eat();
+
+				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before match expression");
+
+				std::shared_ptr<ent::front::ast::Expression> matchExpression = parse_expression();
+
+				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after match expression");
+				
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before match body");
+
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					cases.push_back(parse_match_case());
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after match body");
+
+				return std::make_shared<ent::front::ast::MatchStructure>(matchExpression, cases);
+			}
+
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
+
+				std::cout << peek().pretty_print() << std::endl;
 
 				if(peek().get_type() == ent::type::token_type::LET) {
 					(void)eat();
@@ -718,6 +766,11 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::Statement> whileLoop = parse_while_loop();
 					if(updateBefore) { before = nullptr; }
 					return whileLoop;
+				}
+				if(peek().get_type() == ent::type::token_type::MATCH) {
+					std::shared_ptr<ent::front::ast::Statement> matchStructure = parse_match_structure();
+					if(updateBefore) { before = nullptr; }
+					return matchStructure;
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
