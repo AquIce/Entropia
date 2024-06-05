@@ -17,6 +17,7 @@ namespace ent {
 				assignation,
 				declaration,
 				functionDeclaration,
+				functionReturn,
                 binaryExpression,
 				unaryExpression,
 				functionCallExpression,
@@ -636,7 +637,27 @@ namespace ent {
 					return pretty;
 				}
 				virtual std::string type_id() override {
-					return "Declaration";
+					return "FunctionDeclaration";
+				}
+			};
+
+			class FunctionReturn: public Statement {
+			public:
+				enum NodeType type = NodeType::functionReturn;
+				std::shared_ptr<Expression> value;
+
+				FunctionReturn(std::shared_ptr<Expression> value) {
+					this->value = value;
+				}
+				
+				virtual NodeType get_type() override {
+					return NodeType::functionReturn;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "return " + this->value->pretty_print();
+				}
+				virtual std::string type_id() override {
+					return "FunctionReturn";
 				}
 			};
 

@@ -176,6 +176,7 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::BOOL, "true")
 			check_for_str_token(ent::type::token_type::BOOL, "false")
 			check_for_str_token(ent::type::token_type::FN, "fn")
+			check_for_str_token(ent::type::token_type::RETURN, "return")
 			check_for_str_token(ent::type::token_type::IF, "if")
 			check_for_str_token(ent::type::token_type::ELSE, "else")
 			check_for_str_token(ent::type::token_type::FOR, "for")

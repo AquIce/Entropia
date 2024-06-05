@@ -47,7 +47,6 @@ namespace ent {
 				if(peek().get_type() == type) {
 					return eat();
 				}
-				std::cout << "EXPERR " << peek().pretty_print() << std::endl;
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + peek().get_value())).error();
 			}
 
@@ -561,6 +560,16 @@ namespace ent {
 				return std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
 			}
 
+			std::shared_ptr<ent::front::ast::FunctionReturn> parse_function_return() {
+				(void)eat();
+
+				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
+
+				(void)expect(ent::type::token_type::SEMICOLON, "semicolon at the end of line");
+
+				return std::make_shared<ent::front::ast::FunctionReturn>(value);
+			}
+
 			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_conditionnal_block() {
 
 				enum ConditionType {
@@ -690,6 +699,11 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::Statement> function_declaration = parse_function_declaration();
 					if(updateBefore) { before = nullptr; }
 					return function_declaration;
+				}
+				if(peek().get_type() == ent::type::token_type::RETURN) {
+					std::shared_ptr<ent::front::ast::Statement> functionReturn = parse_function_return();
+					if(updateBefore) { before = nullptr; }
+					return functionReturn;
 				}
 				if(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
 					return parse_conditionnal_structure();

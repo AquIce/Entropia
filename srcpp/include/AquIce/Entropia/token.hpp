@@ -16,6 +16,7 @@ namespace ent {
 			MUTABLE,
 			TYPE_SPECIFIER,
 			FN,
+			RETURN,
 
 			IF,
 			ELSE,
@@ -110,6 +111,7 @@ namespace ent {
 					token_switch_case(MUTABLE)
 					token_switch_case(TYPE_SPECIFIER)
 					token_switch_case(FN)
+					token_switch_case(RETURN)
 
 					token_switch_case(IF)
 					token_switch_case(ELSE)

@@ -154,6 +154,12 @@ evaluateAssignationExpression( \
 namespace ent {
 	namespace runtime {
 		namespace interpreter {
+
+			typedef struct StatementValue {
+				std::shared_ptr<RuntimeValue> value;
+				bool isReturnValue;
+			} StatementValue;
+
 			std::shared_ptr<RuntimeValue> evaluateIdentifier(std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<Environment> env) {
 				return env->get_value(identifier->name);
 			}
@@ -884,11 +890,11 @@ namespace ent {
 				}
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env);
+			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env);
 
 			std::shared_ptr<RuntimeValue> evaluateBinaryExpression(std::shared_ptr<ent::front::ast::BinaryExpression> binaryExpression, std::shared_ptr<Environment> env) {
-				std::shared_ptr<RuntimeValue> left = evaluateStatement(binaryExpression->left, env);
-				std::shared_ptr<RuntimeValue> right = evaluateStatement(binaryExpression->right, env);
+				std::shared_ptr<RuntimeValue> left = evaluateStatement(binaryExpression->left, env)->value;
+				std::shared_ptr<RuntimeValue> right = evaluateStatement(binaryExpression->right, env)->value;
 
 				// Both operands are numbers
 				if(IsNumericType(left->type()) && IsNumericType(right->type())) {
@@ -901,17 +907,17 @@ namespace ent {
 			}
 
 			std::shared_ptr<RuntimeValue> evaluateParenthesisExpression(std::shared_ptr<ent::front::ast::ParenthesisExpression> parenthesisExpression, std::shared_ptr<Environment> env) {
-				return evaluateStatement(parenthesisExpression->content, env);
+				return evaluateStatement(parenthesisExpression->content, env)->value;
 			}
 
 			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env);
 
 			std::shared_ptr<RuntimeValue> evaluateUnaryExpression(std::shared_ptr<ent::front::ast::UnaryExpression> unaryExpression, std::shared_ptr<Environment> env) {
 				if(unaryExpression->operator_symbol == "!") {
-					return std::make_shared<BooleanValue>(!(evaluateStatement(unaryExpression->term, env)->IsTrue()));
+					return std::make_shared<BooleanValue>(!(evaluateStatement(unaryExpression->term, env)->value->IsTrue()));
 				} if(unaryExpression->operator_symbol == "~") {
 					ent::front::ast::NodeType term_type = unaryExpression->term->get_type();
-					std::shared_ptr<RuntimeValue> term_value = evaluateStatement(unaryExpression->term, env);
+					std::shared_ptr<RuntimeValue> term_value = evaluateStatement(unaryExpression->term, env)->value;
 
 					if(term_type == ent::front::ast::NodeType::identifier) {
 						std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(unaryExpression->term);
@@ -972,7 +978,7 @@ namespace ent {
 			}
 
 			std::shared_ptr<RuntimeValue> evaluateDeclaration(std::shared_ptr<ent::front::ast::Declaration> declaration, std::shared_ptr<Environment> env) {
-				std::shared_ptr<RuntimeValue> v = evaluateStatement(declaration->value, env);
+				std::shared_ptr<RuntimeValue> v = evaluateStatement(declaration->value, env)->value;
 				check_type_compatibility(get_sample_value(declaration->identifier->identifierType), v, declaration->identifier->name);
 
 				std::shared_ptr<RuntimeValue> value = env->init_value(
@@ -986,7 +992,7 @@ namespace ent {
 			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env) {
 				return env->set_value(
 					assignation->identifier->name,
-					evaluateStatement(assignation->value, env)
+					evaluateStatement(assignation->value, env)->value
 				);
 			}
 
@@ -996,10 +1002,16 @@ namespace ent {
 					functionDeclaration
 				);
 
-				return std::shared_ptr<NullValue>();
+				return std::make_shared<NullValue>();
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env);
+			std::shared_ptr<RuntimeValue> evaluateFunctionReturn(std::shared_ptr<ent::front::ast::FunctionReturn> functionDeclaration, std::shared_ptr<Environment> env) {
+				std::shared_ptr<ent::runtime::RuntimeValue> returnValue = evaluateStatement(functionDeclaration->value, env)->value;
+
+				return returnValue;
+			}
+
+			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env);
 
 			std::shared_ptr<RuntimeValue> evaluateFunctionCallExpression(std::shared_ptr<ent::front::ast::FunctionCallExpression> functionCallExpression, std::shared_ptr<Environment> env) {
 				std::shared_ptr<ent::front::ast::FunctionDeclaration> calledFunction = env->get_function(functionCallExpression->functionIdentifier->name);
@@ -1025,87 +1037,152 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Scope> scope = std::make_shared<ent::front::ast::Scope>(functionBody);
 
-				return evaluateScope(scope, env);
+				return evaluateScope(scope, env)->value;
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateConditionnalStructure(std::shared_ptr<ent::front::ast::ConditionnalStructure> conditionnalStructure, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> makeStatementValue(std::shared_ptr<ent::runtime::RuntimeValue> value, bool isReturnValue = false) {
+				return std::make_shared<StatementValue>(StatementValue{
+					value,
+					isReturnValue
+				});
+			}
+
+			std::shared_ptr<StatementValue> evaluateConditionnalStructure(std::shared_ptr<ent::front::ast::ConditionnalStructure> conditionnalStructure, std::shared_ptr<Environment> env) {
+				
 				for(std::shared_ptr<ent::front::ast::ConditionnalBlock> block : conditionnalStructure->conditionnalBlocks) {
-					if(block->condition == nullptr || evaluateStatement(block->condition, env)->IsTrue()) {
+					if(block->condition == nullptr || evaluateStatement(block->condition, env)->value->IsTrue()) {
 						return evaluateScope(std::make_shared<ent::front::ast::Scope>(block->body), env);
 					}
 				}
-				return std::shared_ptr<NullValue>();
+				return makeStatementValue(std::shared_ptr<NullValue>());
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env) {
 
 				std::shared_ptr<Environment> forEnv = std::shared_ptr<Environment>(env);
 
 				evaluateStatement(forLoop->initStatement, forEnv);
 
-				while(evaluateStatement(forLoop->loopCondition, forEnv)->IsTrue()) {
-					evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv);
+				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());				
+
+				while(evaluateStatement(forLoop->loopCondition, forEnv)->value->IsTrue()) {
+					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv);
+					if(last->isReturnValue) {
+						return last;
+					}
 					evaluateStatement(forLoop->iterationStatement, forEnv);
 				}
 
-				return std::shared_ptr<NullValue>();
+				return last;
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateWhileLoop(std::shared_ptr<ent::front::ast::WhileLoop> whileLoop, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateWhileLoop(std::shared_ptr<ent::front::ast::WhileLoop> whileLoop, std::shared_ptr<Environment> env) {
 
 				std::shared_ptr<Environment> whileEnv = std::make_shared<Environment>(env);
 
-				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->IsTrue()) {
-					evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv);
+				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());
+
+				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->value->IsTrue()) {
+					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv);
+					if(last->isReturnValue) {
+						return last;
+					}
 				}
 
-				return std::shared_ptr<NullValue>();
+				return last;
 			}
-
-			std::shared_ptr<RuntimeValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env) {
+			
+			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
-						return evaluateIdentifier(std::dynamic_pointer_cast<ent::front::ast::Identifier>(statement), env);
+						return makeStatementValue(
+							evaluateIdentifier(std::dynamic_pointer_cast<ent::front::ast::Identifier>(statement), env)
+						);
 					case ent::front::ast::NodeType::i8Expression:
-						return evaluateI8Expression(std::dynamic_pointer_cast<ent::front::ast::I8Expression>(statement));
+						return makeStatementValue(
+							evaluateI8Expression(std::dynamic_pointer_cast<ent::front::ast::I8Expression>(statement))
+						);
 					case ent::front::ast::NodeType::i16Expression:
-						return evaluateI16Expression(std::dynamic_pointer_cast<ent::front::ast::I16Expression>(statement));
+						return makeStatementValue(
+							evaluateI16Expression(std::dynamic_pointer_cast<ent::front::ast::I16Expression>(statement))
+						);
 					case ent::front::ast::NodeType::i32Expression:
-						return evaluateI32Expression(std::dynamic_pointer_cast<ent::front::ast::I32Expression>(statement));
+						return makeStatementValue(
+							evaluateI32Expression(std::dynamic_pointer_cast<ent::front::ast::I32Expression>(statement))
+						);
 					case ent::front::ast::NodeType::i64Expression:
-						return evaluateI64Expression(std::dynamic_pointer_cast<ent::front::ast::I64Expression>(statement));
+						return makeStatementValue(
+							evaluateI64Expression(std::dynamic_pointer_cast<ent::front::ast::I64Expression>(statement))
+						);
 					case ent::front::ast::NodeType::u8Expression:
-						return evaluateU8Expression(std::dynamic_pointer_cast<ent::front::ast::U8Expression>(statement));
+						return makeStatementValue(
+							evaluateU8Expression(std::dynamic_pointer_cast<ent::front::ast::U8Expression>(statement))
+						);
 					case ent::front::ast::NodeType::u16Expression:
-						return evaluateU16Expression(std::dynamic_pointer_cast<ent::front::ast::U16Expression>(statement));
+						return makeStatementValue(
+							evaluateU16Expression(std::dynamic_pointer_cast<ent::front::ast::U16Expression>(statement))
+						);
 					case ent::front::ast::NodeType::u32Expression:
-						return evaluateU32Expression(std::dynamic_pointer_cast<ent::front::ast::U32Expression>(statement));
+						return makeStatementValue(
+							evaluateU32Expression(std::dynamic_pointer_cast<ent::front::ast::U32Expression>(statement))
+						);
 					case ent::front::ast::NodeType::u64Expression:
-						return evaluateU64Expression(std::dynamic_pointer_cast<ent::front::ast::U64Expression>(statement));
+						return makeStatementValue(
+							evaluateU64Expression(std::dynamic_pointer_cast<ent::front::ast::U64Expression>(statement))
+						);
 					case ent::front::ast::NodeType::f32Expression:
-						return evaluateF32Expression(std::dynamic_pointer_cast<ent::front::ast::F32Expression>(statement));
+						return makeStatementValue(
+							evaluateF32Expression(std::dynamic_pointer_cast<ent::front::ast::F32Expression>(statement))
+						);
 					case ent::front::ast::NodeType::f64Expression:
-						return evaluateF64Expression(std::dynamic_pointer_cast<ent::front::ast::F64Expression>(statement));
+						return makeStatementValue(
+							evaluateF64Expression(std::dynamic_pointer_cast<ent::front::ast::F64Expression>(statement))
+						);
 					case ent::front::ast::NodeType::binaryExpression:
-						return evaluateBinaryExpression(std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(statement), env);
+						return makeStatementValue(
+							evaluateBinaryExpression(std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(statement), env)
+						);
 					case ent::front::ast::NodeType::parenthesisExpression:
-						return evaluateParenthesisExpression(std::dynamic_pointer_cast<ent::front::ast::ParenthesisExpression>(statement), env);
+						return makeStatementValue(
+							evaluateParenthesisExpression(std::dynamic_pointer_cast<ent::front::ast::ParenthesisExpression>(statement), env)
+						);
 					case ent::front::ast::NodeType::unaryExpression:
-						return evaluateUnaryExpression(std::dynamic_pointer_cast<ent::front::ast::UnaryExpression>(statement), env);
+						return makeStatementValue(
+							evaluateUnaryExpression(std::dynamic_pointer_cast<ent::front::ast::UnaryExpression>(statement), env)
+						);
 					case ent::front::ast::NodeType::booleanExpression:
-						return evaluateBooleanExpression(std::dynamic_pointer_cast<ent::front::ast::BooleanExpression>(statement));
+						return makeStatementValue(
+							evaluateBooleanExpression(std::dynamic_pointer_cast<ent::front::ast::BooleanExpression>(statement))
+						);
 					case ent::front::ast::NodeType::charExpression:
-						return evaluateCharExpression(std::dynamic_pointer_cast<ent::front::ast::CharExpression>(statement));
+						return makeStatementValue(
+							evaluateCharExpression(std::dynamic_pointer_cast<ent::front::ast::CharExpression>(statement))
+						);
 					case ent::front::ast::NodeType::strExpression:
-						return evaluateStrExpression(std::dynamic_pointer_cast<ent::front::ast::StrExpression>(statement));
+						return makeStatementValue(
+							evaluateStrExpression(std::dynamic_pointer_cast<ent::front::ast::StrExpression>(statement))
+						);
 					case ent::front::ast::NodeType::declaration:
-						return evaluateDeclaration(std::dynamic_pointer_cast<ent::front::ast::Declaration>(statement), env);
+						return makeStatementValue(
+							evaluateDeclaration(std::dynamic_pointer_cast<ent::front::ast::Declaration>(statement), env)
+						);
 					case ent::front::ast::NodeType::assignation:
-						return evaluateAssignationExpression(std::dynamic_pointer_cast<ent::front::ast::Assignation>(statement), env);
+						return makeStatementValue(
+							evaluateAssignationExpression(std::dynamic_pointer_cast<ent::front::ast::Assignation>(statement), env)
+						);
 					case ent::front::ast::NodeType::functionDeclaration:
-						return evaluateFunctionDeclaration(std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(statement), env);
+						return makeStatementValue(
+							evaluateFunctionDeclaration(std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(statement), env)
+						);
+					case ent::front::ast::NodeType::functionReturn:
+						return makeStatementValue(
+							evaluateFunctionReturn(std::dynamic_pointer_cast<ent::front::ast::FunctionReturn>(statement), env),
+							true
+						);
 					case ent::front::ast::NodeType::functionCallExpression:
-						return evaluateFunctionCallExpression(std::dynamic_pointer_cast<ent::front::ast::FunctionCallExpression>(statement), env);
+						return makeStatementValue(
+							evaluateFunctionCallExpression(std::dynamic_pointer_cast<ent::front::ast::FunctionCallExpression>(statement), env)
+						);
 					case ent::front::ast::NodeType::scope:
 						return evaluateScope(std::dynamic_pointer_cast<ent::front::ast::Scope>(statement), env);
 					case ent::front::ast::NodeType::conditionnalStructure:
@@ -1119,20 +1196,23 @@ namespace ent {
 				}
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env) {
+			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env) {
 				std::shared_ptr<Environment> scope_env = std::make_shared<Environment>(parent_env);
 
-				std::shared_ptr<RuntimeValue> result;
+				std::shared_ptr<StatementValue> result;
 
 				for(std::shared_ptr<ent::front::ast::Statement> statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
-					std::cout << statement->pretty_print() << " -> " << result->pretty_print() << std::endl;
+					if(statement->get_type() == ent::front::ast::NodeType::functionReturn) {
+						return result;
+					}
+					std::cout << statement->pretty_print() << " -> " << result->value->pretty_print() << std::endl;
 				}
 				return result;
 			}
 
 			std::shared_ptr<RuntimeValue> interpret(std::shared_ptr<ent::front::ast::Scope> scope) {
-				return evaluateScope(scope, nullptr);
+				return evaluateScope(scope, nullptr)->value;
 			}
 		}
 	}

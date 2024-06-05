@@ -7,27 +7,47 @@
 #include "values.hpp"
 #include "errors.hpp"
 
+#define get_sub_result_value(dest_type) \
+switch(source->type()) { \
+	case ValueType::I8: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<I8Value>(source)->get_value()); \
+	case ValueType::I16: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<I16Value>(source)->get_value()); \
+	case ValueType::I32: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<I32Value>(source)->get_value()); \
+	case ValueType::I64: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<I64Value>(source)->get_value()); \
+	case ValueType::U8: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<U8Value>(source)->get_value()); \
+	case ValueType::U16: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<U16Value>(source)->get_value()); \
+	case ValueType::U32: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<U32Value>(source)->get_value()); \
+	default: \
+		return std::make_shared<dest_type>(std::dynamic_pointer_cast<U64Value>(source)->get_value()); \
+}
+
 namespace ent {
 	namespace runtime {
 
 		std::shared_ptr<RuntimeValue> get_result_value(std::shared_ptr<RuntimeValue> dest, std::shared_ptr<RuntimeValue> source) {
 			switch(dest->type()) {
 				case ValueType::I8:
-					return std::make_shared<I8Value>(std::dynamic_pointer_cast<I8Value>(source)->get_value());
+					get_sub_result_value(I8Value);
 				case ValueType::I16:
-					return std::make_shared<I16Value>(std::dynamic_pointer_cast<I16Value>(source)->get_value());
+					get_sub_result_value(I16Value);
 				case ValueType::I32:
-					return std::make_shared<I32Value>(std::dynamic_pointer_cast<I32Value>(source)->get_value());
+					get_sub_result_value(I32Value);
 				case ValueType::I64:
-					return std::make_shared<I64Value>(std::dynamic_pointer_cast<I64Value>(source)->get_value());
+					get_sub_result_value(I64Value);
 				case ValueType::U8:
-					return std::make_shared<U8Value>(std::dynamic_pointer_cast<U8Value>(source)->get_value());
+					get_sub_result_value(U8Value);
 				case ValueType::U16:
-					return std::make_shared<U16Value>(std::dynamic_pointer_cast<U16Value>(source)->get_value());
+					get_sub_result_value(U16Value);
 				case ValueType::U32:
-					return std::make_shared<U32Value>(std::dynamic_pointer_cast<U32Value>(source)->get_value());
+					get_sub_result_value(U32Value);
 				default: // case ValueType::U64:
-					return std::make_shared<U64Value>(std::dynamic_pointer_cast<U64Value>(source)->get_value());
+					get_sub_result_value(U64Value);
 			}
 		}
 
@@ -160,6 +180,24 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_FUNCTION_ERROR, "Trying to get non-declared function " + key)).error();
 				}
 				return this->functions.at(key);
+			}
+
+			std::string pretty_print() {
+				std::string pretty = "Environment {\n";
+				pretty += "Values:\n";
+				for(auto pair : this->values) {
+					pretty += pair.second->value->pretty_print() + "\n";
+				}
+				pretty += "Functions:\n";
+				for(auto pair : this->functions) {
+					pretty += pair.first + "\n";
+				}
+				pretty += "}";
+				if(this->parent != nullptr) {
+					pretty += "\nParent:\n";
+					pretty += this->parent->pretty_print();
+				}
+				return pretty;
 			}
 		};
 	}
