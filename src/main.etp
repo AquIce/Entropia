@@ -1,26 +1,3 @@
-
-let i: i8 = 0;
-let j: i8 = 1;
-let k: i8 = 3;
-
-match(i + 2) {
-	(2 * j) => {
-		j * 2;
-		break;
-	}
-	default => {
-		9;
-		break;
-	}
+while(true) {
+	0;
 }
-/*
-match(k / 2) {
-	i => {
-		i;
-		break;
-	}
-	default => {
-		9;
-		break;
-	}
-}*/

@@ -167,6 +167,8 @@ namespace ent {
 				StatementExitCode exitCodeType;
 			} StatementValue;
 
+			u64 RECURSION_LIMIT = 10000;
+
 			std::shared_ptr<RuntimeValue> evaluateIdentifier(std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<Environment> env) {
 				return env->get_value(identifier->name);
 			}
@@ -1068,16 +1070,22 @@ namespace ent {
 
 				std::shared_ptr<Environment> forEnv = std::shared_ptr<Environment>(env);
 
+				u64 loopRecursion = 0;
+
 				evaluateStatement(forLoop->initStatement, forEnv);
 
 				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());				
 
 				while(evaluateStatement(forLoop->loopCondition, forEnv)->value->IsTrue()) {
+					if(loopRecursion >= RECURSION_LIMIT) {
+						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_NUMBER_OF_ARGS_FUNCTION_ERROR, "Recursion limit reached (" + std::to_string(RECURSION_LIMIT) + ")")).error();
+					}
 					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT));
 					if(last->exitCodeType != StatementExitCode::NONE) {
 						return last;
 					}
 					evaluateStatement(forLoop->iterationStatement, forEnv);
+					loopRecursion++;
 				}
 
 				return last;
@@ -1089,11 +1097,17 @@ namespace ent {
 
 				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());
 
+				u64 loopRecursion = 0;
+
 				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->value->IsTrue()) {
+					if(loopRecursion >= RECURSION_LIMIT) {
+						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_NUMBER_OF_ARGS_FUNCTION_ERROR, "Recursion limit reached (" + std::to_string(RECURSION_LIMIT) + ")")).error();
+					}
 					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::RETURN_STATEMENT));
 					if(last->exitCodeType != StatementExitCode::NONE) {
 						return last;
 					}
+					loopRecursion++;
 				}
 
 				return last;
