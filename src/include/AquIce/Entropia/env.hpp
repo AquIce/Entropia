@@ -181,24 +181,6 @@ namespace ent {
 				}
 				return this->functions.at(key);
 			}
-
-			std::string pretty_print() {
-				std::string pretty = "Environment {\n";
-				pretty += "Values:\n";
-				for(auto pair : this->values) {
-					pretty += pair.second->value->pretty_print() + "\n";
-				}
-				pretty += "Functions:\n";
-				for(auto pair : this->functions) {
-					pretty += pair.first + "\n";
-				}
-				pretty += "}";
-				if(this->parent != nullptr) {
-					pretty += "\nParent:\n";
-					pretty += this->parent->pretty_print();
-				}
-				return pretty;
-			}
 		};
 	}
 }
