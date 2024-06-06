@@ -216,16 +216,13 @@ namespace ent {
 
 			std::vector<ent::type::token> tokens;
 
-			bool single_line_comment = false;
-			bool multi_line_comment = false;
-
 			while(src.length() > 0) {
 				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
 					(void)shift(src);
 					continue;
 				}
 				if(src.rfind("//", 0) == 0) {
-					while(src[0] == '\n') {
+					while(src[0] != '\n') {
 						(void)shift(src);
 					}
 					continue;
@@ -245,12 +242,7 @@ namespace ent {
 					(void)shift(src, 2);
 					throw (ent::Error(ErrorType::LEXER_LONELY_CLOSING_COMMENT_ERROR, "Comment being closed without being opened")).error();
 				}
-				if(!single_line_comment && !multi_line_comment) {
-					std::cout << single_line_comment << std::endl;
-					tokens.push_back(get_token(src));
-				} else {
-					(void)shift(src);
-				}
+				tokens.push_back(get_token(src));
 			}
 			
 			// Add an EOF token to the end of the list
