@@ -1036,7 +1036,7 @@ namespace ent {
 
 				for(u64 i = 0; i < functionCallExpression->arguments.size(); i++) {
 					functionBody.push_back(
-						ent::front::parser::make_declaration(calledFunction->arguments[i], functionCallExpression->arguments[i], true)
+						ent::front::parser::make_declaration(calledFunction->arguments[i], functionCallExpression->arguments[i], calledFunction->arguments[i]->isMutable, true)
 					);
 				}
 

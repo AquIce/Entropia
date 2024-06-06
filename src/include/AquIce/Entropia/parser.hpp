@@ -380,8 +380,8 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
 
-			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isInFunctionSetup = false) {
-				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isInFunctionSetup);
+			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isMutable, bool isInFunctionSetup = false) {
+				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isMutable, isInFunctionSetup);
 			}
 
 			std::shared_ptr<ent::front::ast::Statement> parse_assignation(std::shared_ptr<ent::front::ast::Identifier> identifier, bool needsSemicolon) {
