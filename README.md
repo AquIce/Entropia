@@ -72,6 +72,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Add concept of subEnv to allow scoping variables (add scope attribute to fn, if, for, ...)
 - [x] Make parenthesis precedence
 - [x] Add default to const (mut)
+- [ ] Add recursion guards
 - [ ] Avoid passing const variables as mutable arguments
 - [ ] Add support for negative numbers
 - [ ] Compile language

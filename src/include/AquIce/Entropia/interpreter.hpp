@@ -155,9 +155,16 @@ namespace ent {
 	namespace runtime {
 		namespace interpreter {
 
+			enum StatementExitCode {
+				NONE = 0,
+				BREAK_STATEMENT = 1,
+				RETURN_STATEMENT = 2,
+				BOTH_STATEMENT = 3,
+			};
+
 			typedef struct StatementValue {
 				std::shared_ptr<RuntimeValue> value;
-				bool isReturnValue;
+				StatementExitCode exitCodeType;
 			} StatementValue;
 
 			std::shared_ptr<RuntimeValue> evaluateIdentifier(std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<Environment> env) {
@@ -890,7 +897,7 @@ namespace ent {
 				}
 			}
 
-			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env);
+			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo = StatementExitCode::RETURN_STATEMENT);
 
 			std::shared_ptr<RuntimeValue> evaluateBinaryExpression(std::shared_ptr<ent::front::ast::BinaryExpression> binaryExpression, std::shared_ptr<Environment> env) {
 				std::shared_ptr<RuntimeValue> left = evaluateStatement(binaryExpression->left, env)->value;
@@ -1011,9 +1018,9 @@ namespace ent {
 				return returnValue;
 			}
 
-			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env);
+			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env, StatementExitCode sensitiveTo);
 
-			std::shared_ptr<RuntimeValue> evaluateFunctionCallExpression(std::shared_ptr<ent::front::ast::FunctionCallExpression> functionCallExpression, std::shared_ptr<Environment> env) {
+			std::shared_ptr<RuntimeValue> evaluateFunctionCallExpression(std::shared_ptr<ent::front::ast::FunctionCallExpression> functionCallExpression, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 				std::shared_ptr<ent::front::ast::FunctionDeclaration> calledFunction = env->get_function(functionCallExpression->functionIdentifier->name);
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> functionBody = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
@@ -1037,27 +1044,27 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Scope> scope = std::make_shared<ent::front::ast::Scope>(functionBody);
 
-				return evaluateScope(scope, env)->value;
+				return evaluateScope(scope, env, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::RETURN_STATEMENT))->value;
 			}
 
-			std::shared_ptr<StatementValue> makeStatementValue(std::shared_ptr<ent::runtime::RuntimeValue> value, bool isReturnValue = false) {
+			std::shared_ptr<StatementValue> makeStatementValue(std::shared_ptr<ent::runtime::RuntimeValue> value, StatementExitCode exitCode = StatementExitCode::NONE) {
 				return std::make_shared<StatementValue>(StatementValue{
 					value,
-					isReturnValue
+					exitCode
 				});
 			}
 
-			std::shared_ptr<StatementValue> evaluateConditionnalStructure(std::shared_ptr<ent::front::ast::ConditionnalStructure> conditionnalStructure, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateConditionnalStructure(std::shared_ptr<ent::front::ast::ConditionnalStructure> conditionnalStructure, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 				
 				for(std::shared_ptr<ent::front::ast::ConditionnalBlock> block : conditionnalStructure->conditionnalBlocks) {
 					if(block->condition == nullptr || evaluateStatement(block->condition, env)->value->IsTrue()) {
-						return evaluateScope(std::make_shared<ent::front::ast::Scope>(block->body), env);
+						return evaluateScope(std::make_shared<ent::front::ast::Scope>(block->body), env, sensitiveTo);
 					}
 				}
 				return makeStatementValue(std::shared_ptr<NullValue>());
 			}
 
-			std::shared_ptr<StatementValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 
 				std::shared_ptr<Environment> forEnv = std::shared_ptr<Environment>(env);
 
@@ -1066,8 +1073,8 @@ namespace ent {
 				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());				
 
 				while(evaluateStatement(forLoop->loopCondition, forEnv)->value->IsTrue()) {
-					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv);
-					if(last->isReturnValue) {
+					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT));
+					if(last->exitCodeType != StatementExitCode::NONE) {
 						return last;
 					}
 					evaluateStatement(forLoop->iterationStatement, forEnv);
@@ -1076,23 +1083,50 @@ namespace ent {
 				return last;
 			}
 
-			std::shared_ptr<StatementValue> evaluateWhileLoop(std::shared_ptr<ent::front::ast::WhileLoop> whileLoop, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateWhileLoop(std::shared_ptr<ent::front::ast::WhileLoop> whileLoop, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 
 				std::shared_ptr<Environment> whileEnv = std::make_shared<Environment>(env);
 
 				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());
 
 				while(evaluateStatement(whileLoop->loopCondition, whileEnv)->value->IsTrue()) {
-					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv);
-					if(last->isReturnValue) {
+					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::RETURN_STATEMENT));
+					if(last->exitCodeType != StatementExitCode::NONE) {
 						return last;
 					}
 				}
 
 				return last;
 			}
+
+			std::shared_ptr<StatementValue> evaluateMatchStructure(std::shared_ptr<ent::front::ast::MatchStructure> matchStructure, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
+				
+				std::shared_ptr<StatementValue> last = makeStatementValue(std::shared_ptr<NullValue>());
+
+				for(std::shared_ptr<ent::front::ast::ConditionnalBlock> matchCase : matchStructure->casesBlocks) {
+					if(
+						matchCase->condition == nullptr ||
+						evaluateStatement(std::make_shared<ent::front::ast::BinaryExpression>(
+							matchStructure->matchExpression,
+							"==",
+							matchCase->condition
+						), env)->value->IsTrue()
+					) {
+						last = evaluateScope(
+							std::make_shared<ent::front::ast::Scope>(matchCase->body),
+							env,
+							static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT)
+						);
+						if((last->exitCodeType & StatementExitCode::BREAK_STATEMENT) != StatementExitCode::NONE) {
+							return last;
+						}
+					}
+				}
+
+				return last;
+			}
 			
-			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env) {
+			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::identifier:
 						return makeStatementValue(
@@ -1177,42 +1211,58 @@ namespace ent {
 					case ent::front::ast::NodeType::functionReturn:
 						return makeStatementValue(
 							evaluateFunctionReturn(std::dynamic_pointer_cast<ent::front::ast::FunctionReturn>(statement), env),
-							true
+							StatementExitCode::RETURN_STATEMENT
 						);
 					case ent::front::ast::NodeType::functionCallExpression:
 						return makeStatementValue(
-							evaluateFunctionCallExpression(std::dynamic_pointer_cast<ent::front::ast::FunctionCallExpression>(statement), env)
+							evaluateFunctionCallExpression(std::dynamic_pointer_cast<ent::front::ast::FunctionCallExpression>(statement), env, sensitiveTo)
 						);
 					case ent::front::ast::NodeType::scope:
-						return evaluateScope(std::dynamic_pointer_cast<ent::front::ast::Scope>(statement), env);
+						return evaluateScope(std::dynamic_pointer_cast<ent::front::ast::Scope>(statement), env, sensitiveTo);
 					case ent::front::ast::NodeType::conditionnalStructure:
-						return evaluateConditionnalStructure(std::dynamic_pointer_cast<ent::front::ast::ConditionnalStructure>(statement), env);
+						return evaluateConditionnalStructure(std::dynamic_pointer_cast<ent::front::ast::ConditionnalStructure>(statement), env, sensitiveTo);
 					case ent::front::ast::NodeType::forLoop:
-						return evaluateForLoop(std::dynamic_pointer_cast<ent::front::ast::ForLoop>(statement), env);
+						return evaluateForLoop(std::dynamic_pointer_cast<ent::front::ast::ForLoop>(statement), env, sensitiveTo);
 					case ent::front::ast::NodeType::whileLoop:
-						return evaluateWhileLoop(std::dynamic_pointer_cast<ent::front::ast::WhileLoop>(statement), env);
+						return evaluateWhileLoop(std::dynamic_pointer_cast<ent::front::ast::WhileLoop>(statement), env, sensitiveTo);
+					case ent::front::ast::NodeType::matchStructure:
+						return evaluateMatchStructure(std::dynamic_pointer_cast<ent::front::ast::MatchStructure>(statement), env, sensitiveTo);
+					case ent::front::ast::NodeType::breakStatement:
+						return makeStatementValue(
+							std::make_shared<NullValue>(),
+							StatementExitCode::BREAK_STATEMENT
+						);
 					default:
 						throw (ent::Error(ent::ErrorType::INTERPRETER_UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}
 			}
 
-			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env) {
+			std::shared_ptr<StatementValue> evaluateScope(std::shared_ptr<ent::front::ast::Scope> scope, std::shared_ptr<Environment> parent_env, StatementExitCode sensitiveTo) {
 				std::shared_ptr<Environment> scope_env = std::make_shared<Environment>(parent_env);
 
 				std::shared_ptr<StatementValue> result;
+				std::shared_ptr<StatementValue> prev_result = makeStatementValue(
+					std::make_shared<NullValue>(),
+					StatementExitCode::NONE
+				);
 
 				for(std::shared_ptr<ent::front::ast::Statement> statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
-					if(statement->get_type() == ent::front::ast::NodeType::functionReturn) {
-						return result;
+					if(static_cast<StatementExitCode>(result->exitCodeType & sensitiveTo) != StatementExitCode::NONE) {
+						if((sensitiveTo & StatementExitCode::BREAK_STATEMENT) != StatementExitCode::NONE) {
+							sensitiveTo = static_cast<StatementExitCode>(sensitiveTo & ~StatementExitCode::BREAK_STATEMENT);
+						}
+						prev_result->exitCodeType = static_cast<StatementExitCode>(result->exitCodeType ^ sensitiveTo);
+						return prev_result;
 					}
+					prev_result = result;
 					std::cout << statement->pretty_print() << " -> " << result->value->pretty_print() << std::endl;
 				}
 				return result;
 			}
 
 			std::shared_ptr<RuntimeValue> interpret(std::shared_ptr<ent::front::ast::Scope> scope) {
-				return evaluateScope(scope, nullptr)->value;
+				return evaluateScope(scope, nullptr, StatementExitCode::NONE)->value;
 			}
 		}
 	}

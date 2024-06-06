@@ -39,6 +39,7 @@ namespace ent {
 				conditionnalBlock,
 				conditionnalStructure,
 				matchStructure,
+				breakStatement,
 				forLoop,
 				whileLoop,
             };
@@ -701,9 +702,14 @@ namespace ent {
 					return pretty;
 				}
 				std::string match_case_pretty_print(int indent) {
-					std::string pretty = std::string(indent, '\t') + "(\n";
-					pretty += this->condition->pretty_print(indent + 1);
-					pretty += std::string(indent, '\t') + "\n) => {";
+					std::string pretty = std::string(indent, '\t');
+					if(this->condition == nullptr) {
+						pretty += "default";
+					} else {
+						pretty += "(\n" + this->condition->pretty_print(indent + 1);
+						pretty += "\n" + std::string(indent, '\t') + ")";
+					}
+					pretty += " => {\n";
 					for(u64 i = 0; i < this->body.size(); i++) {
 						pretty += this->body[i]->pretty_print(indent + 1) + "\n";
 					}
@@ -777,17 +783,36 @@ namespace ent {
 				virtual std::string pretty_print(int indent = 0) override {
 					std::string pretty = "match(\n";
 					pretty += matchExpression->pretty_print(indent + 1);
-					pretty += "\n" + std::string(indent, '\t') + ") {";
+					pretty += "\n" + std::string(indent, '\t') + ") {\n";
 					for(std::shared_ptr<ConditionnalBlock> block : this->casesBlocks) {
 						pretty += block->pretty_print(indent + 1) + "\n";
 					}
-					pretty += "}";
+					pretty += std::string(indent, '\t') + "}";
 					return pretty;
 				}
 				virtual std::string type_id() override {
 					return "MatchStructure";
 				}
             };
+
+			class BreakStatement: public Statement {
+			public:
+				enum NodeType type = NodeType::breakStatement;
+
+				BreakStatement() {
+					this->type = NodeType::breakStatement;
+				}
+				
+				virtual NodeType get_type() override {
+					return NodeType::breakStatement;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "break;";
+				}
+				virtual std::string type_id() override {
+					return "BreakStatement";
+				}
+			};
 
 			class Loop: public Scope {
 			public:

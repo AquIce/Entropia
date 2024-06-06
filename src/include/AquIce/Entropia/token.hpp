@@ -24,6 +24,7 @@ namespace ent {
 			WHILE,
 			MATCH,
 			DEFAULT,
+			BREAK,
 
 			OPEN_PAREN,
 			CLOSE_PAREN,
@@ -122,6 +123,7 @@ namespace ent {
 					token_switch_case(WHILE)
 					token_switch_case(MATCH)
 					token_switch_case(DEFAULT)
+					token_switch_case(BREAK)
 
 					token_switch_case(OPEN_PAREN)
 					token_switch_case(CLOSE_PAREN)

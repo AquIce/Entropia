@@ -687,6 +687,8 @@ namespace ent {
 
 				if(peek().get_type() != ent::type::token_type::DEFAULT) {
 					caseToMatch = parse_expression();
+				} else {
+					(void)eat();
 				}
 
 				(void)expect(ent::type::token_type::MATCH_ARROW, "match arrow after expression");
@@ -727,9 +729,16 @@ namespace ent {
 				return std::make_shared<ent::front::ast::MatchStructure>(matchExpression, cases);
 			}
 
-			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
+			std::shared_ptr<ent::front::ast::BreakStatement> parse_break_statement() {
+				
+				(void)eat();
 
-				std::cout << peek().pretty_print() << std::endl;
+				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at the end of line");
+
+				return std::make_shared<ent::front::ast::BreakStatement>();
+			}
+
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
 
 				if(peek().get_type() == ent::type::token_type::LET) {
 					(void)eat();
@@ -771,6 +780,11 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::Statement> matchStructure = parse_match_structure();
 					if(updateBefore) { before = nullptr; }
 					return matchStructure;
+				}
+				if(peek().get_type() == ent::type::token_type::BREAK) {
+					std::shared_ptr<ent::front::ast::Statement> breakStatement = parse_break_statement();
+					if(updateBefore) { before = nullptr; }
+					return breakStatement;
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();

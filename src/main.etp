@@ -6,17 +6,21 @@ let k: i8 = 3;
 match(i + 2) {
 	(2 * j) => {
 		j * 2;
+		break;
 	}
 	default => {
 		9;
+		break;
 	}
 }
-
+/*
 match(k / 2) {
 	i => {
 		i;
+		break;
 	}
 	default => {
 		9;
+		break;
 	}
-}
+}*/
