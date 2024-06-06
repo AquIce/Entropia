@@ -222,7 +222,7 @@ namespace ent {
 					continue;
 				}
 				if(src.rfind("//", 0) == 0) {
-					while(src[0] != '\n') {
+					while(src[0] != '\n' && src.length() > 0) {
 						(void)shift(src);
 					}
 					continue;
