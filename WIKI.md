@@ -26,8 +26,8 @@
 			- [4.1.1. Binary Operators](#411-binary-operators)
 			- [4.1.2. Unary Operators](#412-unary-operators)
 		- [4.2. If Else](#42-if-else)
-		- [4.3. Match ⚠️](#43-match-️)
-		- [4.4. Ternaries ⚠️](#44-ternaries-️)
+		- [4.3. Match](#43-match)
+		- [4.4. Ternaries](#44-ternaries)
 	- [5. Loops](#5-loops)
 		- [5.1. For](#51-for)
 		- [5.2. While](#52-while)
@@ -38,7 +38,7 @@
 			- [6.2.1. Internal Member Access ⚠️](#621-internal-member-access-️)
 			- [6.2.2. External Member Access ⚠️](#622-external-member-access-️)
 		- [6.3. Public / Private ⚠️](#63-public--private-️)
-		- [6.4. Inheritance](#64-inheritance)
+		- [6.4. Inheritance ⚠️](#64-inheritance-️)
 	- [7. Codespaces ⚠️](#7-codespaces-️)
 		- [7.1. Creation ⚠️](#71-creation-️)
 			- [7.1.1. Using ⚠️](#711-using-️)
@@ -47,7 +47,7 @@
 			- [7.2.2. Custom Import ⚠️](#722-custom-import-️)
 			- [7.2.3. Alias Import ⚠️](#723-alias-import-️)
 		- [7.3. Member Access ⚠️](#73-member-access-️)
-	- [8. Error Handling](#8-error-handling)
+	- [8. Error Handling ⚠️](#8-error-handling-️)
 	- [9. Prescedence order](#9-prescedence-order)
 
 > Note:
@@ -271,7 +271,7 @@ if(<condition>) {
 
 \<other_condition> is the condition to match to enter the `else if` block
 
-### 4.3. Match ⚠️
+### 4.3. Match
 
 ```
 match(<value>) {
@@ -290,7 +290,7 @@ match(<value>) {
 
 \<case> is the value to match to enter the following block of code
 
-### 4.4. Ternaries ⚠️
+### 4.4. Ternaries
 
 ```
 <condition> ? <value_if_true> : <value_if_false>;
@@ -448,7 +448,7 @@ class <name> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-### 6.4. Inheritance
+### 6.4. Inheritance ⚠️
 
 ```
 class <child_class> extends <parent_class> {
@@ -524,7 +524,7 @@ use <codespace_name> as <alias>;
 <codespace>::<member>
 ```
 
-## 8. Error Handling
+## 8. Error Handling ⚠️
 
 ```
 use ErrorHandling as ErrH;
@@ -542,9 +542,10 @@ try {
 
 The higher an element is, the most prescedence it has (the first it is resolved)
 
-1. Numeric Expressions
+1. Native Expressions (numbers, booleans, characters, strings)
 2. Parenthesis Expressions
 3. Function Calls
 4. Multiplicative Expressions
 5. Additive Expressions
 6. Logical Expressions
+7. Ternary Expressions
