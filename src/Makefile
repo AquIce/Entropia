@@ -18,6 +18,7 @@ test: test_build
 debug: debug_build
 	gdb ./entropia_dbg
 
-clear:
-	rm ./entropia
-	rm ./entropia_test
+clean:
+	rm ./entropia.exe
+	rm ./entropia_test.exe
+	rm ./entropia_dbg.exe
