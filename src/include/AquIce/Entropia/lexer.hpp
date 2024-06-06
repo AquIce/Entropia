@@ -184,6 +184,7 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::WHILE, "while")
 			check_for_str_token(ent::type::token_type::MATCH, "match")
 			check_for_str_token(ent::type::token_type::DEFAULT, "default")
+			check_for_str_token(ent::type::token_type::BREAK, "break")
 			
 			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);
@@ -220,39 +221,36 @@ namespace ent {
 
 			while(src.length() > 0) {
 				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
-					if(src[0] == '\n') {
-						single_line_comment = false;
-					}
 					(void)shift(src);
 					continue;
 				}
 				if(src.rfind("//", 0) == 0) {
-					(void)shift(src, 2);
-					single_line_comment = true;
+					while(src[0] == '\n') {
+						(void)shift(src);
+					}
 					continue;
 				}
 				if(src.rfind("/*", 0) == 0) {
+					while(src.rfind("*/", 0) != 0) {
+						try {
+							(void)shift(src);
+						} catch(const std::exception& e) {
+							throw (ent::Error(ErrorType::LEXER_UNCLOSED_COMMENT_ERROR, "Comment being opened and not closed before EOF")).error();
+						}
+					}
 					(void)shift(src, 2);
-					multi_line_comment = true;
 					continue;
 				}
 				if(src.rfind("*/", 0) == 0) {
 					(void)shift(src, 2);
-					if(!multi_line_comment) {
-						throw (ent::Error(ErrorType::LEXER_LONELY_CLOSING_COMMENT_ERROR, "Comment being closed without being opened")).error();
-					}
-					multi_line_comment = false;
-					continue;
+					throw (ent::Error(ErrorType::LEXER_LONELY_CLOSING_COMMENT_ERROR, "Comment being closed without being opened")).error();
 				}
-				if(!single_line_comment && ! multi_line_comment) {
+				if(!single_line_comment && !multi_line_comment) {
+					std::cout << single_line_comment << std::endl;
 					tokens.push_back(get_token(src));
 				} else {
 					(void)shift(src);
 				}
-			}
-			
-			if(multi_line_comment) {
-				throw (ent::Error(ErrorType::LEXER_UNCLOSED_COMMENT_ERROR, "Comment being opened and not closed before EOF")).error();
 			}
 			
 			// Add an EOF token to the end of the list
