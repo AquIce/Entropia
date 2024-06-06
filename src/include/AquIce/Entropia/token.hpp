@@ -64,6 +64,8 @@ namespace ent {
 
 			NOT,
 
+			QUESTION_MARK,
+
 			BOOL,
 
 			CHAR,
@@ -160,7 +162,10 @@ namespace ent {
 
 					token_switch_case(INCREMENT)
 					token_switch_case(DECREMENT)
+					
 					token_switch_case(BITWISE_NOT)
+
+					token_switch_case(QUESTION_MARK)
 
 					token_switch_case(BOOL)
 

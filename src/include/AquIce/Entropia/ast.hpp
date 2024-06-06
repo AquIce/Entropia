@@ -5,8 +5,42 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <limits>
 
 #include "../types/numbers.hpp"
+
+#define is_valid_cast_expression_type(expressionType, destinationType) \
+( \
+	std::dynamic_pointer_cast<expressionType>(value)->get()->value >= std::numeric_limits<destinationType>::min() && \
+	std::dynamic_pointer_cast<expressionType>(value)->get()->value <= std::numeric_limits<destinationType>::max() && \
+	std::dynamic_pointer_cast<expressionType>(value)->get()->value == static_cast<destinationType>(std::dynamic_pointer_cast<I8Expression>(value)->value) \
+)
+
+#define switch_expression_type(destinationType) \
+switch(value->get_type()) { \
+	case NodeType::i8Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<I8Expression>, destinationType); \
+	case NodeType::i16Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<I16Expression>, destinationType); \
+	case NodeType::i32Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<I32Expression>, destinationType); \
+	case NodeType::i64Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<I64Expression>, destinationType); \
+	case NodeType::u8Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<U8Expression>, destinationType); \
+	case NodeType::u16Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<U16Expression>, destinationType); \
+	case NodeType::u32Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<U32Expression>, destinationType); \
+	case NodeType::u64Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<U64Expression>, destinationType); \
+	case NodeType::f32Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<F32Expression>, destinationType); \
+	case NodeType::f64Expression: \
+		return is_valid_cast_expression_type(std::shared_ptr<F64Expression>, destinationType); \
+	default: \
+		return false; \
+}
 
 namespace ent {
     namespace front {
@@ -20,6 +54,7 @@ namespace ent {
 				functionReturn,
                 binaryExpression,
 				unaryExpression,
+				ternaryExpression,
 				functionCallExpression,
                 i8Expression,
 				i16Expression,
@@ -79,15 +114,10 @@ namespace ent {
 				})[type];
 			}
 
-			bool is_valid_cast(enum NodeType source, enum NodeType dest) {
-				if(source == dest) { return true; }
-				for(enum NodeType dest_valid_cast : valid_casts_to_type(dest)) {
+			bool is_valid_cast(enum NodeType source, enum NodeType destType) {
+				if(source == destType) { return true; }
+				for(enum NodeType dest_valid_cast : valid_casts_to_type(destType)) {
 					if(is_valid_cast(source, dest_valid_cast)) {
-						return true;
-					}
-				}
-				for(enum NodeType source_valid_cast : valid_casts_to_type(source)) {
-					if(is_valid_cast(dest, source_valid_cast)) {
 						return true;
 					}
 				}
@@ -454,56 +484,89 @@ namespace ent {
 			enum NodeType get_operator_return_type(std::shared_ptr<Expression> left, std::string operator_symbol);
 
             class BinaryExpression: public Expression {
-                public:
-                    enum NodeType type = NodeType::binaryExpression;
-                    std::shared_ptr<Expression> left;
-                    std::shared_ptr<Expression> right;
-					enum NodeType returnType;
-                    std::string operator_symbol;
-                    BinaryExpression(std::shared_ptr<Expression> left, std::string operator_symbol, std::shared_ptr<Expression> right) {
-						this->left = left;
-						this->operator_symbol = operator_symbol;
-						this->right = right;
-						this->type = NodeType::binaryExpression;
-						this->returnType = get_operator_return_type(this->left, this->operator_symbol);
-					}
-					virtual NodeType get_type() override {
-						return NodeType::binaryExpression;
-					}
-					enum NodeType get_return_type() {
-						return this->returnType;
-					}
-                    virtual std::string pretty_print(int indent = 0) override {
-						return std::string(indent, '\t') + "BinaryExpression(\n" + this->left->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->right->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
-					}
-					virtual std::string type_id() override {
-						return "BinaryExpression";
-					}
+			public:
+				enum NodeType type = NodeType::binaryExpression;
+				std::shared_ptr<Expression> left;
+				std::shared_ptr<Expression> right;
+				enum NodeType returnType;
+				std::string operator_symbol;
+				BinaryExpression(std::shared_ptr<Expression> left, std::string operator_symbol, std::shared_ptr<Expression> right) {
+					this->left = left;
+					this->operator_symbol = operator_symbol;
+					this->right = right;
+					this->type = NodeType::binaryExpression;
+					this->returnType = get_operator_return_type(this->left, this->operator_symbol);
+				}
+				virtual NodeType get_type() override {
+					return NodeType::binaryExpression;
+				}
+				enum NodeType get_return_type() {
+					return this->returnType;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "BinaryExpression(\n" + this->left->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->right->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+				}
+				virtual std::string type_id() override {
+					return "BinaryExpression";
+				}
             };
 
-			 class UnaryExpression: public Expression {
+			class UnaryExpression: public Expression {
+			public:
+				enum NodeType type = NodeType::unaryExpression;
+				std::shared_ptr<Expression> term;
+				enum NodeType returnType;
+				std::string operator_symbol;
+				UnaryExpression(std::shared_ptr<Expression> term, std::string operator_symbol) {
+					this->term = term;
+					this->operator_symbol = operator_symbol;
+					this->type = NodeType::unaryExpression;
+					this->returnType = get_operator_return_type(this->term, this->operator_symbol);
+				}
+				virtual NodeType get_type() override {
+					return NodeType::unaryExpression;
+				}
+				enum NodeType get_return_type() {
+					return this->returnType;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					return std::string(indent, '\t') + "UnaryExpression(\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->term->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+				}
+				virtual std::string type_id() override {
+					return "UnaryExpression";
+				}
+            };
+
+			class TernaryExpression: public Expression {
                 public:
-                    enum NodeType type = NodeType::unaryExpression;
-                    std::shared_ptr<Expression> term;
+                    enum NodeType type = NodeType::ternaryExpression;
+                    std::shared_ptr<Expression> condition;
+                    std::shared_ptr<Expression> true_value;
+                    std::shared_ptr<Expression> false_value;
 					enum NodeType returnType;
-                    std::string operator_symbol;
-                    UnaryExpression(std::shared_ptr<Expression> term, std::string operator_symbol) {
-						this->term = term;
-						this->operator_symbol = operator_symbol;
-						this->type = NodeType::unaryExpression;
-						this->returnType = get_operator_return_type(this->term, this->operator_symbol);
+
+                    TernaryExpression(std::shared_ptr<Expression> condition, std::shared_ptr<Expression> true_value, std::shared_ptr<Expression> false_value) {
+						this->condition = condition;
+						this->true_value = true_value;
+						this->false_value = false_value;
+						this->type = NodeType::ternaryExpression;
+						this->returnType = this->true_value->get_type();
 					}
 					virtual NodeType get_type() override {
-						return NodeType::unaryExpression;
+						return NodeType::ternaryExpression;
 					}
 					enum NodeType get_return_type() {
 						return this->returnType;
 					}
                     virtual std::string pretty_print(int indent = 0) override {
-						return std::string(indent, '\t') + "UnaryExpression(\n" + std::string(indent + 1, '\t') + this->operator_symbol + "\n" + this->term->pretty_print(indent + 1) + "\n" + std::string(indent, '\t') + ")";
+						return (
+							this->condition->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + "?\n" +
+							this->true_value->pretty_print(indent + 1) + "\n" + std::string(indent + 1, '\t') + ":\n" +
+							this->false_value->pretty_print(indent + 1)
+						);
 					}
 					virtual std::string type_id() override {
-						return "UnaryExpression";
+						return "TernaryExpression";
 					}
             };
 

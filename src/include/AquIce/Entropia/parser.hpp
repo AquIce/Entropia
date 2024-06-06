@@ -225,8 +225,25 @@ namespace ent {
 				return left;
 			}
 
+			std::shared_ptr<ent::front::ast::Expression> parse_ternary_expression() {
+				// Parse the multiplicative expression first
+				std::shared_ptr<ent::front::ast::Expression> condition = parse_logical_expression();
+
+				if(peek().get_type() != ent::type::token_type::QUESTION_MARK) {
+					return condition;
+				}
+				(void)eat();
+				std::shared_ptr<ent::front::ast::Expression> true_value = parse_ternary_expression();
+
+				(void)expect(ent::type::token_type::COLON, "colon after \"true\" value");
+
+				std::shared_ptr<ent::front::ast::Expression> false_value = parse_ternary_expression();
+
+				return std::make_shared<ent::front::ast::TernaryExpression>(condition, true_value, false_value);
+			}
+
 			std::shared_ptr<ent::front::ast::Expression> parse_expression() {
-				return parse_logical_expression();
+				return parse_ternary_expression();
 			}
 
 			std::shared_ptr<ent::front::ast::Assignation> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
@@ -244,11 +261,21 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::BinaryExpression> value_binary_expression = std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(value);
 					if(is_valid_cast(value_binary_expression->get_return_type(), type)) {
 						identifier->set_identifier_type(type);
-						return std::make_shared<ent::front::ast::Assignation>(identifier, std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(value));
+						return std::make_shared<ent::front::ast::Assignation>(identifier, value_binary_expression);
+					}
+					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
+				}
+				// Value is a ternary expression
+				if(value->get_type() == ent::front::ast::NodeType::ternaryExpression) {
+					std::shared_ptr<ent::front::ast::TernaryExpression> value_ternary_expression = std::dynamic_pointer_cast<ent::front::ast::TernaryExpression>(value);
+					if(is_valid_cast(value_ternary_expression->get_return_type(), type)) {
+						identifier->set_identifier_type(type);
+						return std::make_shared<ent::front::ast::Assignation>(identifier, value_ternary_expression);
 					}
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
 				}
 				// Invalid cast
+				// TODO: Fix casting (unsigned integers impossible to declare)
 				if(!is_valid_cast(value->get_type(), type)) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}

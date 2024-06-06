@@ -915,6 +915,15 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
 			}
 
+			std::shared_ptr<RuntimeValue> evaluateTernaryExpression(std::shared_ptr<ent::front::ast::TernaryExpression> ternaryExpression, std::shared_ptr<Environment> env) {
+				std::shared_ptr<RuntimeValue> condition = evaluateStatement(ternaryExpression->condition, env)->value;
+
+				if(condition->IsTrue()) {
+					return evaluateStatement(ternaryExpression->true_value, env)->value;
+				}
+				return evaluateStatement(ternaryExpression->false_value, env)->value;
+			}
+
 			std::shared_ptr<RuntimeValue> evaluateParenthesisExpression(std::shared_ptr<ent::front::ast::ParenthesisExpression> parenthesisExpression, std::shared_ptr<Environment> env) {
 				return evaluateStatement(parenthesisExpression->content, env)->value;
 			}
@@ -1189,6 +1198,10 @@ namespace ent {
 					case ent::front::ast::NodeType::binaryExpression:
 						return makeStatementValue(
 							evaluateBinaryExpression(std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(statement), env)
+						);
+					case ent::front::ast::NodeType::ternaryExpression:
+						return makeStatementValue(
+							evaluateTernaryExpression(std::dynamic_pointer_cast<ent::front::ast::TernaryExpression>(statement), env)
 						);
 					case ent::front::ast::NodeType::parenthesisExpression:
 						return makeStatementValue(

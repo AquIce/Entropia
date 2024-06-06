@@ -40,7 +40,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Add comments
   - [x] Single line
   - [x] Multi line
-- [ ] Add other operators
+- [x] Add other operators
   - [x] Binary operators
     - [x] %
     - [x] <<
@@ -54,7 +54,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
     - [x] ~
   - [x] Assignment
     - [x] (any)=
-  - [ ] Ternaries
+  - [x] Ternaries
 - [ ] Add other datatypes
   - [x] Booleans
   - [x] Characters
@@ -75,6 +75,8 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Add default to const (mut)
 - [x] Add recursion guards
 - [ ] Add support for negative numbers
+- [ ] Fix unsigned variables declaration
+- [ ] Evaluate constant expressions at compile time
 - [ ] Compile language
 
 ## Extension
