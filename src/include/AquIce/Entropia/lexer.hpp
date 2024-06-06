@@ -209,6 +209,13 @@ namespace ent {
 			while(isalpha(src[0]) || src[0] == '_') {
 				identifier += shift(src);
 			}
+			if(identifier.length() == 0) {
+				std::string unknownToken = "";
+				while(!(src[0] == ' ' || src.length() == 0)) {
+					unknownToken += shift(src);
+				}
+				throw (ent::Error(ErrorType::LEXER_UNKNOWN_TOKEN_ERROR, "Unknown token " + unknownToken)).error();
+			}
 			return ent::type::token(ent::type::IDENTIFIER, identifier);
 		}
 
