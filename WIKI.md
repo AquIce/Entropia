@@ -277,9 +277,10 @@ if(<condition>) {
 match(<value>) {
 	<case> => {
 		...
+		break;
 	}
 	default => {
-
+		...
 	}
 	...
 }
