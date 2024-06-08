@@ -1024,7 +1024,7 @@ namespace ent {
 					std::shared_ptr<FunctionCallExpression> source_function_call_expression = std::dynamic_pointer_cast<FunctionCallExpression>(source);
 					std::shared_ptr<FunctionDeclaration> function_declaration = get_function(source_function_call_expression->functionIdentifier);
 					if(function_declaration == nullptr) {
-						throw (ent::Error(ent::ErrorType::PARSER_CALLING_UNDECLARED_FUNCTION_ERROR, "Trying to call undeclared function " + source_function_call_expression->functionIdentifier->name)).error();
+						throw (ent::Error(ent::ErrorType::AST_CALLING_UNDECLARED_FUNCTION_ERROR, "Trying to call undeclared function " + source_function_call_expression->functionIdentifier->name)).error();
 					}
 					return is_valid_cast(get_sample_expression(get_node_type(function_declaration->returnType)), destType);
 				}
