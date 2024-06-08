@@ -162,6 +162,19 @@ namespace ent {
 				BOTH_STATEMENT = 3,
 			};
 
+			enum StatementExitCode combineExitCodes(enum StatementExitCode first, enum StatementExitCode second) {
+				return static_cast<enum StatementExitCode>(first | second);
+			}
+			enum StatementExitCode removeExitCode(enum StatementExitCode source, enum StatementExitCode toRemove) {
+				return static_cast<enum StatementExitCode>(source ^ toRemove);
+			}
+			bool hasAnyExitCode(enum StatementExitCode source) {
+				return source != StatementExitCode::NONE;
+			}
+			bool hasExitCode(enum StatementExitCode source, enum StatementExitCode searchingFor) {
+				return hasAnyExitCode(static_cast<enum StatementExitCode>(source & searchingFor));
+			}
+
 			typedef struct StatementValue {
 				std::shared_ptr<RuntimeValue> value;
 				StatementExitCode exitCodeType;
@@ -1090,7 +1103,7 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_NUMBER_OF_ARGS_FUNCTION_ERROR, "Recursion limit reached (" + std::to_string(RECURSION_LIMIT) + ")")).error();
 					}
 					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(forLoop->body), forEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT));
-					if(last->exitCodeType != StatementExitCode::NONE) {
+					if(hasAnyExitCode(last->exitCodeType)) {
 						return last;
 					}
 					evaluateStatement(forLoop->iterationStatement, forEnv);
@@ -1113,7 +1126,7 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_NUMBER_OF_ARGS_FUNCTION_ERROR, "Recursion limit reached (" + std::to_string(RECURSION_LIMIT) + ")")).error();
 					}
 					last = evaluateScope(std::make_shared<ent::front::ast::Scope>(whileLoop->body), whileEnv, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::RETURN_STATEMENT));
-					if(last->exitCodeType != StatementExitCode::NONE) {
+					if(hasAnyExitCode(last->exitCodeType)) {
 						return last;
 					}
 					loopRecursion++;
@@ -1140,7 +1153,7 @@ namespace ent {
 							env,
 							static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT)
 						);
-						if((last->exitCodeType & StatementExitCode::BREAK_STATEMENT) != StatementExitCode::NONE) {
+						if(hasExitCode(last->exitCodeType, StatementExitCode::BREAK_STATEMENT)) {
 							return last;
 						}
 					}
@@ -1275,12 +1288,13 @@ namespace ent {
 
 				for(std::shared_ptr<ent::front::ast::Statement> statement : scope->body) {
 					result = evaluateStatement(statement, scope_env);
-					if(static_cast<StatementExitCode>(result->exitCodeType & sensitiveTo) != StatementExitCode::NONE) {
-						if((sensitiveTo & StatementExitCode::BREAK_STATEMENT) != StatementExitCode::NONE) {
-							sensitiveTo = static_cast<StatementExitCode>(sensitiveTo & ~StatementExitCode::BREAK_STATEMENT);
+					if(hasExitCode(result->exitCodeType, sensitiveTo)) {
+						if(hasExitCode(sensitiveTo, StatementExitCode::BREAK_STATEMENT)) {
+							prev_result->exitCodeType = removeExitCode(result->exitCodeType, StatementExitCode::BREAK_STATEMENT);
+							return prev_result;
 						}
-						prev_result->exitCodeType = static_cast<StatementExitCode>(result->exitCodeType ^ sensitiveTo);
-						return prev_result;
+						result->exitCodeType = removeExitCode(result->exitCodeType, StatementExitCode::RETURN_STATEMENT);
+						return result;
 					}
 					prev_result = result;
 					std::cout << statement->pretty_print() << " -> " << result->value->pretty_print() << std::endl;

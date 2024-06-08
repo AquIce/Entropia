@@ -1,1 +1,10 @@
-let x: i8 = true || false ? 1 : 2;
+
+fn eight(void): i32 {
+	return 8;
+}
+
+fn five(void): i32 {
+	return 5;
+}
+
+let x: i32 = eight(void) + five(void);

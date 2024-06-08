@@ -114,16 +114,6 @@ namespace ent {
 				})[type];
 			}
 
-			bool is_valid_cast(enum NodeType source, enum NodeType destType) {
-				if(source == destType) { return true; }
-				for(enum NodeType dest_valid_cast : valid_casts_to_type(destType)) {
-					if(is_valid_cast(source, dest_valid_cast)) {
-						return true;
-					}
-				}
-				return false;
-			}
-
             class Statement {
 			public:
 				virtual NodeType get_type() {
@@ -616,7 +606,7 @@ namespace ent {
 					}
             };
 
-			class Assignation: public Statement {
+			class Assignation: public Expression {
 			public:
 				enum NodeType type = NodeType::assignation;
 				std::shared_ptr<Identifier> identifier;
@@ -941,6 +931,111 @@ namespace ent {
 					return "WhileLoop";
 				}
 			};
+
+			std::vector<std::shared_ptr<ent::front::ast::FunctionDeclaration>> functions;
+
+			std::shared_ptr<ent::front::ast::FunctionDeclaration> get_function(std::shared_ptr<ent::front::ast::Identifier> identifier) {
+				for(std::shared_ptr<ent::front::ast::FunctionDeclaration> function : functions) {
+					if(function->identifier->name == identifier->name) {
+						return function;
+					}
+				}
+				return nullptr;
+			}
+
+			std::shared_ptr<Expression> get_sample_expression(enum NodeType type) {
+				switch(type) {
+					case NodeType::i8Expression:
+						return std::make_shared<I8Expression>();
+					case NodeType::i16Expression:
+						return std::make_shared<I16Expression>();
+					case NodeType::i32Expression:
+						return std::make_shared<I32Expression>();
+					case NodeType::i64Expression:
+						return std::make_shared<I64Expression>();
+					case NodeType::u8Expression:
+						return std::make_shared<U8Expression>();
+					case NodeType::u16Expression:
+						return std::make_shared<U16Expression>();
+					case NodeType::u32Expression:
+						return std::make_shared<U32Expression>();
+					case NodeType::u64Expression:
+						return std::make_shared<U64Expression>();
+					case NodeType::f32Expression:
+						return std::make_shared<F32Expression>();
+					case NodeType::f64Expression:
+						return std::make_shared<F64Expression>();
+					case NodeType::booleanExpression:
+						return std::make_shared<BooleanExpression>();
+					case NodeType::charExpression:
+						return std::make_shared<CharExpression>();
+					case NodeType::strExpression:
+						return std::make_shared<StrExpression>();
+					default:
+						throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected valid return type, got " + type)).error();
+				}
+			}
+
+			enum NodeType get_node_type(std::string type) {
+				if(type == "i8") {
+					return NodeType::i8Expression;
+				} if(type == "i16") {
+					return NodeType::i16Expression;
+				} if(type == "i32") {
+					return NodeType::i32Expression;
+				} if(type == "i64") {
+					return NodeType::i64Expression;
+				} if(type == "u8") {
+					return NodeType::u8Expression;
+				} if(type == "u16") {
+					return NodeType::u16Expression;
+				} if(type == "u32") {
+					return NodeType::u32Expression;
+				} if(type == "u64") {
+					return NodeType::u64Expression;
+				} if(type == "f32") {
+					return NodeType::f32Expression;
+				} if(type == "f64") {
+					return NodeType::f64Expression;
+				} if(type == "bool") {
+					return NodeType::booleanExpression;
+				} if(type == "char") {
+					return NodeType::charExpression;
+				} if(type == "str") {
+					return NodeType::strExpression;
+				}
+				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected valid return type, got " + type)).error();
+			}
+
+			bool is_valid_cast(std::shared_ptr<Expression> source, enum NodeType destType) {
+				if(source->get_type() == NodeType::identifier) {
+					std::shared_ptr<Identifier> source_identifier = std::dynamic_pointer_cast<Identifier>(source);
+					return is_valid_cast(get_sample_expression(source_identifier->get_identifier_type()), destType);
+				}
+				if(source->get_type() == NodeType::binaryExpression) {
+					std::shared_ptr<BinaryExpression> source_binary_expression = std::dynamic_pointer_cast<BinaryExpression>(source);
+					return is_valid_cast(source_binary_expression->left, destType);
+				}
+				if(source->get_type() == NodeType::ternaryExpression) {
+					std::shared_ptr<TernaryExpression> source_ternary_expression = std::dynamic_pointer_cast<TernaryExpression>(source);
+					return is_valid_cast(source_ternary_expression->true_value, destType);
+				}
+				if(source->get_type() == NodeType::functionCallExpression) {
+					std::shared_ptr<FunctionCallExpression> source_function_call_expression = std::dynamic_pointer_cast<FunctionCallExpression>(source);
+					std::shared_ptr<FunctionDeclaration> function_declaration = get_function(source_function_call_expression->functionIdentifier);
+					if(function_declaration == nullptr) {
+						throw (ent::Error(ent::ErrorType::PARSER_CALLING_UNDECLARED_FUNCTION_ERROR, "Trying to call undeclared function " + source_function_call_expression->functionIdentifier->name)).error();
+					}
+					return is_valid_cast(get_sample_expression(get_node_type(function_declaration->returnType)), destType);
+				}
+				if(source->get_type() == destType) { return true; }
+				for(enum NodeType dest_valid_cast : valid_casts_to_type(destType)) {
+					if(is_valid_cast(source, dest_valid_cast)) {
+						return true;
+					}
+				}
+				return false;
+			}
         }
     }
 }

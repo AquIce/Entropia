@@ -131,8 +131,42 @@ namespace ent {
 				return std::make_shared<ent::front::ast::ParenthesisExpression>(content);
 			}
 
+			std::shared_ptr<ent::front::ast::Expression> parse_function_call_expression() {
+
+				std::shared_ptr<ent::front::ast::Expression> call_expr = parse_parenthesis_expression();
+
+				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
+					return call_expr;
+				}
+				(void)eat();
+
+				if(call_expr->get_type() != ent::front::ast::NodeType::identifier) {
+					throw (ent::Error(ent::ErrorType::PARSER_CALLING_NON_FN_ERROR, "Trying to call non-function expression")).error();
+				}
+
+				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
+
+				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
+					(void)eat();
+				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				} else {
+					arguments.push_back(parse_expression());
+
+					while(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
+						(void)expect(ent::type::token_type::COMMA, "comma");
+						arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
+					}
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
+
+				return std::make_shared<ent::front::ast::FunctionCallExpression>(std::dynamic_pointer_cast<ent::front::ast::Identifier>(call_expr), arguments);
+			}
+
+
 			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression() {
-				std::shared_ptr<ent::front::ast::Expression> term = parse_parenthesis_expression();
+				std::shared_ptr<ent::front::ast::Expression> term = parse_function_call_expression();
 				if(peek().get_type() == ent::type::token_type::INCREMENT || peek().get_type() == ent::type::token_type::DECREMENT) {
 					std::string operator_symbol = eat().get_value();
 					if(term->get_type() != ent::front::ast::NodeType::identifier) {
@@ -242,44 +276,55 @@ namespace ent {
 				return std::make_shared<ent::front::ast::TernaryExpression>(condition, true_value, false_value);
 			}
 
+			std::shared_ptr<ent::front::ast::Expression> parse_assignation_expression() {
+
+				std::shared_ptr<ent::front::ast::Expression> assign_expr = parse_ternary_expression();
+
+				ent::type::token op = ent::type::token(ent::type::token_type::EOF_TOKEN, "");
+
+				if(
+					peek().get_type() == ent::type::token_type::PLUS || peek().get_type() == ent::type::token_type::MINUS ||
+					peek().get_type() == ent::type::token_type::TIMES || peek().get_type() == ent::type::token_type::DIVIDED_BY ||
+					peek().get_type() == ent::type::token_type::MODULO ||
+					peek().get_type() == ent::type::token_type::BITWISE_AND || peek().get_type() == ent::type::token_type::BITWISE_OR || peek().get_type() == ent::type::token_type::BITWISE_XOR
+				) {
+					op = eat();
+				}
+
+				if(peek().get_type() != ent::type::token_type::ASSIGN) {
+					if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
+						tks.insert(tks.begin(), op);
+					}
+					return assign_expr;
+				}
+
+				(void)eat();
+
+				if(assign_expr->get_type() != ent::front::ast::NodeType::identifier) {
+					throw (ent::Error(ent::ErrorType::PARSER_ASSIGNING_NON_IDENTIFIER_ERROR, "Function misses explicit VOID param passing")).error();
+				}
+
+				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(assign_expr);
+
+				std::shared_ptr<ent::front::ast::Expression> value = parse_ternary_expression();
+
+				if(op.get_type() != ent::type::token_type::ASSIGN) {
+					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, op.get_value(), value);
+				}
+				
+				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
+			}
+			
+
 			std::shared_ptr<ent::front::ast::Expression> parse_expression() {
-				return parse_ternary_expression();
+				return parse_assignation_expression();
 			}
 
 			std::shared_ptr<ent::front::ast::Assignation> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
-				// Value is an identifier
-				if(value->get_type() == ent::front::ast::NodeType::identifier) {
-					std::shared_ptr<ent::front::ast::Identifier> value_identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(value);
-					if(is_valid_cast(value_identifier->get_identifier_type(), type)) {
-						identifier->set_identifier_type(type);
-						return std::make_shared<ent::front::ast::Assignation>(identifier, value_identifier);
-					}
-					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
-				}
-				// Value is a binary expression
-				if(value->get_type() == ent::front::ast::NodeType::binaryExpression) {
-					std::shared_ptr<ent::front::ast::BinaryExpression> value_binary_expression = std::dynamic_pointer_cast<ent::front::ast::BinaryExpression>(value);
-					if(is_valid_cast(value_binary_expression->get_return_type(), type)) {
-						identifier->set_identifier_type(type);
-						return std::make_shared<ent::front::ast::Assignation>(identifier, value_binary_expression);
-					}
-					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
-				}
-				// Value is a ternary expression
-				if(value->get_type() == ent::front::ast::NodeType::ternaryExpression) {
-					std::shared_ptr<ent::front::ast::TernaryExpression> value_ternary_expression = std::dynamic_pointer_cast<ent::front::ast::TernaryExpression>(value);
-					if(is_valid_cast(value_ternary_expression->get_return_type(), type)) {
-						identifier->set_identifier_type(type);
-						return std::make_shared<ent::front::ast::Assignation>(identifier, value_ternary_expression);
-					}
-					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id() + " returning other type")).error();
-				}
-				// Invalid cast
 				// TODO: Fix casting (unsigned integers impossible to declare)
-				if(!is_valid_cast(value->get_type(), type)) {
+				if(!is_valid_cast(value, type)) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
-				// Valid cast
 				identifier->set_identifier_type(type);
 				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
 			}
@@ -411,27 +456,6 @@ namespace ent {
 				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isMutable, isInFunctionSetup);
 			}
 
-			std::shared_ptr<ent::front::ast::Statement> parse_assignation(std::shared_ptr<ent::front::ast::Identifier> identifier, bool needsSemicolon) {
-				ent::type::token assignationTk = peek();
-				
-				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
-					(void)eat();
-				}
-				(void)expect(ent::type::token_type::ASSIGN, "equals sign");
-
-				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
-
-				if(assignationTk.get_type() != ent::type::token_type::ASSIGN) {
-					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, assignationTk.get_value(), value);
-				}
-
-				if(needsSemicolon) {
-					(void)expect(ent::type::token_type::SEMICOLON, ";");
-				}
-				
-				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
-			}
-
 			std::vector<std::shared_ptr<ent::front::ast::Statement>> get_child_nodes(std::shared_ptr<ent::front::ast::Statement> statement) {
 				switch(statement->get_type()) {
 					case ent::front::ast::NodeType::functionDeclaration:
@@ -442,79 +466,6 @@ namespace ent {
 						return std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 				}
 			}
-
-			std::shared_ptr<ent::front::ast::Statement> parse_function_call(std::shared_ptr<ent::front::ast::Identifier> identifier, bool needsSemicolon) {
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
-
-				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
-				
-				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
-					(void)eat();
-				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
-					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
-				} else {
-					arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
-
-					while(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
-						(void)expect(ent::type::token_type::COMMA, "comma");
-						arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
-					}
-				}
-
-				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
-				if(needsSemicolon) {
-					(void)expect(ent::type::token_type::SEMICOLON, ";");
-				}
-
-				return std::make_shared<ent::front::ast::FunctionCallExpression>(identifier, arguments);
-			}
-
-			std::shared_ptr<ent::front::ast::Statement> parse_identifier_starting_expression(bool needsSemicolon) {
-
-				ent::type::token identifier_token = peek();
-				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
-				
-				if(needsSemicolon && peek().get_type() == ent::type::token_type::SEMICOLON) {
-					(void)eat();
-					return identifier;
-				}
-
-				ent::type::token op = ent::type::token(ent::type::token_type::EOF_TOKEN, "");
-
-				if(
-					peek().get_type() == ent::type::token_type::PLUS || peek().get_type() == ent::type::token_type::MINUS ||
-					peek().get_type() == ent::type::token_type::TIMES || peek().get_type() == ent::type::token_type::DIVIDED_BY ||
-					peek().get_type() == ent::type::token_type::MODULO ||
-					peek().get_type() == ent::type::token_type::BITWISE_AND || peek().get_type() == ent::type::token_type::BITWISE_OR || peek().get_type() == ent::type::token_type::BITWISE_XOR
-				) {
-					op = eat();
-				}
-
-				if(peek().get_type() == ent::type::token_type::ASSIGN) {
-					if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
-						tks.insert(tks.begin(), op);
-					}
-					return parse_assignation(identifier, needsSemicolon);
-				}
-
-				if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
-					tks.insert(tks.begin(), op);
-				}
-
-				if(peek().get_type() == ent::type::OPEN_PAREN) {
-					return parse_function_call(identifier, needsSemicolon);
-				}
-
-				tks.insert(tks.begin(), identifier_token);
-
-				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
-
-				if(needsSemicolon) {
-					(void)expect(ent::type::token_type::SEMICOLON, ";");
-				}
-
-				return expression;
-			}		
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore = true, bool needsSemiColon = true);
 
@@ -584,7 +535,11 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of function");
 				
-				return std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
+				std::shared_ptr<ent::front::ast::FunctionDeclaration> function = std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
+
+				ent::front::ast::functions.push_back(function);
+
+				return function;
 			}
 
 			std::shared_ptr<ent::front::ast::FunctionReturn> parse_function_return() {
@@ -772,11 +727,6 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::Statement> declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return declaration;
-				}
-				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
-					std::shared_ptr<ent::front::ast::Statement> expression = parse_identifier_starting_expression(needsSemicolon);
-					if(updateBefore) { before = nullptr; }
-					return expression;
 				}
 				if(peek().get_type() == ent::type::token_type::FN) {
 					(void)eat();
