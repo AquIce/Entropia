@@ -61,33 +61,45 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Expression> parse_expression();
 
+			void check_for_negative(bool isNegative) {
+				if(isNegative) {
+					throw (ent::Error(ent::ErrorType::PARSER_INVALID_NEGATIVE_VALUE_ERROR, "Expected signed integer or float after '-'")).error();
+				}
+			}
+
 			std::shared_ptr<ent::front::ast::Expression> parse_native_expression() {
+				bool isNegative = false;
+				if(peek().get_type() == ent::type::token_type::MINUS) {
+					isNegative = true;
+					(void)eat();
+				}
 				// If the current token is a number
 				if(peek().get_type() == ent::type::token_type::I8) {
 					// Parse the number
 					i8 value = types::stoi8(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return std::make_shared<ent::front::ast::I8Expression>(value);
+					return std::make_shared<ent::front::ast::I8Expression>(isNegative ? -value : value);
 				} else if(peek().get_type() == ent::type::token_type::I16) {
 					// Parse the number
 					i16 value = types::stoi16(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return std::make_shared<ent::front::ast::I16Expression>(value);
+					return std::make_shared<ent::front::ast::I16Expression>(isNegative ? -value : value);
 				} else if(peek().get_type() == ent::type::token_type::I32) {
 					// Parse the number
 					i32 value = types::stoi32(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return std::make_shared<ent::front::ast::I32Expression>(value);
+					return std::make_shared<ent::front::ast::I32Expression>(isNegative ? -value : value);
 				} else if(peek().get_type() == ent::type::token_type::I64) {
 					// Parse the number
 					i64 value = types::stoi64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
-					return std::make_shared<ent::front::ast::I64Expression>(value);
+					return std::make_shared<ent::front::ast::I64Expression>(isNegative ? -value : value);
 				} else if(peek().get_type() == ent::type::token_type::U64) {
+					check_for_negative(isNegative);
 					// Parse the number
 					u64 value = types::stou64(peek().get_value());
 					(void)eat();
@@ -98,7 +110,7 @@ namespace ent {
 					float value = types::stof32(peek().get_value());
 					(void)eat();
 					// Return the float expression
-					return std::make_shared<ent::front::ast::F32Expression>(value);
+					return std::make_shared<ent::front::ast::F32Expression>(isNegative ? -value : value);
 				} else if(peek().get_type() == ent::type::token_type::F64) {
 					// Parse the number
 					double value = types::stof64(peek().get_value());
@@ -106,12 +118,15 @@ namespace ent {
 					// Return the float expression
 					return std::make_shared<ent::front::ast::F64Expression>(value);
 				} else if(peek().get_type() == ent::type::token_type::BOOL) {
+					check_for_negative(isNegative);
 					bool value = eat().get_value() == "true";
 					return std::make_shared<ent::front::ast::BooleanExpression>(value);
 				} else if(peek().get_type() == ent::type::token_type::CHAR) {
+					check_for_negative(isNegative);
 					char value = eat().get_value()[0];
 					return std::make_shared<ent::front::ast::CharExpression>(value);
 				} else if(peek().get_type() == ent::type::token_type::STR) {
+					check_for_negative(isNegative);
 					std::string value = eat().get_value();
 					return std::make_shared<ent::front::ast::StrExpression>(value);
 				}

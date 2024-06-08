@@ -75,7 +75,7 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Add default to const (mut)
 - [x] Add recursion guards
 - [x] Move function call to expression evaluation (to allow fn() + fn())
-- [ ] Add support for negative numbers
+- [x] Add support for negative numbers
 - [ ] Fix unsigned variables declaration
 - [ ] Evaluate constant expressions at compile time
 - [ ] Compile language

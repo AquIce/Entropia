@@ -30,6 +30,7 @@ namespace ent {
 		PARSER_CALLING_NON_FN_ERROR,
 		PARSER_ASSIGNING_NON_IDENTIFIER_ERROR,
 		PARSER_CALLING_UNDECLARED_FUNCTION_ERROR,
+		PARSER_INVALID_NEGATIVE_VALUE_ERROR,
 
 		I8_OVERFLOW_ERROR,
 		I8_UNDERFLOW_ERROR,
@@ -112,6 +113,7 @@ namespace ent {
 				error_switch_case(ErrorType::PARSER_CALLING_NON_FN_ERROR)
 				error_switch_case(ErrorType::PARSER_ASSIGNING_NON_IDENTIFIER_ERROR)
 				error_switch_case(ErrorType::PARSER_CALLING_UNDECLARED_FUNCTION_ERROR)
+				error_switch_case(ErrorType::PARSER_INVALID_NEGATIVE_VALUE_ERROR)
 
 				error_switch_case(ErrorType::I8_OVERFLOW_ERROR)
 				error_switch_case(ErrorType::I8_UNDERFLOW_ERROR)
