@@ -1068,9 +1068,8 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Scope> scope = std::make_shared<ent::front::ast::Scope>(functionBody);
 
-				return evaluateScope(scope, env, static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::RETURN_STATEMENT))->value;
+				return evaluateScope(scope, env, combineExitCodes(sensitiveTo, StatementExitCode::RETURN_STATEMENT))->value;
 			}
-
 			std::shared_ptr<StatementValue> makeStatementValue(std::shared_ptr<ent::runtime::RuntimeValue> value, StatementExitCode exitCode = StatementExitCode::NONE) {
 				return std::make_shared<StatementValue>(StatementValue{
 					value,
@@ -1153,7 +1152,10 @@ namespace ent {
 							env,
 							static_cast<StatementExitCode>(sensitiveTo | StatementExitCode::BREAK_STATEMENT)
 						);
-						if(hasExitCode(last->exitCodeType, StatementExitCode::BREAK_STATEMENT)) {
+						if(hasAnyExitCode(last->exitCodeType)) {
+							if(hasExitCode(last->exitCodeType, StatementExitCode::BREAK_STATEMENT)) {
+								last->exitCodeType = StatementExitCode::NONE;
+							}
 							return last;
 						}
 					}
@@ -1287,13 +1289,12 @@ namespace ent {
 				);
 
 				for(std::shared_ptr<ent::front::ast::Statement> statement : scope->body) {
-					result = evaluateStatement(statement, scope_env);
-					if(hasExitCode(result->exitCodeType, sensitiveTo)) {
-						if(hasExitCode(sensitiveTo, StatementExitCode::BREAK_STATEMENT)) {
-							prev_result->exitCodeType = removeExitCode(result->exitCodeType, StatementExitCode::BREAK_STATEMENT);
+					result = evaluateStatement(statement, scope_env, sensitiveTo);
+					if(hasExitCode(sensitiveTo, result->exitCodeType)) {
+						if(result->exitCodeType == StatementExitCode::BREAK_STATEMENT) {
+							prev_result->exitCodeType = StatementExitCode::BREAK_STATEMENT;
 							return prev_result;
 						}
-						result->exitCodeType = removeExitCode(result->exitCodeType, StatementExitCode::RETURN_STATEMENT);
 						return result;
 					}
 					prev_result = result;

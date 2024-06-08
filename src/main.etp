@@ -1,10 +1,20 @@
 
-fn eight(void): i32 {
-	return 8;
+fn nooby_double(val: i32): i32 {
+	match(val) {
+		2 => {
+			return 4;
+		}
+		3 => {
+			3;
+			break;
+		}
+		default => {
+			return 11;
+		}
+	}
+	return 6;
 }
 
-fn five(void): i32 {
-	return 5;
-}
-
-let x: i32 = eight(void) + five(void);
+nooby_double(2);
+nooby_double(3);
+nooby_double(4);
