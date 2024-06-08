@@ -260,8 +260,8 @@ namespace ent {
 				RuntimeValue, evaluateI8BinaryExpression,
 				I8Value,
 				INT8_MAX, INT8_MIN,
-				(ent::Error(ent::ErrorType::I8_OVERFLOW_ERROR, "I8 Overflow")),
-				(ent::Error(ent::ErrorType::I8_UNDERFLOW_ERROR, "I8 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I8_OVERFLOW_ERROR, "I8 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I8_UNDERFLOW_ERROR, "I8 Underflow"))
 			)
 
 			// > I16
@@ -271,8 +271,8 @@ namespace ent {
 				RuntimeValue, evaluateI16BinaryExpression,
 				I16Value,
 				INT16_MAX, INT16_MIN,
-				(ent::Error(ent::ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")),
-				(ent::Error(ent::ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_OVERFLOW_ERROR, "I16 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_UNDERFLOW_ERROR, "I16 Underflow"))
 			)
 			// I16 - I8
 			evaluateNumberExpressionBoth(
@@ -280,8 +280,8 @@ namespace ent {
 				evaluateI16I8BinaryExpression, evaluateI8I16BinaryExpression,
 				I16Value, I8Value,
 				INT16_MAX, INT16_MIN,
-				(ent::Error(ent::ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")),
-				(ent::Error(ent::ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_OVERFLOW_ERROR, "I16 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_UNDERFLOW_ERROR, "I16 Underflow"))
 			)
 			// I16 - U8
 			evaluateNumberExpressionBoth(
@@ -289,8 +289,8 @@ namespace ent {
 				evaluateI16U8BinaryExpression, evaluateU8I16BinaryExpression,
 				I16Value, U8Value,
 				INT16_MAX, INT16_MIN,
-				(ent::Error(ent::ErrorType::I16_OVERFLOW_ERROR, "I16 Overflow")),
-				(ent::Error(ent::ErrorType::I16_UNDERFLOW_ERROR, "I16 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_OVERFLOW_ERROR, "I16 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I16_UNDERFLOW_ERROR, "I16 Underflow"))
 			)
 
 			// > I32
@@ -300,8 +300,8 @@ namespace ent {
 				RuntimeValue, evaluateI32BinaryExpression,
 				I32Value,
 				INT32_MAX, INT32_MIN,
-				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
-				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_OVERFLOW_ERROR, "I32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 			// I32 - I8
 			evaluateNumberExpressionBoth(
@@ -309,8 +309,8 @@ namespace ent {
 				evaluateI32I8BinaryExpression, evaluateI8I32BinaryExpression,
 				I32Value, I8Value,
 				INT32_MAX, INT32_MIN,
-				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
-				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_OVERFLOW_ERROR, "I32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 			// I32 - I16
 			evaluateNumberExpressionBoth(
@@ -318,8 +318,8 @@ namespace ent {
 				evaluateI32I16BinaryExpression, evaluateI16I32BinaryExpression,
 				I32Value, I16Value,
 				INT32_MAX, INT32_MIN,
-				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
-				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_OVERFLOW_ERROR, "I32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 			// I32 - U8
 			evaluateNumberExpressionBoth(
@@ -327,8 +327,8 @@ namespace ent {
 				evaluateI32U8BinaryExpression, evaluateU8I32BinaryExpression,
 				I32Value, U8Value,
 				INT32_MAX, INT32_MIN,
-				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
-				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_OVERFLOW_ERROR, "I32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 			// I32 - U16
 			evaluateNumberExpressionBoth(
@@ -336,8 +336,8 @@ namespace ent {
 				evaluateI32U16BinaryExpression, evaluateU16I32BinaryExpression,
 				I32Value, U16Value,
 				INT32_MAX, INT32_MIN,
-				(ent::Error(ent::ErrorType::I32_OVERFLOW_ERROR, "I32 Overflow")),
-				(ent::Error(ent::ErrorType::I32_UNDERFLOW_ERROR, "I32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_OVERFLOW_ERROR, "I32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I32_UNDERFLOW_ERROR, "I32 Underflow"))
 			)
 
 			// > I64
@@ -347,8 +347,8 @@ namespace ent {
 				RuntimeValue, evaluateI64BinaryExpression,
 				I64Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - I8
 			evaluateNumberExpressionBoth(
@@ -356,8 +356,8 @@ namespace ent {
 				evaluateI64I8BinaryExpression, evaluateI8I64BinaryExpression,
 				I64Value, I8Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - I16
 			evaluateNumberExpressionBoth(
@@ -365,8 +365,8 @@ namespace ent {
 				evaluateI64I16BinaryExpression, evaluateI16I64BinaryExpression,
 				I64Value, I16Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - I32
 			evaluateNumberExpressionBoth(
@@ -374,8 +374,8 @@ namespace ent {
 				evaluateI64I32BinaryExpression, evaluateI32I64BinaryExpression,
 				I64Value, I32Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - U8
 			evaluateNumberExpressionBoth(
@@ -383,8 +383,8 @@ namespace ent {
 				evaluateI64U8BinaryExpression, evaluateU8I64BinaryExpression,
 				I64Value, U8Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - U16
 			evaluateNumberExpressionBoth(
@@ -392,8 +392,8 @@ namespace ent {
 				evaluateI64U16BinaryExpression, evaluateU16I64BinaryExpression,
 				I64Value, U16Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 			// I64 - U32
 			evaluateNumberExpressionBoth(
@@ -401,8 +401,8 @@ namespace ent {
 				evaluateI64U32BinaryExpression, evaluateU32I64BinaryExpression,
 				I64Value, U32Value,
 				INT64_MAX, INT64_MIN,
-				(ent::Error(ent::ErrorType::I64_OVERFLOW_ERROR, "I64 Overflow")),
-				(ent::Error(ent::ErrorType::I64_UNDERFLOW_ERROR, "I64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_OVERFLOW_ERROR, "I64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_I64_UNDERFLOW_ERROR, "I64 Underflow"))
 			)
 
 			// > U8
@@ -412,8 +412,8 @@ namespace ent {
 				RuntimeValue, evaluateU8BinaryExpression,
 				U8Value,
 				UINT8_MAX, 0,
-				(ent::Error(ent::ErrorType::U8_OVERFLOW_ERROR, "U8 Overflow")),
-				(ent::Error(ent::ErrorType::U8_UNDERFLOW_ERROR, "U8 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U8_OVERFLOW_ERROR, "U8 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U8_UNDERFLOW_ERROR, "U8 Underflow"))
 			)
 
 			// > U16
@@ -423,8 +423,8 @@ namespace ent {
 				RuntimeValue, evaluateU16BinaryExpression,
 				U16Value,
 				UINT16_MAX, 0,
-				(ent::Error(ent::ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")),
-				(ent::Error(ent::ErrorType::U16_UNDERFLOW_ERROR, "U16 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U16_OVERFLOW_ERROR, "U16 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U16_UNDERFLOW_ERROR, "U16 Underflow"))
 			)
 			// U16 - U8
 			evaluateNumberExpressionBoth(
@@ -432,8 +432,8 @@ namespace ent {
 				evaluateU16U8BinaryExpression, evaluateU8U16BinaryExpression,
 				U16Value, U8Value,
 				UINT16_MAX, 0,
-				(ent::Error(ent::ErrorType::U16_OVERFLOW_ERROR, "U16 Overflow")),
-				(ent::Error(ent::ErrorType::U16_UNDERFLOW_ERROR, "U16 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U16_OVERFLOW_ERROR, "U16 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U16_UNDERFLOW_ERROR, "U16 Underflow"))
 			)
 
 			// > U32
@@ -443,8 +443,8 @@ namespace ent {
 				RuntimeValue, evaluateU32BinaryExpression,
 				U32Value,
 				UINT32_MAX, 0,
-				(ent::Error(ent::ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")),
-				(ent::Error(ent::ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_OVERFLOW_ERROR, "U32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_UNDERFLOW_ERROR, "U32 Underflow"))
 			)
 			// U32 - U8
 			evaluateNumberExpressionBoth(
@@ -452,8 +452,8 @@ namespace ent {
 				evaluateU32U8BinaryExpression, evaluateU8U32BinaryExpression,
 				U32Value, U8Value,
 				UINT32_MAX, 0,
-				(ent::Error(ent::ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")),
-				(ent::Error(ent::ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_OVERFLOW_ERROR, "U32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_UNDERFLOW_ERROR, "U32 Underflow"))
 			)
 			// U32 - U16
 			evaluateNumberExpressionBoth(
@@ -461,8 +461,8 @@ namespace ent {
 				evaluateU32U16BinaryExpression, evaluateU16U32BinaryExpression,
 				U32Value, U16Value,
 				UINT32_MAX, 0,
-				(ent::Error(ent::ErrorType::U32_OVERFLOW_ERROR, "U32 Overflow")),
-				(ent::Error(ent::ErrorType::U32_UNDERFLOW_ERROR, "U32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_OVERFLOW_ERROR, "U32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U32_UNDERFLOW_ERROR, "U32 Underflow"))
 			)
 
 			// > U64
@@ -472,8 +472,8 @@ namespace ent {
 				RuntimeValue, evaluateU64BinaryExpression,
 				U64Value,
 				UINT64_MAX, 0,
-				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
-				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_OVERFLOW_ERROR, "U64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_UNDERFLOW_ERROR, "U64 Underflow"))
 			)
 			// U64 - U8
 			evaluateNumberExpressionBoth(
@@ -481,8 +481,8 @@ namespace ent {
 				evaluateU64U8BinaryExpression, evaluateU8U64BinaryExpression,
 				U64Value, U8Value,
 				UINT64_MAX, 0,
-				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
-				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_OVERFLOW_ERROR, "U64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_UNDERFLOW_ERROR, "U64 Underflow"))
 			)
 			// U64 - U16
 			evaluateNumberExpressionBoth(
@@ -490,8 +490,8 @@ namespace ent {
 				evaluateU64U16BinaryExpression, evaluateU16U64BinaryExpression,
 				U64Value, U16Value,
 				UINT64_MAX, 0,
-				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
-				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_OVERFLOW_ERROR, "U64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_UNDERFLOW_ERROR, "U64 Underflow"))
 			)
 			// U64 - U32
 			evaluateNumberExpressionBoth(
@@ -499,8 +499,8 @@ namespace ent {
 				evaluateU64U32BinaryExpression, evaluateU32U64BinaryExpression,
 				U64Value, U32Value,
 				UINT64_MAX, 0,
-				(ent::Error(ent::ErrorType::U64_OVERFLOW_ERROR, "U64 Overflow")),
-				(ent::Error(ent::ErrorType::U64_UNDERFLOW_ERROR, "U64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_OVERFLOW_ERROR, "U64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_U64_UNDERFLOW_ERROR, "U64 Underflow"))
 			)
 
 			// > F32
@@ -510,8 +510,8 @@ namespace ent {
 				RuntimeValue, evaluateF32BinaryExpression,
 				F32Value, F32Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - I8
 			evaluateNumberExpressionBoth(
@@ -519,8 +519,8 @@ namespace ent {
 				evaluateF32I8BinaryExpression, evaluateI8F32BinaryExpression,
 				F32Value, I8Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - I16
 			evaluateNumberExpressionBoth(
@@ -528,8 +528,8 @@ namespace ent {
 				evaluateF32I16BinaryExpression, evaluateI16F32BinaryExpression,
 				F32Value, I16Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - I32
 			evaluateNumberExpressionBoth(
@@ -537,8 +537,8 @@ namespace ent {
 				evaluateF32I32BinaryExpression, evaluateI32F32BinaryExpression,
 				F32Value, I32Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - I64
 			evaluateNumberExpressionBoth(
@@ -546,8 +546,8 @@ namespace ent {
 				evaluateF32I64BinaryExpression, evaluateI64F32BinaryExpression,
 				F32Value, I64Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - U8
 			evaluateNumberExpressionBoth(
@@ -555,8 +555,8 @@ namespace ent {
 				evaluateF32U8BinaryExpression, evaluateU8F32BinaryExpression,
 				F32Value, U8Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - U16
 			evaluateNumberExpressionBoth(
@@ -564,8 +564,8 @@ namespace ent {
 				evaluateF32U16BinaryExpression, evaluateU16F32BinaryExpression,
 				F32Value, U16Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - U32
 			evaluateNumberExpressionBoth(
@@ -573,8 +573,8 @@ namespace ent {
 				evaluateF32U32BinaryExpression, evaluateU32F32BinaryExpression,
 				F32Value, U32Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 			// F32 - U64
 			evaluateNumberExpressionBoth(
@@ -582,8 +582,8 @@ namespace ent {
 				evaluateF32U64BinaryExpression, evaluateU64F32BinaryExpression,
 				F32Value, U64Value,
 				FLT_MAX, FLT_MIN,
-				(ent::Error(ent::ErrorType::F32_OVERFLOW_ERROR, "F32 Overflow")),
-				(ent::Error(ent::ErrorType::F32_UNDERFLOW_ERROR, "F32 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_OVERFLOW_ERROR, "F32 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F32_UNDERFLOW_ERROR, "F32 Underflow"))
 			)
 
 			// > F64
@@ -592,8 +592,8 @@ namespace ent {
 				RuntimeValue, evaluateF64BinaryExpression,
 				F64Value, F64Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - I8
 			evaluateNumberExpressionBoth(
@@ -601,8 +601,8 @@ namespace ent {
 				evaluateF64I8BinaryExpression, evaluateI8F64BinaryExpression,
 				F64Value, I8Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - I16
 			evaluateNumberExpressionBoth(
@@ -610,8 +610,8 @@ namespace ent {
 				evaluateF64I16BinaryExpression, evaluateI16F64BinaryExpression,
 				F64Value, I16Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - I32
 			evaluateNumberExpressionBoth(
@@ -619,8 +619,8 @@ namespace ent {
 				evaluateF64I32BinaryExpression, evaluateI32F64BinaryExpression,
 				F64Value, I32Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - I64
 			evaluateNumberExpressionBoth(
@@ -628,8 +628,8 @@ namespace ent {
 				evaluateF64I64BinaryExpression, evaluateI64F64BinaryExpression,
 				F64Value, I64Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - U8
 			evaluateNumberExpressionBoth(
@@ -637,8 +637,8 @@ namespace ent {
 				evaluateF64U8BinaryExpression, evaluateU8F64BinaryExpression,
 				F64Value, U8Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - U16
 			evaluateNumberExpressionBoth(
@@ -646,8 +646,8 @@ namespace ent {
 				evaluateF64U16BinaryExpression, evaluateU16F64BinaryExpression,
 				F64Value, U16Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - U32
 			evaluateNumberExpressionBoth(
@@ -655,8 +655,8 @@ namespace ent {
 				evaluateF64U32BinaryExpression, evaluateU32F64BinaryExpression,
 				F64Value, U32Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - U64
 			evaluateNumberExpressionBoth(
@@ -664,8 +664,8 @@ namespace ent {
 				evaluateF64U64BinaryExpression, evaluateU64F64BinaryExpression,
 				F64Value, U64Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 			// F64 - F32
 			evaluateNumberExpressionBoth(
@@ -673,8 +673,8 @@ namespace ent {
 				evaluateF64F32BinaryExpression, evaluateF32F64BinaryExpression,
 				F64Value, F32Value,
 				DBL_MAX, DBL_MIN,
-				(ent::Error(ent::ErrorType::F64_OVERFLOW_ERROR, "F64 Overflow")),
-				(ent::Error(ent::ErrorType::F64_UNDERFLOW_ERROR, "F64 Underflow"))
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_OVERFLOW_ERROR, "F64 Overflow")),
+				(ent::Error(ent::ErrorType::INTERPRETER_F64_UNDERFLOW_ERROR, "F64 Underflow"))
 			)
 
 			std::shared_ptr<RuntimeValue> evaluateBooleanBinaryExpression(std::shared_ptr<BooleanValue> left, std::shared_ptr<BooleanValue> right, std::string op) {
@@ -1057,6 +1057,7 @@ namespace ent {
 				}
 
 				for(u64 i = 0; i < functionCallExpression->arguments.size(); i++) {
+					// TODO Add argument type check
 					functionBody.push_back(
 						ent::front::parser::make_declaration(calledFunction->arguments[i], functionCallExpression->arguments[i], calledFunction->arguments[i]->isMutable, true)
 					);
