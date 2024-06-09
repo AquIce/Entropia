@@ -154,15 +154,7 @@ namespace ent {
 			}
 			
 			bool has_function(std::string key) {
-				if(this->functions.find(key) == this->functions.end()) {
-					if(this->parent != nullptr) {
-						return parent->has_function(key);
-					}
-
-					return false;
-				}
-				
-				return true;
+				return this->functions.find(key) != this->functions.end();
 			}
 			std::shared_ptr<ent::front::ast::FunctionDeclaration> init_function(std::string key, std::shared_ptr<ent::front::ast::FunctionDeclaration> function) {
 				if(this->has_function(key)) {

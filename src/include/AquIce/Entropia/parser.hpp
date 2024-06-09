@@ -323,7 +323,7 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> value = parse_ternary_expression();
 
-				if(op.get_type() != ent::type::token_type::ASSIGN) {
+				if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
 					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, op.get_value(), value);
 				}
 				
@@ -780,7 +780,9 @@ namespace ent {
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
-				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
+				if(needsSemicolon) {
+					(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
+				}
 				if(updateBefore) { before = nullptr; }
 
 				return expression;

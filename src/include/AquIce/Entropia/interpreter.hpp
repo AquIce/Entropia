@@ -1085,7 +1085,7 @@ namespace ent {
 						return evaluateScope(std::make_shared<ent::front::ast::Scope>(block->body), env, sensitiveTo);
 					}
 				}
-				return makeStatementValue(std::shared_ptr<NullValue>());
+				return makeStatementValue(std::make_shared<NullValue>());
 			}
 
 			std::shared_ptr<StatementValue> evaluateForLoop(std::shared_ptr<ent::front::ast::ForLoop> forLoop, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
