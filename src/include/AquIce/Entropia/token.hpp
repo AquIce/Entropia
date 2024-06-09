@@ -80,6 +80,8 @@ namespace ent {
 			F32,
 			F64,
 
+			CLASS,
+
 			IDENTIFIER,
 
 			EOF_TOKEN,
@@ -179,6 +181,8 @@ namespace ent {
 					token_switch_case(U64)
 					token_switch_case(F32)
 					token_switch_case(F64)
+
+					token_switch_case(CLASS)
 
 					token_switch_case(IDENTIFIER)
 

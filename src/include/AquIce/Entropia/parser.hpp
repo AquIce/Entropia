@@ -735,6 +735,21 @@ namespace ent {
 				return std::make_shared<ent::front::ast::BreakStatement>();
 			}
 
+			std::shared_ptr<ent::front::ast::ClassDeclaration> parse_class_declaration() {
+
+				(void)eat();
+
+				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before class body");
+				
+				// TODO Add body parsing
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after class body");
+
+				return std::make_shared<ent::front::ast::ClassDeclaration>(identifier);
+			}
+
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
 
 				if(peek().get_type() == ent::type::token_type::LET) {
@@ -777,6 +792,11 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::Statement> breakStatement = parse_break_statement();
 					if(updateBefore) { before = nullptr; }
 					return breakStatement;
+				}
+				if(peek().get_type() == ent::type::token_type::CLASS) {
+					std::shared_ptr<ent::front::ast::Statement> classDeclaration = parse_class_declaration();
+					if(updateBefore) { before = nullptr; }
+					return classDeclaration;
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();

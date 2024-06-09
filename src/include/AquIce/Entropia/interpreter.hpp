@@ -1164,6 +1164,10 @@ namespace ent {
 
 				return last;
 			}
+
+			std::shared_ptr<StatementValue> evaluateClassDeclaration(std::shared_ptr<ent::front::ast::ClassDeclaration> classDeclaration, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
+				return makeStatementValue(std::make_shared<NullValue>());
+			}
 			
 			std::shared_ptr<StatementValue> evaluateStatement(std::shared_ptr<ent::front::ast::Statement> statement, std::shared_ptr<Environment> env, StatementExitCode sensitiveTo) {
 				switch(statement->get_type()) {
@@ -1275,6 +1279,8 @@ namespace ent {
 							std::make_shared<NullValue>(),
 							StatementExitCode::BREAK_STATEMENT
 						);
+					case ent::front::ast::NodeType::classDeclaration:
+						return evaluateClassDeclaration(std::dynamic_pointer_cast<ent::front::ast::ClassDeclaration>(statement), env, sensitiveTo);
 					default:
 						throw (ent::Error(ent::ErrorType::INTERPRETER_UNKNOWN_STATEMENT_ERROR, "Invalid statement: " + statement->type_id())).error();
 				}

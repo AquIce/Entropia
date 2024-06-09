@@ -186,6 +186,7 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::MATCH, "match")
 			check_for_str_token(ent::type::token_type::DEFAULT, "default")
 			check_for_str_token(ent::type::token_type::BREAK, "break")
+			check_for_str_token(ent::type::token_type::CLASS, "class")
 			
 			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);
