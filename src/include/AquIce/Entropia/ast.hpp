@@ -963,23 +963,25 @@ namespace ent {
 
 			class ClassDeclaration : public Statement {
 			private:
-				std::string pretty_print_members(int indent, enum ClassAccessSpecifier prev_access) {
+				std::string pretty_print_members(int indent, enum ClassAccessSpecifier& prev_access) {
 					std::string pretty = "";
 					for(ClassMember member : this->members) {
 						if(member.accessLevel != prev_access) {
 							pretty += std::string(indent, '\t') + accessLevelString(member.accessLevel) + "\n";
 						}
 						pretty += member.member->pretty_print(indent + 1) + "\n";
+						prev_access = member.accessLevel;
 					}
 					return pretty;
 				}
-				std::string pretty_print_methods(int indent, enum ClassAccessSpecifier prev_access) {
+				std::string pretty_print_methods(int indent, enum ClassAccessSpecifier& prev_access) {
 					std::string pretty = "";
 					for(ClassMethod method : this->methods) {
 						if(method.accessLevel != prev_access) {
 							pretty += std::string(indent, '\t') + accessLevelString(method.accessLevel) + "\n";
 						}
 						pretty += method.method->pretty_print(indent + 1) + "\n";
+						prev_access = method.accessLevel;
 					}
 					return pretty;
 				}

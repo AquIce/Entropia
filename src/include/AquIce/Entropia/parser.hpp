@@ -402,7 +402,6 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Statement> parse_declaration(bool needsSemicolon) {
 
-
 				bool isMutable = false;
 
 				if(peek().get_type() == ent::type::token_type::MUTABLE) {
@@ -743,11 +742,34 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before class body");
 				
-				// TODO Add body parsing
+				std::vector<ent::front::ast::ClassMember> members = std::vector<ent::front::ast::ClassMember>();
+				std::vector<ent::front::ast::ClassMethod> methods = std::vector<ent::front::ast::ClassMethod>();
+
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					std::cout << peek().pretty_print() << std::endl;
+					if(peek().get_type() == ent::type::token_type::FN) {
+						(void)eat();
+						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
+							parse_function_declaration()
+						);
+						methods.push_back({
+							functionDeclaration,
+							ent::front::ast::ClassAccessSpecifier::PUBLIC
+						});
+						continue;
+					}
+					std::shared_ptr<ent::front::ast::Declaration> declaration = std::dynamic_pointer_cast<ent::front::ast::Declaration>(
+						parse_declaration(true)
+					);
+					members.push_back({
+						declaration,
+						ent::front::ast::ClassAccessSpecifier::PUBLIC
+					});
+				}
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after class body");
 
-				return std::make_shared<ent::front::ast::ClassDeclaration>(identifier);
+				return std::make_shared<ent::front::ast::ClassDeclaration>(identifier, members, methods);
 			}
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
