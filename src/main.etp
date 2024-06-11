@@ -1,11 +1,15 @@
 class MyClass {
+	@private
 	mut firstMember: i32;
+
+	@public
 	lastMember: i32 = 123;
 
 	fn firstMethod(void): i32 {
 		return 12;
 	}
 
+	@private
 	fn secondMethod(mut val: i32): i32 {
 		return val + 1;
 	}

@@ -745,8 +745,23 @@ namespace ent {
 				std::vector<ent::front::ast::ClassMember> members = std::vector<ent::front::ast::ClassMember>();
 				std::vector<ent::front::ast::ClassMethod> methods = std::vector<ent::front::ast::ClassMethod>();
 
+				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
+
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					std::cout << peek().pretty_print() << std::endl;
+					if(peek().get_type() == ent::type::token_type::AT) {
+						(void)eat();
+						if(peek().get_type() == ent::type::PRIVATE) {
+							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
+							(void)eat();
+							continue;
+						}
+						if(peek().get_type() == ent::type::PUBLIC) {
+							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
+							(void)eat();
+							continue;
+						}
+						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
+					}
 					if(peek().get_type() == ent::type::token_type::FN) {
 						(void)eat();
 						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
@@ -754,7 +769,7 @@ namespace ent {
 						);
 						methods.push_back({
 							functionDeclaration,
-							ent::front::ast::ClassAccessSpecifier::PUBLIC
+							currentAccessSpecifier
 						});
 						continue;
 					}
@@ -763,7 +778,7 @@ namespace ent {
 					);
 					members.push_back({
 						declaration,
-						ent::front::ast::ClassAccessSpecifier::PUBLIC
+						currentAccessSpecifier
 					});
 				}
 
