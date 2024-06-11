@@ -190,6 +190,8 @@ namespace ent {
 			check_for_chr_token(ent::type::token_type::AT, '@')
 			check_for_str_token(ent::type::token_type::PUBLIC, "public")
 			check_for_str_token(ent::type::token_type::PRIVATE, "private")
+			check_for_str_token(ent::type::token_type::CONSTRUCTOR, "constructor")
+			check_for_str_token(ent::type::token_type::DESTRUCTOR, "destructor")
 			
 			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);

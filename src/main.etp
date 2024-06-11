@@ -9,6 +9,14 @@ class MyClass {
 		return 12;
 	}
 
+	constructor(void): i32 {
+
+	}
+
+	destructor(void): i32 {
+
+	}
+
 	@private
 	fn secondMethod(mut val: i32): i32 {
 		return val + 1;

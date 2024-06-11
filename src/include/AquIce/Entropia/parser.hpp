@@ -483,8 +483,71 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore = true, bool needsSemiColon = true);
 
-			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration() {
-				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+			std::vector<std::shared_ptr<ent::front::ast::Declaration>> parse_arguments() {
+
+				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
+
+				while(true) {
+					bool isMutable = false;
+
+					if(peek().get_type() == ent::type::token_type::MUTABLE) {
+						(void)eat();
+						isMutable = true;
+					}
+
+					std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+					expect(ent::type::token_type::COLON, ":");
+					ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
+
+					std::shared_ptr<ent::front::ast::Declaration> declaration;
+					
+					try {
+						declaration = parse_any_declaration(
+							isMutable,
+							identifier,
+							type_specifier,
+							ent::type::token_type::COMMA,
+							","
+						);
+					} catch(const std::exception& e) {
+						declaration = parse_any_declaration(
+							isMutable,
+							identifier,
+							type_specifier,
+							ent::type::token_type::CLOSE_PAREN,
+							")"
+						);
+						arguments.push_back(declaration);
+						break;
+					}
+
+					arguments.push_back(declaration);
+				}
+
+				return arguments;
+			}
+
+			std::vector<std::shared_ptr<ent::front::ast::Statement>> parse_scope(std::string scopeType) {
+
+				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace at start of " + scopeType);
+
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					body.push_back(parse_statement());
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of " + scopeType);
+
+				return body;
+			}
+
+			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration(std::shared_ptr<ent::front::ast::Identifier> identifier = nullptr) {
+
+				if(identifier == nullptr) {
+					identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+				}
+
 				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
 
 				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
@@ -496,43 +559,7 @@ namespace ent {
 					(void)eat();
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
 				} else {
-					while(true) {
-
-						bool isMutable = false;
-
-						if(peek().get_type() == ent::type::token_type::MUTABLE) {
-							(void)eat();
-							isMutable = true;
-						}
-
-						std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
-						expect(ent::type::token_type::COLON, ":");
-						ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
-
-						std::shared_ptr<ent::front::ast::Declaration> declaration;
-						
-						try {
-							declaration = parse_any_declaration(
-								isMutable,
-								identifier,
-								type_specifier,
-								ent::type::token_type::COMMA,
-								","
-							);
-						} catch(const std::exception& e) {
-							declaration = parse_any_declaration(
-								isMutable,
-								identifier,
-								type_specifier,
-								ent::type::token_type::CLOSE_PAREN,
-								")"
-							);
-							arguments.push_back(declaration);
-							break;
-						}
-
-						arguments.push_back(declaration);
-					}
+					arguments = parse_arguments();
 				}
 
 				(void)expect(ent::type::token_type::COLON, "colon");
@@ -602,15 +629,9 @@ namespace ent {
 					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after condition");
 				}
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before body");
-
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					body.push_back(parse_statement(false));
-				}
-
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after body");
+				body = parse_scope("conditionnal block");
 
 				std::shared_ptr<ent::front::ast::ConditionnalBlock> conditionnalBlock = std::make_shared<ent::front::ast::ConditionnalBlock>(body, condition, false);
 
@@ -644,15 +665,10 @@ namespace ent {
 				std::shared_ptr<ent::front::ast::Statement> iterationStatement = parse_statement(true, false);
 
 				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before for body");
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					body.push_back(parse_statement());
-				}
-
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after for body");
+				body = parse_scope("for loop");
 
 				return std::make_shared<ent::front::ast::ForLoop>(initStatement, loopCondition, iterationStatement, body);
 			}
@@ -689,15 +705,10 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::MATCH_ARROW, "match arrow after expression");
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before match case body");
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					body.push_back(parse_statement(false));
-				}
-
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after match case body");
+				body = parse_scope("match case");
 
 				return std::make_shared<ent::front::ast::ConditionnalBlock>(body, caseToMatch, true);
 			}
@@ -766,6 +777,22 @@ namespace ent {
 						(void)eat();
 						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
 							parse_function_declaration()
+						);
+						methods.push_back({
+							functionDeclaration,
+							currentAccessSpecifier
+						});
+						continue;
+					}
+					if(
+						peek().get_type() == ent::type::token_type::CONSTRUCTOR ||
+						peek().get_type() == ent::type::token_type::DESTRUCTOR
+					) {
+						if(currentAccessSpecifier != ent::front::ast::ClassAccessSpecifier::PUBLIC) {
+							throw (ent::Error(ent::ErrorType::PARSER_PRIVATE_CONSTRUCTOR_DESTRUCTOR_ERROR, "Constructor/destructor can only be public")).error();
+						}
+						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
+							parse_function_declaration(std::make_shared<ent::front::ast::Identifier>(eat().get_value()))
 						);
 						methods.push_back({
 							functionDeclaration,

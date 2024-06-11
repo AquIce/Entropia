@@ -84,6 +84,8 @@ namespace ent {
 			AT,
 			PUBLIC,
 			PRIVATE,
+			CONSTRUCTOR,
+			DESTRUCTOR,
 
 			IDENTIFIER,
 
@@ -189,6 +191,8 @@ namespace ent {
 					token_switch_case(AT)
 					token_switch_case(PUBLIC)
 					token_switch_case(PRIVATE)
+					token_switch_case(CONSTRUCTOR)
+					token_switch_case(DESTRUCTOR)
 
 					token_switch_case(IDENTIFIER)
 

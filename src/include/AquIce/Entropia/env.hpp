@@ -101,17 +101,36 @@ namespace ent {
 			bool isMutable;
 		} EnvValue;
 
-		class Environment {
+		class Environment : private std::enable_shared_from_this<Environment> {
 		private:
 			std::shared_ptr<Environment> parent = nullptr;
 			std::unordered_map<std::string, std::shared_ptr<EnvValue>> values;
 			std::unordered_map<std::string, std::shared_ptr<ent::front::ast::FunctionDeclaration>> functions;
+			std::unordered_map<std::string, std::shared_ptr<Environment>> classes;
+			std::string className;
 
 		public:
 			Environment(std::shared_ptr<Environment> parent = nullptr) {
 				this->parent = parent;
 				this->values = std::unordered_map<std::string, std::shared_ptr<EnvValue>>();
 				this->functions = std::unordered_map<std::string, std::shared_ptr<ent::front::ast::FunctionDeclaration>>();
+				this->classes = std::unordered_map<std::string, std::shared_ptr<Environment>>();
+				this->className = "";
+			}
+
+			Environment(std::string className, std::shared_ptr<Environment> parent) {
+				this->parent = parent;
+				this->values = std::unordered_map<std::string, std::shared_ptr<EnvValue>>();
+				this->functions = std::unordered_map<std::string, std::shared_ptr<ent::front::ast::FunctionDeclaration>>();
+				this->classes = std::unordered_map<std::string, std::shared_ptr<Environment>>();
+				this->parent->add_class(className, this->shared_from_this());
+				this->className = className;
+			}
+
+			~Environment() {
+				if(this->className != "") {
+					this->parent->remove_child(this->className);
+				}
 			}
 
 			bool has_value(std::string key) {
@@ -172,6 +191,14 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::ENV_GETTING_NON_EXISTING_FUNCTION_ERROR, "Trying to get non-declared function " + key)).error();
 				}
 				return this->functions.at(key);
+			}
+			
+			void add_class(std::string name, std::shared_ptr<Environment> child) {
+				this->classes[name] = child;
+			}
+
+			void remove_child(std::string name) {
+				this->classes.erase(name);
 			}
 		};
 	}
