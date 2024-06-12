@@ -116,7 +116,7 @@ namespace ent {
 			void set_value(std::string value) {
 				this->value = value;
 			}
-			std::string pretty_print() {
+			std::string repr() {
 				std::string type = "";
 				switch(this->type) {
 					token_switch_case(LET)

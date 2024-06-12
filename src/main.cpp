@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	std::cout << program->pretty_print() << std::endl;
+	std::cout << program->repr() << std::endl;
 
 	// Test interpreter
 
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
-	std::cout << result->pretty_print() << std::endl;
+	std::cout << result->repr() << std::endl;
 
 	return 0;
 }

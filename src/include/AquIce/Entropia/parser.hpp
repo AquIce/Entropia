@@ -331,7 +331,7 @@ namespace ent {
 					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, op.get_value(), value);
 				}
 				
-				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
+				return std::make_shared<ent::front::ast::AssignationExpression>(identifier, value);
 			}
 			
 
@@ -339,13 +339,13 @@ namespace ent {
 				return parse_assignation_expression();
 			}
 
-			std::shared_ptr<ent::front::ast::Assignation> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
+			std::shared_ptr<ent::front::ast::AssignationExpression> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
 				// TODO: Fix casting (unsigned integers impossible to declare)
 				if(!is_valid_cast(value, type)) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
 				identifier->set_identifier_type(type);
-				return std::make_shared<ent::front::ast::Assignation>(identifier, value);
+				return std::make_shared<ent::front::ast::AssignationExpression>(identifier, value);
 			}
 
 			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
@@ -752,7 +752,7 @@ namespace ent {
 			std::shared_ptr<ent::front::ast::TypeDeclaration> parse_type_declaration() {
 				(void)eat();
 
-				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+				ent::type::token typeName = expect(ent::type::token_type::TYPE_SPECIFIER, "valid type name to implement");
 
 				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before type declaration body");
 				
@@ -790,7 +790,7 @@ namespace ent {
 
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after type declaration body");
 
-				std::shared_ptr<ent::front::ast::TypeDeclaration> typeDeclaration = std::make_shared<ent::front::ast::TypeDeclaration>(identifier, members);
+				std::shared_ptr<ent::front::ast::TypeDeclaration> typeDeclaration = std::make_shared<ent::front::ast::TypeDeclaration>(typeName.get_value(), members);
 
 				return typeDeclaration;
 			}

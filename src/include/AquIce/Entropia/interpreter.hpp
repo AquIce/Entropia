@@ -140,7 +140,7 @@ evaluateNumberExpressionReverse(return_T, function_name_second, big_T, little_T,
 
 #define evaluateUnaryAssignationExpression(expression_type, value_type) \
 evaluateAssignationExpression( \
-	std::make_shared<ent::front::ast::Assignation>( \
+	std::make_shared<ent::front::ast::AssignationExpression>( \
 		identifier, \
 		std::make_shared<ent::front::ast::BinaryExpression>( \
 			std::make_shared<expression_type>(std::dynamic_pointer_cast<value_type>(old_value)->get_value()), \
@@ -720,7 +720,7 @@ namespace ent {
 								case ValueType::F64:
 									return evaluateI8F64BinaryExpression(std::dynamic_pointer_cast<I8Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 								default:
-									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I8 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I8 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 							}
 					case ValueType::I16:
 							switch(right->type()) {
@@ -739,7 +739,7 @@ namespace ent {
 								case ValueType::F64:
 									return evaluateI16F64BinaryExpression(std::dynamic_pointer_cast<I16Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 								default:
-									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I16 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+									throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I16 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 							}
 					case ValueType::I32:
 						switch(right->type()) {
@@ -760,7 +760,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateI32F64BinaryExpression(std::dynamic_pointer_cast<I32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I32 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::I64:
 						switch(right->type()) {
@@ -783,7 +783,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateI64F64BinaryExpression(std::dynamic_pointer_cast<I64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (I64 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::U8:
 						switch(right->type()) {
@@ -804,7 +804,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateU8F64BinaryExpression(std::dynamic_pointer_cast<U8Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U8 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U8 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::U16:
 						switch(right->type()) {
@@ -823,7 +823,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateU16F64BinaryExpression(std::dynamic_pointer_cast<U16Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U16 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U16 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::U32:
 						switch(right->type()) {
@@ -840,7 +840,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateU32F64BinaryExpression(std::dynamic_pointer_cast<U32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U32 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::U64:
 						switch(right->type()) {
@@ -855,7 +855,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateU64F64BinaryExpression(std::dynamic_pointer_cast<U64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (U64 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::F32:
 						switch(right->type()) {
@@ -880,7 +880,7 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateF32F64BinaryExpression(std::dynamic_pointer_cast<F32Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F32 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F32 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					case ValueType::F64:
 						switch(right->type()) {
@@ -905,10 +905,10 @@ namespace ent {
 							case ValueType::F64:
 								return evaluateF64BinaryExpression(std::dynamic_pointer_cast<F64Value>(left), std::dynamic_pointer_cast<F64Value>(right), binaryExpression->operator_symbol);
 							default:
-								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F64 and ?): " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+								throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands (F64 and ?): " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 						}
 					default:
-						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+						throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 				}
 			}
 
@@ -925,7 +925,7 @@ namespace ent {
 				} else if(left->type() == ValueType::BOOL && right->type() == ValueType::BOOL) {
 					return evaluateBooleanBinaryExpression(std::dynamic_pointer_cast<BooleanValue>(left), std::dynamic_pointer_cast<BooleanValue>(right), binaryExpression->operator_symbol);
 				}
-				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->pretty_print() + " " + binaryExpression->operator_symbol + " " + right->pretty_print())).error();
+				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operands: " + left->repr() + " " + binaryExpression->operator_symbol + " " + right->repr())).error();
 			}
 
 			std::shared_ptr<RuntimeValue> evaluateTernaryExpression(std::shared_ptr<ent::front::ast::TernaryExpression> ternaryExpression, std::shared_ptr<Environment> env) {
@@ -941,7 +941,7 @@ namespace ent {
 				return evaluateStatement(parenthesisExpression->content, env)->value;
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env);
+			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::AssignationExpression> assignationExpression, std::shared_ptr<Environment> env);
 
 			std::shared_ptr<RuntimeValue> evaluateUnaryExpression(std::shared_ptr<ent::front::ast::UnaryExpression> unaryExpression, std::shared_ptr<Environment> env) {
 				if(unaryExpression->operator_symbol == "!") {
@@ -974,7 +974,7 @@ namespace ent {
 						case ent::front::ast::NodeType::u64Expression:
 							return std::make_shared<U64Value>(~std::dynamic_pointer_cast<U64Value>(term_value)->get_value());
 						default:
-							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for bitwise not: " + unaryExpression->term->pretty_print())).error();
+							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for bitwise not: " + unaryExpression->term->repr())).error();
 					}
 				} if(unaryExpression->operator_symbol == "++" || unaryExpression->operator_symbol == "--") {
 					std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(unaryExpression->term);
@@ -1002,7 +1002,7 @@ namespace ent {
 						case ent::runtime::ValueType::F64:
 							return evaluateUnaryAssignationExpression(ent::front::ast::F64Expression, ent::runtime::F64Value);
 						default:
-							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->pretty_print())).error();
+							throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERANDS_ERROR, "Invalid operand for increment / decrement: " + unaryExpression->term->repr())).error();
 					}
 				}
 				throw (ent::Error(ent::ErrorType::INTERPRETER_INVALID_OPERATOR_ERROR, "Invalid operator: " + unaryExpression->operator_symbol)).error();
@@ -1020,10 +1020,10 @@ namespace ent {
 				return value;
 			}
 
-			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::Assignation> assignation, std::shared_ptr<Environment> env) {
+			std::shared_ptr<RuntimeValue> evaluateAssignationExpression(std::shared_ptr<ent::front::ast::AssignationExpression> assignationExpression, std::shared_ptr<Environment> env) {
 				return env->set_value(
-					assignation->identifier->name,
-					evaluateStatement(assignation->value, env)->value
+					assignationExpression->identifier->name,
+					evaluateStatement(assignationExpression->value, env)->value
 				);
 			}
 
@@ -1251,9 +1251,9 @@ namespace ent {
 						return makeStatementValue(
 							evaluateDeclaration(std::dynamic_pointer_cast<ent::front::ast::Declaration>(statement), env)
 						);
-					case ent::front::ast::NodeType::assignation:
+					case ent::front::ast::NodeType::assignationExpression:
 						return makeStatementValue(
-							evaluateAssignationExpression(std::dynamic_pointer_cast<ent::front::ast::Assignation>(statement), env)
+							evaluateAssignationExpression(std::dynamic_pointer_cast<ent::front::ast::AssignationExpression>(statement), env)
 						);
 					case ent::front::ast::NodeType::functionDeclaration:
 						return makeStatementValue(
@@ -1311,7 +1311,7 @@ namespace ent {
 						return result;
 					}
 					prev_result = result;
-					std::cout << statement->pretty_print() << " -> " << result->value->pretty_print() << std::endl;
+					std::cout << statement->repr() << " -> " << result->value->repr() << std::endl;
 				}
 				return result;
 			}

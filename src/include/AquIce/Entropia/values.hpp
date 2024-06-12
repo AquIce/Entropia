@@ -33,7 +33,7 @@ namespace ent {
 			virtual ValueType type() {
 				return ValueType::NULL_VAL;
 			};
-			virtual std::string pretty_print() {
+			virtual std::string repr() {
 				return "RuntimeValue";
 			}
 			virtual bool IsTrue() {
@@ -50,7 +50,7 @@ namespace ent {
 			virtual ValueType type() override {
 				return ValueType::NULL_VAL;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return this->visible ? "null" : "";
 			}
 			virtual bool IsTrue() {
@@ -101,7 +101,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 7;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": i8";
 			}
 			virtual bool IsTrue() {
@@ -125,7 +125,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 15;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": i16";
 			}
 			virtual bool IsTrue() {
@@ -149,7 +149,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 31;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": i32";
 			}
 			virtual bool IsTrue() {
@@ -173,7 +173,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 63;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": i64";
 			}
 			virtual bool IsTrue() {
@@ -199,7 +199,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 8;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": u8";
 			}
 			virtual bool IsTrue() {
@@ -222,7 +222,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 16;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": u16";
 			}
 			virtual bool IsTrue() {
@@ -245,7 +245,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 32;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": u32";
 			}
 			virtual bool IsTrue() {
@@ -268,7 +268,7 @@ namespace ent {
 			virtual int magnitude() {
 				return 64;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": u64";
 			}
 			virtual bool IsTrue() {
@@ -295,7 +295,7 @@ namespace ent {
 			float get_value() {
 				return this->value;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": f32";
 			}
 			virtual bool IsTrue() {
@@ -316,7 +316,7 @@ namespace ent {
 			double get_value() {
 				return this->value;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::to_string(this->value) + ": f64";
 			}
 			virtual bool IsTrue() {
@@ -337,7 +337,7 @@ namespace ent {
 			bool get_value() {
 				return this->value;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return this->value ? "true" : "false";
 			}
 			virtual bool IsTrue() {
@@ -358,7 +358,7 @@ namespace ent {
 			char get_value() {
 				return this->value;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return std::string(1, this->value);
 			}
 			virtual bool IsTrue() {
@@ -379,7 +379,7 @@ namespace ent {
 			std::string get_value() {
 				return this->value;
 			}
-			virtual std::string pretty_print() override {
+			virtual std::string repr() override {
 				return this->value;
 			}
 			virtual bool IsTrue() {
