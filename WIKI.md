@@ -32,9 +32,9 @@
 		- [5.1. For](#51-for)
 		- [5.2. While](#52-while)
 		- [5.3. For :  ⚠️](#53-for---️)
-	- [6. Classes ⚠️](#6-classes-️)
-		- [6.1. Constructor / Destructor ⚠️](#61-constructor--destructor-️)
-		- [6.2. Members ⚠️](#62-members-️)
+	- [6. Types](#6-types)
+		- [6.1. Declaration](#61-declaration)
+		- [6.2. Implementation](#62-implementation)
 			- [6.2.1. Internal Member Access ⚠️](#621-internal-member-access-️)
 			- [6.2.2. External Member Access ⚠️](#622-external-member-access-️)
 		- [6.3. Public / Private ⚠️](#63-public--private-️)
@@ -123,7 +123,7 @@ let [mut] <name>: <type> = <value>;
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-\<type> is any [valid datatype](#11-datatypes)
+\<type> is any [native](#11-datatypes) or user-defined datatype
 
 \<value> is any valid value for the [datatype](#11-datatypes) of the variable
 
@@ -183,7 +183,7 @@ fn <name>(void): <return_type> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
-\<return_type> is any [valid datatype](#11-datatypes) or `void`
+\<return_type> is any [native](#11-datatypes) or user-defined datatype or `void`
 
 > Note:
 > 
@@ -203,9 +203,9 @@ fn <name>([mut] <arg_name>: <arg_type>, ...): <return_type> {
 
 \<arg_name> only contains `a-z`, `A-Z` or `_`
 
-\<arg_type> is any [valid datatype](#11-datatypes)
+\<arg_type> is any [native](#11-datatypes) or user-defined datatype
 
-\<return_type> is any [valid datatype](#11-datatypes) or `void`
+\<return_type> is any [native](#11-datatypes) or user-defined datatype or `void`
 
 ### 3.2. Call
 
@@ -342,103 +342,90 @@ for(<type> <name> : <iterable>) {
 
 \<iterable> is the iterable to iterate through
 
-## 6. Classes ⚠️
+## 6. Types
+
+### 6.1. Declaration
 
 ```
-class <name> {
-	...
-}
-```
-
-\<name> only contains `a-z`, `A-Z` or `_`
-
-### 6.1. Constructor / Destructor ⚠️
-
-```
-class <name> {
-	constructor() {
-		...
-	}
-	destructor() {
-		...
-	}
-}
-```
-
-\<name> only contains `a-z`, `A-Z` or `_`
-
-> Note:
-> 
-> `constructor` is called on each instanciation of the class
-
-> Note:
-> 
-> `destructor` is called on each destruction of a class instance
-
-### 6.2. Members ⚠️
-
-```
-class <name> {
+type <name> {
 	<member_name>: <member_type>;
+}
+```
+
+\<name> only contains `a-z`, `A-Z` or `_`
+
+\<member_name> only contains `a-z`, `A-Z` or `_`
+
+\<member_type> is any [native](#11-datatypes) or user-defined datatype
+
+### 6.2. Implementation
+
+```
+impl <type_name> {
 	fn <method_name>(...): <method_type> {
 		...
 	}
 }
 ```
 
-\<name> only contains `a-z`, `A-Z` or `_`
-
-\<member_name> only contains `a-z`, `A-Z` or `_`
-
-\<member_type> is any [valid datatype](#11-datatypes)
+\<type_name> is any [native](#11-datatypes) or user-defined datatype
 
 \<method_name> only contains `a-z`, `A-Z` or `_`
 
-\<method_type> is any [valid datatype](#11-datatypes) or `void`
+\<method_type> is any [native](#11-datatypes) or user-defined datatype or `void`
 
 #### 6.2.1. Internal Member Access ⚠️
 
 ```
-class <name> {
+impl <type_name> {
 	<member_name>: <member_type>;
 	
-	constructor() {
+	... {
 		this.<member_name> = ...
 	}
 }
 ```
 
-\<name> only contains `a-z`, `A-Z` or `_`
+\<type_name> is any [native](#11-datatypes) or user-defined datatype
 
 \<member_name> only contains `a-z`, `A-Z` or `_`
 
-\<member_type> is any [valid datatype](#11-datatypes)
+\<member_type> is any [native](#11-datatypes) or user-defined datatype
 
 > Note:
 > 
-> Use the `this` keyword with a dot (.) to access class members
+> Use the `this` keyword with a dot (.) to access type members
 
 #### 6.2.2. External Member Access ⚠️
 
 ```
-let <var_name>: <class_name> = <class_name>(...);
+let <var_name>: <class_name> = { ... };
 <var_name>.<member_name> = ...
 ```
 
 \<var_name> only contains `a-z`, `A-Z` or `_`
 
-\<class_name> is the name of the class to instanciate
+\<type_name> is the name of the type to instanciate
 
-\<member_name> is the name of the class member to access
+\<member_name> is the name of the type member to access
 
 > Note:
 > 
-> Use the name of the instance with a dot (.) to access class members
+> Use the name of the instance with a dot (.) to access type members
 
 ### 6.3. Public / Private ⚠️
 
 ```
-class <name> {
+type <name> {
+	@private
+	...
+	@public
+	...
+}
+```
+or
+```
+impl <type_name> {
 	@private
 	...
 	@public
@@ -448,17 +435,19 @@ class <name> {
 
 \<name> only contains `a-z`, `A-Z` or `_`
 
+\<type_name> is any [native](#11-datatypes) or user-defined datatype
+
 ### 6.4. Inheritance ⚠️
 
 ```
-class <child_class> extends <parent_class> {
+type <child_type> extends <parent_type> {
 	...
 }
 ```
 
-\<child_class> only contains `a-z`, `A-Z` or `_`
+\<child_type> only contains `a-z`, `A-Z` or `_`
 
-\<parent_class> is the name of the class to inherit from
+\<parent_type> is any [native](#11-datatypes) or user-defined datatype
 
 ## 7. Codespaces ⚠️
 

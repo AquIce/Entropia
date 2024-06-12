@@ -80,12 +80,11 @@ namespace ent {
 			F32,
 			F64,
 
-			CLASS,
+			TYPE,
+			IMPL,
 			AT,
-			PUBLIC,
 			PRIVATE,
-			CONSTRUCTOR,
-			DESTRUCTOR,
+			PUBLIC,
 
 			IDENTIFIER,
 
@@ -187,12 +186,11 @@ namespace ent {
 					token_switch_case(F32)
 					token_switch_case(F64)
 
-					token_switch_case(CLASS)
+					token_switch_case(TYPE)
+					token_switch_case(IMPL)
 					token_switch_case(AT)
 					token_switch_case(PUBLIC)
 					token_switch_case(PRIVATE)
-					token_switch_case(CONSTRUCTOR)
-					token_switch_case(DESTRUCTOR)
 
 					token_switch_case(IDENTIFIER)
 

@@ -19,10 +19,15 @@ if(src[0] == value) { \
 } \
 
 #define check_for_str_token(tk_type, value) \
-if (src.rfind(value, 0) == 0) { \
+if(src.rfind(value, 0) == 0) { \
 	(void)shift(src, std::string(value).length()); \
 	return ent::type::token(tk_type, value); \
 }
+
+#define check_for_type_specifier_token() \
+for(std::string type : validTypes) { \
+	check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, type) \
+} \
 
 std::string shift(std::string& str) {
 	std::string first = str.substr(0, 1);
@@ -55,6 +60,24 @@ char escape_char(std::string escaped) {
 
 namespace ent {
 	namespace front {
+
+		std::vector<std::string> validTypes = std::vector<std::string>({
+			"i8",
+			"i16",
+			"i32",
+			"i64",
+			"u8",
+			"u16",
+			"u32",
+			"u64",
+			"f32",
+			"f64",
+			"bool",
+			"char",
+			"str",
+			"void",
+		});
+
 		struct NumberValue {
 			std::string value;
 			bool is_integer;
@@ -125,7 +148,7 @@ namespace ent {
 			throw (ent::Error(ent::LEXER_VALUE_OUT_OF_RANGE_ERROR, "Value out of range")).error();
 		}
 
-		ent::type::token get_token(std::string& src) {
+		ent::type::token get_token(std::string& src, bool& isLastTokenType) {
 			check_for_chr_token(ent::type::token_type::OPEN_PAREN, '(')
 			check_for_chr_token(ent::type::token_type::CLOSE_PAREN, ')')
 			check_for_chr_token(ent::type::token_type::OPEN_BRACE, '{')
@@ -161,20 +184,7 @@ namespace ent {
 			check_for_chr_token(ent::type::token_type::QUESTION_MARK, '?')
 			check_for_str_token(ent::type::token_type::LET, "let")
 			check_for_str_token(ent::type::token_type::MUTABLE, "mut")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i8")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i16")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i32")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "i64")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "u8")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "u16")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "u32")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "u64")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "f32")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "f64")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "bool")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "char")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "str")
-			check_for_str_token(ent::type::token_type::TYPE_SPECIFIER, "void")
+			check_for_type_specifier_token()
 			check_for_str_token(ent::type::token_type::BOOL, "true")
 			check_for_str_token(ent::type::token_type::BOOL, "false")
 			check_for_str_token(ent::type::token_type::FN, "fn")
@@ -186,12 +196,15 @@ namespace ent {
 			check_for_str_token(ent::type::token_type::MATCH, "match")
 			check_for_str_token(ent::type::token_type::DEFAULT, "default")
 			check_for_str_token(ent::type::token_type::BREAK, "break")
-			check_for_str_token(ent::type::token_type::CLASS, "class")
+			if (src.rfind("type", 0) == 0) {
+				(void)shift(src, std::string("type").length());
+				isLastTokenType = true;
+				return ent::type::token(ent::type::token_type::TYPE, "type");
+			}
+			check_for_str_token(ent::type::token_type::IMPL, "impl")
 			check_for_chr_token(ent::type::token_type::AT, '@')
-			check_for_str_token(ent::type::token_type::PUBLIC, "public")
 			check_for_str_token(ent::type::token_type::PRIVATE, "private")
-			check_for_str_token(ent::type::token_type::CONSTRUCTOR, "constructor")
-			check_for_str_token(ent::type::token_type::DESTRUCTOR, "destructor")
+			check_for_str_token(ent::type::token_type::PUBLIC, "public")
 			
 			if(isdigit(src[0]) || src[0] == ENT__DECIMAL_SEPARATOR) {
 				NumberValue number = get_number(src);
@@ -223,12 +236,17 @@ namespace ent {
 				}
 				throw (ent::Error(ErrorType::LEXER_UNKNOWN_TOKEN_ERROR, "Unknown token " + unknownToken)).error();
 			}
+			if(isLastTokenType) {
+				validTypes.push_back(identifier);
+				isLastTokenType = false;
+			}
 			return ent::type::token(ent::type::IDENTIFIER, identifier);
 		}
 
 		std::vector<ent::type::token> lex(std::string src) {
 
 			std::vector<ent::type::token> tokens;
+			bool isLastTokenType = false;
 
 			while(src.length() > 0) {
 				if(src[0] == ' ' || src[0] == '\t' || src[0] == '\n' || src[0] == '\r') {
@@ -256,7 +274,7 @@ namespace ent {
 					(void)shift(src, 2);
 					throw (ent::Error(ErrorType::LEXER_LONELY_CLOSING_COMMENT_ERROR, "Comment being closed without being opened")).error();
 				}
-				tokens.push_back(get_token(src));
+				tokens.push_back(get_token(src, isLastTokenType));
 			}
 			
 			// Add an EOF token to the end of the list

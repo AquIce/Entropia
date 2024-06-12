@@ -1,20 +1,15 @@
-class MyClass {
-	@private
+
+type NewType {
 	mut firstMember: i32;
 
-	@public
+	@private
 	lastMember: i32 = 123;
+}
 
+impl NewType {
+	
 	fn firstMethod(void): i32 {
 		return 12;
-	}
-
-	constructor(void): i32 {
-
-	}
-
-	destructor(void): i32 {
-
 	}
 
 	@private

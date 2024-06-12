@@ -77,7 +77,8 @@ namespace ent {
 				breakStatement,
 				forLoop,
 				whileLoop,
-				classDeclaration,
+				typeDeclaration,
+				typeImplementation,
             };
 
 			enum ClassAccessSpecifier {
@@ -938,15 +939,10 @@ namespace ent {
 				}
 			};
 
-			typedef struct ClassMember {
+			typedef struct TypeMember {
 				std::shared_ptr<Declaration> member;
 				enum ClassAccessSpecifier accessLevel;
-			} ClassMember;
-
-			typedef struct ClassMethod {
-				std::shared_ptr<FunctionDeclaration> method;
-				enum ClassAccessSpecifier accessLevel;
-			} ClassMethod;
+			} TypeMember;
 
 			enum ClassAccessSpecifier invertAccessSpecifier(enum ClassAccessSpecifier accessSpecifier) {
 				return static_cast<enum ClassAccessSpecifier>(ClassAccessSpecifier::PUBLIC - accessSpecifier);
@@ -961,66 +957,82 @@ namespace ent {
 				}
 			}
 
-			class ClassDeclaration : public Statement {
-			private:
-				std::string pretty_print_members(int indent, enum ClassAccessSpecifier& prev_access) {
-					std::string pretty = "";
-					for(ClassMember member : this->members) {
+			class TypeDeclaration : public Statement {
+			public:
+				enum NodeType type = NodeType::typeDeclaration;
+
+				std::shared_ptr<Identifier> identifier;
+				std::vector<TypeMember> members;
+
+				TypeDeclaration(std::shared_ptr<Identifier> identifier, std::vector<TypeMember> members) {
+					this->type = NodeType::typeDeclaration;
+					this->identifier = identifier;
+					this->members = members;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::typeDeclaration;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t') + "type " + this->identifier->name + " {\n";
+					enum ClassAccessSpecifier prev_access = this->members.size() > 0 ?
+						invertAccessSpecifier(this->members[0].accessLevel) :
+						ClassAccessSpecifier::PRIVATE;
+
+					for(TypeMember member : this->members) {
 						if(member.accessLevel != prev_access) {
 							pretty += std::string(indent, '\t') + accessLevelString(member.accessLevel) + "\n";
 						}
 						pretty += member.member->pretty_print(indent + 1) + "\n";
 						prev_access = member.accessLevel;
 					}
+					
+					pretty += std::string(indent, '\t') + "}";
 					return pretty;
 				}
-				std::string pretty_print_methods(int indent, enum ClassAccessSpecifier& prev_access) {
-					std::string pretty = "";
-					for(ClassMethod method : this->methods) {
+				virtual std::string type_id() override {
+					return "TypeDeclaration";
+				}
+			};
+
+			typedef struct ImplMethod {
+				std::shared_ptr<FunctionDeclaration> method;
+				enum ClassAccessSpecifier accessLevel;
+			} ImplMethod;
+
+			class TypeImplementation : public Statement {
+			public:
+				enum NodeType type = NodeType::typeImplementation;
+
+				std::string typeName;
+				std::vector<ImplMethod> methods;
+
+				TypeImplementation(std::string typeName, std::vector<ImplMethod> methods = std::vector<ImplMethod>()) {
+					this->type = NodeType::typeImplementation;
+					this->typeName = typeName;
+					this->methods = methods;
+				}
+				virtual NodeType get_type() override {
+					return NodeType::typeImplementation;
+				}
+				virtual std::string pretty_print(int indent = 0) override {
+					std::string pretty = std::string(indent, '\t') + "impl" + this->typeName + " {\n";
+					enum ClassAccessSpecifier prev_access = this->methods.size() > 0 ?
+						invertAccessSpecifier(this->methods[0].accessLevel) :
+						ClassAccessSpecifier::PRIVATE;
+					
+					for(ImplMethod method : this->methods) {
 						if(method.accessLevel != prev_access) {
 							pretty += std::string(indent, '\t') + accessLevelString(method.accessLevel) + "\n";
 						}
 						pretty += method.method->pretty_print(indent + 1) + "\n";
 						prev_access = method.accessLevel;
 					}
-					return pretty;
-				}
-			public:
-				enum NodeType type = NodeType::classDeclaration;
-
-				std::shared_ptr<Identifier> identifier;
-				std::vector<ClassMember> members;
-				std::vector<ClassMethod> methods;
-
-				ClassDeclaration(std::shared_ptr<Identifier> identifier, std::vector<ClassMember> members = std::vector<ClassMember>(), std::vector<ClassMethod> methods = std::vector<ClassMethod>()) {
-					this->type = NodeType::classDeclaration;
-					this->identifier = identifier;
-					this->members = members;
-					this->methods = methods;
-				}
-				virtual NodeType get_type() override {
-					return NodeType::classDeclaration;
-				}
-				virtual std::string pretty_print(int indent = 0) override {
-					std::string pretty = std::string(indent, '\t') + "class" + this->identifier->name + " {\n";
-					enum ClassAccessSpecifier prev_access = this->members.size() > 0 ?
-						invertAccessSpecifier(this->members[0].accessLevel) :
-						this->methods.size() > 0 ?
-							invertAccessSpecifier(this->methods[0].accessLevel) :
-							ClassAccessSpecifier::PRIVATE;
-					
-					if(this->members.size() > 0) {
-						pretty += pretty_print_members(indent, prev_access);
-					}
-					if(this->methods.size() > 0) {
-						pretty += pretty_print_methods(indent, prev_access);
-					}
 					
 					pretty += std::string(indent, '\t') + "}";
 					return pretty;
 				}
 				virtual std::string type_id() override {
-					return "ClassDeclaration";
+					return "TypeImplementation";
 				}
 			};
 
@@ -1030,6 +1042,17 @@ namespace ent {
 				for(std::shared_ptr<ent::front::ast::FunctionDeclaration> function : functions) {
 					if(function->identifier->name == identifier->name) {
 						return function;
+					}
+				}
+				return nullptr;
+			}
+
+			std::vector<std::shared_ptr<ent::front::ast::TypeDeclaration>> types;
+
+			std::shared_ptr<ent::front::ast::TypeDeclaration> get_type(std::shared_ptr<ent::front::ast::Identifier> identifier) {
+				for(std::shared_ptr<ent::front::ast::TypeDeclaration> type : types) {
+					if(type->identifier->name == identifier->name) {
+						return type;
 					}
 				}
 				return nullptr;

@@ -159,6 +159,10 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::PARSER_CALLING_NON_FN_ERROR, "Trying to call non-function expression")).error();
 				}
 
+				if(ent::front::ast::get_function(std::dynamic_pointer_cast<ent::front::ast::Identifier>(call_expr)) == nullptr) {
+					throw (ent::Error(ent::ErrorType::PARSER_CALLING_UNDECLARED_FN_ERROR, "Trying to call undeclared function")).error();
+				}
+
 				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
 
 				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
@@ -745,18 +749,16 @@ namespace ent {
 				return std::make_shared<ent::front::ast::BreakStatement>();
 			}
 
-			std::shared_ptr<ent::front::ast::ClassDeclaration> parse_class_declaration() {
-
+			std::shared_ptr<ent::front::ast::TypeDeclaration> parse_type_declaration() {
 				(void)eat();
 
 				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before class body");
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before type declaration body");
 				
-				std::vector<ent::front::ast::ClassMember> members = std::vector<ent::front::ast::ClassMember>();
-				std::vector<ent::front::ast::ClassMethod> methods = std::vector<ent::front::ast::ClassMethod>();
+				std::vector<ent::front::ast::TypeMember> members = std::vector<ent::front::ast::TypeMember>();
 
-				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
+				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 
 				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
 					if(peek().get_type() == ent::type::token_type::AT) {
@@ -773,45 +775,72 @@ namespace ent {
 						}
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
 					}
-					if(peek().get_type() == ent::type::token_type::FN) {
-						(void)eat();
-						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
-							parse_function_declaration()
-						);
-						methods.push_back({
-							functionDeclaration,
-							currentAccessSpecifier
-						});
-						continue;
-					}
-					if(
-						peek().get_type() == ent::type::token_type::CONSTRUCTOR ||
-						peek().get_type() == ent::type::token_type::DESTRUCTOR
-					) {
-						if(currentAccessSpecifier != ent::front::ast::ClassAccessSpecifier::PUBLIC) {
-							throw (ent::Error(ent::ErrorType::PARSER_PRIVATE_CONSTRUCTOR_DESTRUCTOR_ERROR, "Constructor/destructor can only be public")).error();
-						}
-						std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
-							parse_function_declaration(std::make_shared<ent::front::ast::Identifier>(eat().get_value()))
-						);
-						methods.push_back({
-							functionDeclaration,
-							currentAccessSpecifier
-						});
-						continue;
-					}
 					std::shared_ptr<ent::front::ast::Declaration> declaration = std::dynamic_pointer_cast<ent::front::ast::Declaration>(
 						parse_declaration(true)
 					);
-					members.push_back({
+					members.push_back(ent::front::ast::TypeMember{
 						declaration,
 						currentAccessSpecifier
 					});
 				}
 
+				if(members.size() == 0) {
+					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_DECLARATION_ERROR, "At least one member is required in a type declaration")).error();
+				}
+
+				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after type declaration body");
+
+				std::shared_ptr<ent::front::ast::TypeDeclaration> typeDeclaration = std::make_shared<ent::front::ast::TypeDeclaration>(identifier, members);
+
+				return typeDeclaration;
+			}
+
+			std::shared_ptr<ent::front::ast::TypeImplementation> parse_type_implementation() {
+
+				(void)eat();
+
+				ent::type::token typeName = expect(ent::type::token_type::TYPE_SPECIFIER, "valid type name to implement");
+
+				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before type implementation body");
+				
+				std::vector<ent::front::ast::ImplMethod> methods = std::vector<ent::front::ast::ImplMethod>();
+
+				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
+
+				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+					if(peek().get_type() == ent::type::token_type::AT) {
+						(void)eat();
+						if(peek().get_type() == ent::type::PRIVATE) {
+							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
+							(void)eat();
+							continue;
+						}
+						if(peek().get_type() == ent::type::PUBLIC) {
+							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
+							(void)eat();
+							continue;
+						}
+						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
+					}
+
+					(void)expect(ent::type::token_type::FN, "Function in type implementation");
+
+					std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
+						parse_function_declaration()
+					);
+					methods.push_back({
+						functionDeclaration,
+						currentAccessSpecifier
+					});
+				}
+
+				if(methods.size() == 0) {
+					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_IMPLEMENTATION_ERROR, "At least one method is required in a type implementation")).error();
+				}
+
 				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after class body");
 
-				return std::make_shared<ent::front::ast::ClassDeclaration>(identifier, members, methods);
+				return std::make_shared<ent::front::ast::TypeImplementation>(typeName.get_value(), methods);
 			}
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
@@ -857,10 +886,15 @@ namespace ent {
 					if(updateBefore) { before = nullptr; }
 					return breakStatement;
 				}
-				if(peek().get_type() == ent::type::token_type::CLASS) {
-					std::shared_ptr<ent::front::ast::Statement> classDeclaration = parse_class_declaration();
+				if(peek().get_type() == ent::type::token_type::TYPE) {
+					std::shared_ptr<ent::front::ast::Statement> typeDeclaration = parse_type_declaration();
 					if(updateBefore) { before = nullptr; }
-					return classDeclaration;
+					return typeDeclaration;
+				}
+				if(peek().get_type() == ent::type::token_type::IMPL) {
+					std::shared_ptr<ent::front::ast::Statement> typeImplementation = parse_type_implementation();
+					if(updateBefore) { before = nullptr; }
+					return typeImplementation;
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
