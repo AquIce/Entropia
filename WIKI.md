@@ -37,7 +37,7 @@
 		- [6.2. Implementation](#62-implementation)
 			- [6.2.1. Internal Member Access ⚠️](#621-internal-member-access-️)
 			- [6.2.2. External Member Access ⚠️](#622-external-member-access-️)
-		- [6.3. Public / Private ⚠️](#63-public--private-️)
+		- [6.3. Public / Private](#63-public--private)
 		- [6.4. Inheritance ⚠️](#64-inheritance-️)
 	- [7. Codespaces ⚠️](#7-codespaces-️)
 		- [7.1. Creation ⚠️](#71-creation-️)
@@ -48,7 +48,10 @@
 			- [7.2.3. Alias Import ⚠️](#723-alias-import-️)
 		- [7.3. Member Access ⚠️](#73-member-access-️)
 	- [8. Error Handling ⚠️](#8-error-handling-️)
-	- [9. Prescedence order](#9-prescedence-order)
+	- [9. Testing ⚠️](#9-testing-️)
+	- [10. Templating ⚠️](#10-templating-️)
+	- [11. Macros ⚠️](#11-macros-️)
+	- [12. Prescedence order](#12-prescedence-order)
 
 > Note:
 >
@@ -413,7 +416,7 @@ let <var_name>: <class_name> = { ... };
 > 
 > Use the name of the instance with a dot (.) to access type members
 
-### 6.3. Public / Private ⚠️
+### 6.3. Public / Private
 
 ```
 type <name> {
@@ -527,7 +530,13 @@ try {
 
 \<error_name> only contains `a-z`, `A-Z` or `_`
 
-## 9. Prescedence order
+## 9. Testing ⚠️
+
+## 10. Templating ⚠️
+
+## 11. Macros ⚠️
+
+## 12. Prescedence order
 
 The higher an element is, the most prescedence it has (the first it is resolved)
 
