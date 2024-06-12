@@ -61,13 +61,10 @@ Entropia is a C++ based programming language, implementing ownership and other u
   - [x] Strings
   - [ ] Arrays
   - [ ] Maps
-- [ ] Add classes
-  - [x] Basic class
-  - [x] Declaration syntax
-    - [x] Members
-    - [x] Methods
+- [ ] Add user-defined types
+  - [x] Type declaration
+  - [x] Type implementation
   - [x] Access specifiers
-  - [ ] Constructor / destructor
   - [ ] Instanciation
   - [ ] Member access syntax
     - [ ] External
@@ -86,9 +83,9 @@ Entropia is a C++ based programming language, implementing ownership and other u
 - [x] Move function call to expression evaluation (to allow fn() + fn())
 - [x] Add support for negative numbers
 - [ ] Prevent constant assign without value
+- [ ] Add `is_valid_value` to every type (easier user-defined types)
 - [ ] Fix unsigned variables declaration
 - [ ] Add comments and clean code
-- [ ] Switch from `class` to `type` and `impl`
 - [ ] Add variables check to parsing
 - [ ] Evaluate constant expressions at compile time
 - [ ] Compile language
