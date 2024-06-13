@@ -1634,18 +1634,22 @@ namespace ent {
 			 * @return Whether the cast is valid
 			 */
 			bool is_valid_cast(std::shared_ptr<Expression> source, enum NodeType destType) {
+				// If the source type is an Identifier, get its type
 				if(source->get_type() == NodeType::identifier) {
 					std::shared_ptr<Identifier> source_identifier = std::dynamic_pointer_cast<Identifier>(source);
 					return is_valid_cast(get_sample_expression(source_identifier->get_identifier_type()), destType);
 				}
+				// If the type is a Binary Expression, get the type of its left member
 				if(source->get_type() == NodeType::binaryExpression) {
 					std::shared_ptr<BinaryExpression> source_binary_expression = std::dynamic_pointer_cast<BinaryExpression>(source);
 					return is_valid_cast(source_binary_expression->left, destType);
 				}
+				// If the type is a Ternary Expression, get the type of its true value
 				if(source->get_type() == NodeType::ternaryExpression) {
 					std::shared_ptr<TernaryExpression> source_ternary_expression = std::dynamic_pointer_cast<TernaryExpression>(source);
 					return is_valid_cast(source_ternary_expression->true_value, destType);
 				}
+				// If the value is a Function Call Expression, get its return type
 				if(source->get_type() == NodeType::functionCallExpression) {
 					std::shared_ptr<FunctionCallExpression> source_function_call_expression = std::dynamic_pointer_cast<FunctionCallExpression>(source);
 					std::shared_ptr<FunctionDeclaration> function_declaration = get_function(source_function_call_expression->functionIdentifier);
@@ -1654,7 +1658,9 @@ namespace ent {
 					}
 					return is_valid_cast(get_sample_expression(get_node_type(function_declaration->returnType)), destType);
 				}
+				// If they are the same type, return true
 				if(source->get_type() == destType) { return true; }
+				// Else, check for valid casts
 				for(enum NodeType dest_valid_cast : valid_casts_to_type(destType)) {
 					if(is_valid_cast(source, dest_valid_cast)) {
 						return true;
