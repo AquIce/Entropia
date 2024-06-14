@@ -15,68 +15,68 @@ int main() {
 
 	// Test lexer
 
-	std::vector<ent::type::token> tokens = ent::front::lex(src);
+	std::vector<ent::lexer::token> tokens = ent::front::lex(src);
 
 	ASSERT_BLOCK("LEXER", {
 		ASSERT_EQUAL("Tokens size is 15", tokens.size(), 15);
 		ASSERT_BLOCK("Token 0", {
-			ASSERT_EQUAL("First token is a LET token", tokens[0].get_type(), ent::type::token_type::LET);
+			ASSERT_EQUAL("First token is a LET token", tokens[0].get_type(), ent::lexer::token_type::LET);
 			ASSERT_EQUAL("First token value is let", tokens[0].get_value(), "let");
 		});
 		ASSERT_BLOCK("Token 1", {
-			ASSERT_EQUAL("Second token is an IDENTIFIER token", tokens[1].get_type(), ent::type::token_type::IDENTIFIER);
+			ASSERT_EQUAL("Second token is an IDENTIFIER token", tokens[1].get_type(), ent::lexer::token_type::IDENTIFIER);
 			ASSERT_EQUAL("Second token value is myVar", tokens[1].get_value(), "myVar");
 		});
 		ASSERT_BLOCK("Token 2", {
-			ASSERT_EQUAL("Third token is a COLON token", tokens[2].get_type(), ent::type::token_type::COLON);
+			ASSERT_EQUAL("Third token is a COLON token", tokens[2].get_type(), ent::lexer::token_type::COLON);
 			ASSERT_EQUAL("Third token value is :", tokens[2].get_value(), ":");
 		});
 		ASSERT_BLOCK("Token 3", {
-			ASSERT_EQUAL("Fourth token is a TYPE_SPECIFIER token", tokens[3].get_type(), ent::type::token_type::TYPE_SPECIFIER);
+			ASSERT_EQUAL("Fourth token is a TYPE_SPECIFIER token", tokens[3].get_type(), ent::lexer::token_type::TYPE_SPECIFIER);
 			ASSERT_EQUAL("Fourth token value is i8", tokens[3].get_value(), "i8");
 		});
 		ASSERT_BLOCK("Token 4", {
-			ASSERT_EQUAL("Fifth token is an ASSIGN token", tokens[4].get_type(), ent::type::token_type::ASSIGN);
+			ASSERT_EQUAL("Fifth token is an ASSIGN token", tokens[4].get_type(), ent::lexer::token_type::ASSIGN);
 			ASSERT_EQUAL("Fifth token value is =", tokens[4].get_value(), "=");
 		});
 		ASSERT_BLOCK("Token 5", {
-			ASSERT_EQUAL("Sixth token is an i8", tokens[5].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Sixth token is an i8", tokens[5].get_type(), ent::lexer::token_type::I8);
 			ASSERT_EQUAL("Sixth token value is 2", tokens[5].get_value(), "2");
 		});
 		ASSERT_BLOCK("Token 6", {
-			ASSERT_EQUAL("Seventh token is a SEMICOLON token", tokens[6].get_type(), ent::type::token_type::SEMICOLON);
+			ASSERT_EQUAL("Seventh token is a SEMICOLON token", tokens[6].get_type(), ent::lexer::token_type::SEMICOLON);
 			ASSERT_EQUAL("Seventh token value is ;", tokens[6].get_value(), ";");
 		});
 		ASSERT_BLOCK("Token 7", {
-			ASSERT_EQUAL("Eighth token is an i8", tokens[7].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Eighth token is an i8", tokens[7].get_type(), ent::lexer::token_type::I8);
 			ASSERT_EQUAL("Eighth token value is 1", tokens[7].get_value(), "1");
 		});
 		ASSERT_BLOCK("Token 8", {
-			ASSERT_EQUAL("Ninth token is an operator", tokens[8].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Ninth token is an operator", tokens[8].get_type(), ent::lexer::token_type::OPERATOR);
 			ASSERT_EQUAL("Ninth token value is /", tokens[8].get_value(), "/");
 		});
 		ASSERT_BLOCK("Token 9", {
-			ASSERT_EQUAL("Tenth token is an identifier", tokens[9].get_type(), ent::type::token_type::IDENTIFIER);
+			ASSERT_EQUAL("Tenth token is an identifier", tokens[9].get_type(), ent::lexer::token_type::IDENTIFIER);
 			ASSERT_EQUAL("Tenth token value is myVar", tokens[9].get_value(), "myVar");
 		});
 		ASSERT_BLOCK("Token 10", {
-			ASSERT_EQUAL("Eleventh token is an operator", tokens[10].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Eleventh token is an operator", tokens[10].get_type(), ent::lexer::token_type::OPERATOR);
 			ASSERT_EQUAL("Eleventh token value is +", tokens[10].get_value(), "+");
 		});
 		ASSERT_BLOCK("Token 11", {
-			ASSERT_EQUAL("Twelfth token is an i8", tokens[11].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Twelfth token is an i8", tokens[11].get_type(), ent::lexer::token_type::I8);
 			ASSERT_EQUAL("Twelfth token value is 2", tokens[11].get_value(), "2");
 		});
 		ASSERT_BLOCK("Token 12", {
-			ASSERT_EQUAL("Thirteenth token is an operator", tokens[12].get_type(), ent::type::token_type::OPERATOR);
+			ASSERT_EQUAL("Thirteenth token is an operator", tokens[12].get_type(), ent::lexer::token_type::OPERATOR);
 			ASSERT_EQUAL("Thirteenth token value is *", tokens[12].get_value(), "*");
 		});
 		ASSERT_BLOCK("Token 13", {
-			ASSERT_EQUAL("Fourteenth token is an i8", tokens[13].get_type(), ent::type::token_type::I8);
+			ASSERT_EQUAL("Fourteenth token is an i8", tokens[13].get_type(), ent::lexer::token_type::I8);
 			ASSERT_EQUAL("Fourteenth token value is 3", tokens[13].get_value(), "3");
 		});
 		ASSERT_BLOCK("Token 14", {
-			ASSERT_EQUAL("Fifteenth token is an EOF token", tokens[14].get_type(), ent::type::token_type::EOF_TOKEN);
+			ASSERT_EQUAL("Fifteenth token is an EOF token", tokens[14].get_type(), ent::lexer::token_type::EOF_TOKEN);
 		});
 	});
 

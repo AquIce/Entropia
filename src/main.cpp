@@ -27,9 +27,9 @@ int main(int argc, char** argv) {
 	std::ifstream file = std::ifstream(argv[1]);
 	std::string code = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-	std::vector<ent::type::token> tokens;
+	std::vector<ent::lexer::token> tokens;
 	try {
-		tokens = ent::front::lex(code);
+		tokens = ent::front::lexer::lex(code);
 	} catch (const std::exception& e) {
 		std::cout << "LEXER ERROR : " << e.what() << std::endl;
 		return 1;

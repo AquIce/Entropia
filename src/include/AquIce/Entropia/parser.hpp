@@ -1,6 +1,8 @@
 #ifndef __ENT_FRONT_PARSER__
 #define __ENT_FRONT_PARSER__
 
+#include <set>
+
 #include "token.hpp"
 #include "ast.hpp"
 #include "errors.hpp"
@@ -9,49 +11,349 @@ namespace ent {
 	namespace front {
 		namespace parser {
 
-			std::vector<ent::type::token> tks;
+			/**
+			 * The list of tokens
+			 * @note This list is provided by the lexer
+			 */
+			std::vector<ent::lexer::token> tks;
 
-			std::vector<std::shared_ptr<ent::front::ast::Identifier>> original_identifiers;
+			/**
+			 * The list of original identifiers
+			 * 
+			 * => Every identifier that is declared
+			 */
+			std::set<std::shared_ptr<ent::front::ast::Identifier>> original_identifiers;
 
+			/**
+			 * Get the original identifier with the same name as a given identifier
+			 * @param identifier The identifier whose name to look for
+			 * @return The original identifier or itself if not found
+			 * @note `identifier` gets added to `original_identifiers` if there is no identifier with the same name
+			 */
 			std::shared_ptr<ent::front::ast::Identifier> get_original_identifier(std::shared_ptr<ent::front::ast::Identifier> identifier) {
 				for(std::shared_ptr<ent::front::ast::Identifier> original_identifier : original_identifiers) {
 					if(identifier->name == original_identifier->name) {
 						return original_identifier;
 					}
 				}
-				original_identifiers.push_back(identifier);
+				original_identifiers.insert(identifier);
 				return identifier;
 			}
 
+			/**
+			 * The Program Node
+			 */
 			std::shared_ptr<ent::front::ast::Program> program = std::make_shared<ent::front::ast::Program>(
 				std::vector<std::shared_ptr<ent::front::ast::Statement>>()
 			);
 
+			/**
+			 * The Conditionnal Block before the current node
+			 * @note If the last parsed node is not a Conditionnal Block, it will be nullptr
+			 * @note This is used to link `if` and `else` statements
+			 */
 			std::shared_ptr<ent::front::ast::ConditionnalBlock> before = nullptr;
 
-			ent::type::token peek() {
+			/**
+			 * Get the current token
+			 * @return The current token
+			 */
+			ent::lexer::token peek() {
 				return tks.front();
 			}
 
+			/**
+			 * Check whether the current token is an EOF token or not
+			 * @return Whether the token is an EOF token
+			 */
 			bool eof() {
-				return peek().get_type() == ent::type::token_type::EOF_TOKEN;
+				return peek().get_type() == ent::lexer::token_type::EOF_TOKEN;
 			}
 
-			ent::type::token eat() {
-				ent::type::token tk = peek();
+			/**
+			 * Remove the current token and return it
+			 * @return The current token
+			*/
+			[[nodiscard]] ent::lexer::token eat() {
+				ent::lexer::token tk = peek();
 				tks.erase(tks.begin());
 				return tk;
 			}
 
-			ent::type::token expect(ent::type::token_type type, std::string expected) {
+			/**
+			 * Expect the current token to be of a given type and throw an error if it is not what is expected
+			 * @param type The type of the token to expect
+			 * @param expected The string representation of the expected token (for error message)
+			 * @return The current token
+			 */
+			[[nodiscard]] ent::lexer::token expect(ent::lexer::token_type type, std::string expected) {
 				if(peek().get_type() == type) {
 					return eat();
 				}
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + ", got " + peek().get_value())).error();
 			}
 
+			/**
+			 * Throw if the value is negative
+			 * @param isNegative Whether the value is negative or not
+			 */
+			void check_for_negative(bool isNegative) {
+				if(isNegative) {
+					throw (ent::Error(ent::ErrorType::PARSER_INVALID_NEGATIVE_VALUE_ERROR, "Expected signed integer or float after '-'")).error();
+				}
+			}
+
+			// * EXPRESSIONS
+
+			/**
+			 * Parse an Identifier from the current token
+			 * @return The Identifier
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_identifier();
+
+			/**
+			 * Parse a native expression from the current token
+			 * @return The native expression
+			 * 
+			 * Prescedence #1
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_native_expression();
+
+			/**
+			 * Parse a Parenthesis Expression from the current token
+			 * @return The Parenthesis Expression
+			 * Prescedence #2
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_parenthesis_expression();
+
+			/**
+			 * Parse a Function Call Expression from the current token
+			 * @return The Function Call Expression
+			 * 
+			 * Prescedence #3
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_function_call_expression();
+
+			/**
+			 * Parse a Unary Expression whose operator is after the term from the current token
+			 * @return The Unary Expression
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression();
+
+			/**
+			 * Parse a Unary Expression from the current token
+			 * @return The Unary Expression
+			 * 
+			 * Prescedence #4
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_unary_expression();
+
+			/**
+			 * Parse a Multiplicative Expression from the current token
+			 * @return The Multiplicative Expression
+			 * 
+			 * Prescedence #5
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_multiplicative_expression();
+
+			/**
+			 * Parse an Additive Expression from the current token
+			 * @return The Additive Expression
+			 * 
+			 * Prescedence #6
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_additive_expression();
+			
+			/**
+			 * Parse a Logical Expression from the current token
+			 * @return The Logical Expression
+			 * 
+			 * Prescedence #7
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_logical_expression();
+			
+			/**
+			 * Parse a Ternary Expression from the current token
+			 * @return The Ternary Expression
+			 * 
+			 * Prescedence #8
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_ternary_expression();
+
+			/**
+			 * Parse an Assignation Expression from the current token
+			 * @return The Assignation Expression
+			 * 
+			 * Prescedence #9
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_assignation_expression();
+
+			/**
+			 * Parse an Expression from the current token
+			 * @return The Expression
+			 */
+			std::shared_ptr<ent::front::ast::Expression> parse_expression();
+
+			/**
+			 * Create an assignation expression expecting a given type
+			 * @param type The type to expect
+			 * @param expected The expected thing as a string (for error)
+			 * @param identifier The identifier to assign to
+			 * @param value The value to assign
+			 * @return The created Assignation Expression
+			 */
+			std::shared_ptr<ent::front::ast::AssignationExpression> expect_type_assignation_expression(
+				ent::front::ast::NodeType type,
+				std::string expected,
+				std::shared_ptr<ent::front::ast::Identifier> identifier,
+				std::shared_ptr<ent::front::ast::Expression> value
+			);
+
+			/**
+			 * Parse a Declaration with any provided parameters
+			 * @param isMutable Whether the declared value should be mutable
+			 * @param identifier The Identifier to declare
+			 * @param type_specifier The type specifier to use
+			 * @param expectedAfterString The string expected after the declaration (throw if not found)
+			 * @param applyExpect Whether to apply `expect` or `eat` on the expectedAfterString
+			 * @return The created Declaration
+			 */
+			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(
+				bool isMutable,
+				std::shared_ptr<ent::front::ast::Identifier> identifier,
+				ent::lexer::token type_specifier,
+				ent::lexer::token_type expectedAfter,
+				std::string expectedAfterString,
+				bool applyExpect = true
+			);
+
+			/**
+			 * Parse a Declaration from the current token
+			 * @return The Declaration
+			 */
+			std::shared_ptr<ent::front::ast::Statement> parse_declaration(bool needsSemicolon);
+
+			/**
+			 * Make a Declaration from a Declaration an a new value
+			 * @param declarationExpression The original Declaration
+			 * @param value The value to put in the Declaration
+			 * @param isMutable Whether the declared value should be mutable or not
+			 * @param isInFunctionSetup Whether the declaration is a function argument setup
+			 */
+			std::shared_ptr<ent::front::ast::Declaration> make_declaration(
+				std::shared_ptr<ent::front::ast::Declaration> declarationExpression,
+				std::shared_ptr<ent::front::ast::Expression> value,
+				bool isMutable,
+				bool isInFunctionSetup = false
+			);
+
+			/**
+			 * Parse a Statement from the current token
+			 * @param updateBefore Whether to set before to `nullptr` (false when inside a Conditionnal Block)
+			 * @param needsSemiColon Whether this Statement needs to end with a semicolon
+			 * @return The Statement
+			 */
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(
+				bool updateBefore = true,
+				bool needsSemiColon = true
+			);
+
+			/**
+			 * Parse the arguments from the current token
+			 * @return The arguments list
+			 */
+			std::vector<std::shared_ptr<ent::front::ast::Declaration>> parse_arguments();
+
+			/**
+			 * Parse a Scope from the current token
+			 * @param scopeType The type of the scope
+			 * @return The body of the scope
+			 */
+			std::vector<std::shared_ptr<ent::front::ast::Statement>> parse_scope(
+				std::string scopeType
+			);
+
+			/**
+			 * Parse a Function Declaration from the current token
+			 * @param identifier The function identifier (will be parsed if equal to `nullptr`)
+			 * @return The Function Declaration
+			 */
+			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration(
+				std::shared_ptr<ent::front::ast::Identifier> identifier = nullptr
+			);
+
+			/**
+			 * Parse a Function Return from the current token
+			 * @return The Function Return
+			 */
+			std::shared_ptr<ent::front::ast::FunctionReturn> parse_function_return();
+
+			/**
+			 * Parse a Conditionnal Block from the current token
+			 * @return The Conditionnal Block
+			 */
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_conditionnal_block();
+
+			/**
+			 * Parse a Conditionnal Structure from the current token
+			 * @return The Conditionnal Structure
+			 */
+			std::shared_ptr<ent::front::ast::ConditionnalStructure> parse_conditionnal_structure();
+
+			/**
+			 * Parse a For Loop from the current token
+			 * @return The For Loop
+			 */
+			std::shared_ptr<ent::front::ast::ForLoop> parse_for_loop();
+
+			/**
+			 * Parse a While Loop from the current token
+			 * @return The While Loop
+			 */
+			std::shared_ptr<ent::front::ast::WhileLoop> parse_while_loop();
+
+			/**
+			 * Parse a Conditionnal Block from the current token
+			 * @return The Conditionnal Block
+			 */
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_match_case();
+
+			/**
+			 * Parse a Match Structure from the current token
+			 * @return The Match Structure
+			 */
+			std::shared_ptr<ent::front::ast::MatchStructure> parse_match_structure();
+
+			/**
+			 * Parse a Break Statement from the current token
+			 * @return The Break Statement
+			 */
+			std::shared_ptr<ent::front::ast::BreakStatement> parse_break_statement();
+
+			/**
+			 * Parse a Type Declaration from the current token
+			 * @return The Type Declaration
+			 */
+			std::shared_ptr<ent::front::ast::TypeDeclaration> parse_type_declaration();
+
+			/**
+			 * Parse a Type Implementation from the current token
+			 * @return The Type Implementation
+			 */
+			std::shared_ptr<ent::front::ast::TypeImplementation> parse_type_implementation();
+
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(
+				bool updateBefore,
+				bool needsSemicolon
+			);
+
+			std::shared_ptr<ent::front::ast::Program> parse(
+				std::vector<ent::lexer::token> tokens
+			);
+
+
 			std::shared_ptr<ent::front::ast::Expression> parse_identifier() {
-				if(peek().get_type() == ent::type::token_type::IDENTIFIER) {
+				if(peek().get_type() == ent::lexer::token_type::IDENTIFIER) {
 					std::string value = peek().get_value();
 					(void)eat();
 					return get_original_identifier(std::make_shared<ent::front::ast::Identifier>(value));
@@ -59,73 +361,65 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected identifier, got " + peek().get_value())).error();
 			}
 
-			std::shared_ptr<ent::front::ast::Expression> parse_expression();
-
-			void check_for_negative(bool isNegative) {
-				if(isNegative) {
-					throw (ent::Error(ent::ErrorType::PARSER_INVALID_NEGATIVE_VALUE_ERROR, "Expected signed integer or float after '-'")).error();
-				}
-			}
-
 			std::shared_ptr<ent::front::ast::Expression> parse_native_expression() {
 				bool isNegative = false;
-				if(peek().get_type() == ent::type::token_type::MINUS) {
+				if(peek().get_type() == ent::lexer::token_type::MINUS) {
 					isNegative = true;
 					(void)eat();
 				}
 				// If the current token is a number
-				if(peek().get_type() == ent::type::token_type::I8) {
+				if(peek().get_type() == ent::lexer::token_type::I8) {
 					// Parse the number
 					i8 value = types::stoi8(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I8Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::type::token_type::I16) {
+				} else if(peek().get_type() == ent::lexer::token_type::I16) {
 					// Parse the number
 					i16 value = types::stoi16(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I16Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::type::token_type::I32) {
+				} else if(peek().get_type() == ent::lexer::token_type::I32) {
 					// Parse the number
 					i32 value = types::stoi32(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I32Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::type::token_type::I64) {
+				} else if(peek().get_type() == ent::lexer::token_type::I64) {
 					// Parse the number
 					i64 value = types::stoi64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I64Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::type::token_type::U64) {
+				} else if(peek().get_type() == ent::lexer::token_type::U64) {
 					check_for_negative(isNegative);
 					// Parse the number
 					u64 value = types::stou64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::U64Expression>(value);
-				} else if(peek().get_type() == ent::type::token_type::F32) {
+				} else if(peek().get_type() == ent::lexer::token_type::F32) {
 					// Parse the number
 					float value = types::stof32(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return std::make_shared<ent::front::ast::F32Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::type::token_type::F64) {
+				} else if(peek().get_type() == ent::lexer::token_type::F64) {
 					// Parse the number
 					double value = types::stof64(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return std::make_shared<ent::front::ast::F64Expression>(value);
-				} else if(peek().get_type() == ent::type::token_type::BOOL) {
+				} else if(peek().get_type() == ent::lexer::token_type::BOOL) {
 					check_for_negative(isNegative);
 					bool value = eat().get_value() == "true";
 					return std::make_shared<ent::front::ast::BooleanExpression>(value);
-				} else if(peek().get_type() == ent::type::token_type::CHAR) {
+				} else if(peek().get_type() == ent::lexer::token_type::CHAR) {
 					check_for_negative(isNegative);
 					char value = eat().get_value()[0];
 					return std::make_shared<ent::front::ast::CharExpression>(value);
-				} else if(peek().get_type() == ent::type::token_type::STR) {
+				} else if(peek().get_type() == ent::lexer::token_type::STR) {
 					check_for_negative(isNegative);
 					std::string value = eat().get_value();
 					return std::make_shared<ent::front::ast::StrExpression>(value);
@@ -134,12 +428,12 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_parenthesis_expression() {
-				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
+				if(peek().get_type() != ent::lexer::token_type::OPEN_PAREN) {
 					return parse_native_expression();
 				}
 				(void)eat();
 				std::shared_ptr<ent::front::ast::Expression> content = parse_expression();
-				if(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
+				if(peek().get_type() != ent::lexer::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS, "Invalid expression in parenthesis")).error();
 				}
 				(void)eat();
@@ -150,7 +444,7 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> call_expr = parse_parenthesis_expression();
 
-				if(peek().get_type() != ent::type::token_type::OPEN_PAREN) {
+				if(peek().get_type() != ent::lexer::token_type::OPEN_PAREN) {
 					return call_expr;
 				}
 				(void)eat();
@@ -165,28 +459,27 @@ namespace ent {
 
 				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
 
-				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
+				if(peek().get_type() == ent::lexer::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
-				} else if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+				} else if(peek().get_type() == ent::lexer::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				} else {
 					arguments.push_back(parse_expression());
 
-					while(peek().get_type() != ent::type::token_type::CLOSE_PAREN) {
-						(void)expect(ent::type::token_type::COMMA, "comma");
+					while(peek().get_type() != ent::lexer::token_type::CLOSE_PAREN) {
+						(void)expect(ent::lexer::token_type::COMMA, "comma");
 						arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
 					}
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_PAREN, ")");
+				(void)expect(ent::lexer::token_type::CLOSE_PAREN, ")");
 
 				return std::make_shared<ent::front::ast::FunctionCallExpression>(std::dynamic_pointer_cast<ent::front::ast::Identifier>(call_expr), arguments);
 			}
 
-
 			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression() {
 				std::shared_ptr<ent::front::ast::Expression> term = parse_function_call_expression();
-				if(peek().get_type() == ent::type::token_type::INCREMENT || peek().get_type() == ent::type::token_type::DECREMENT) {
+				if(peek().get_type() == ent::lexer::token_type::INCREMENT || peek().get_type() == ent::lexer::token_type::DECREMENT) {
 					std::string operator_symbol = eat().get_value();
 					if(term->get_type() != ent::front::ast::NodeType::identifier) {
 						throw (ent::Error(ent::ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR, "Trying to increment non-identifier")).error();
@@ -200,7 +493,7 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_unary_expression() {
-				if(peek().get_type() != ent::type::token_type::NOT && peek().get_type() != ent::type::token_type::BITWISE_NOT) {
+				if(peek().get_type() != ent::lexer::token_type::NOT && peek().get_type() != ent::lexer::token_type::BITWISE_NOT) {
 					return parse_non_pre_unary_expression();
 				}
 
@@ -282,13 +575,13 @@ namespace ent {
 				// Parse the multiplicative expression first
 				std::shared_ptr<ent::front::ast::Expression> condition = parse_logical_expression();
 
-				if(peek().get_type() != ent::type::token_type::QUESTION_MARK) {
+				if(peek().get_type() != ent::lexer::token_type::QUESTION_MARK) {
 					return condition;
 				}
 				(void)eat();
 				std::shared_ptr<ent::front::ast::Expression> true_value = parse_ternary_expression();
 
-				(void)expect(ent::type::token_type::COLON, "colon after \"true\" value");
+				(void)expect(ent::lexer::token_type::COLON, "colon after \"true\" value");
 
 				std::shared_ptr<ent::front::ast::Expression> false_value = parse_ternary_expression();
 
@@ -299,19 +592,19 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> assign_expr = parse_ternary_expression();
 
-				ent::type::token op = ent::type::token(ent::type::token_type::EOF_TOKEN, "");
+				ent::lexer::token op = ent::lexer::token(ent::lexer::token_type::EOF_TOKEN, "");
 
 				if(
-					peek().get_type() == ent::type::token_type::PLUS || peek().get_type() == ent::type::token_type::MINUS ||
-					peek().get_type() == ent::type::token_type::TIMES || peek().get_type() == ent::type::token_type::DIVIDED_BY ||
-					peek().get_type() == ent::type::token_type::MODULO ||
-					peek().get_type() == ent::type::token_type::BITWISE_AND || peek().get_type() == ent::type::token_type::BITWISE_OR || peek().get_type() == ent::type::token_type::BITWISE_XOR
+					peek().get_type() == ent::lexer::token_type::PLUS || peek().get_type() == ent::lexer::token_type::MINUS ||
+					peek().get_type() == ent::lexer::token_type::TIMES || peek().get_type() == ent::lexer::token_type::DIVIDED_BY ||
+					peek().get_type() == ent::lexer::token_type::MODULO ||
+					peek().get_type() == ent::lexer::token_type::BITWISE_AND || peek().get_type() == ent::lexer::token_type::BITWISE_OR || peek().get_type() == ent::lexer::token_type::BITWISE_XOR
 				) {
 					op = eat();
 				}
 
-				if(peek().get_type() != ent::type::token_type::ASSIGN) {
-					if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
+				if(peek().get_type() != ent::lexer::token_type::ASSIGN) {
+					if(op.get_type() != ent::lexer::token_type::EOF_TOKEN) {
 						tks.insert(tks.begin(), op);
 					}
 					return assign_expr;
@@ -327,7 +620,7 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> value = parse_ternary_expression();
 
-				if(op.get_type() != ent::type::token_type::EOF_TOKEN) {
+				if(op.get_type() != ent::lexer::token_type::EOF_TOKEN) {
 					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, op.get_value(), value);
 				}
 				
@@ -348,10 +641,10 @@ namespace ent {
 				return std::make_shared<ent::front::ast::AssignationExpression>(identifier, value);
 			}
 
-			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::type::token type_specifier, ent::type::token_type expectedAfter, std::string expectedAfterString, bool applyExpect = true) {
-				ent::type::token next = peek();
+			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::lexer::token type_specifier, ent::lexer::token_type expectedAfter, std::string expectedAfterString, bool applyExpect) {
+				ent::lexer::token next = peek();
 
-				if(next.get_type() != ent::type::token_type::ASSIGN) {
+				if(next.get_type() != ent::lexer::token_type::ASSIGN) {
 					std::string type = type_specifier.get_value();
 					if(applyExpect) {
 						(void)expect(expectedAfter, expectedAfterString);
@@ -408,22 +701,22 @@ namespace ent {
 
 				bool isMutable = false;
 
-				if(peek().get_type() == ent::type::token_type::MUTABLE) {
+				if(peek().get_type() == ent::lexer::token_type::MUTABLE) {
 					(void)eat();
 					isMutable = true;
 				}
 
 				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
-				expect(ent::type::token_type::COLON, ":");
-				ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
+				(void)expect(ent::lexer::token_type::COLON, ":");
+				ent::lexer::token type_specifier = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier");
 
-				ent::type::token next = peek();
+				ent::lexer::token next = peek();
 
 				std::shared_ptr<ent::front::ast::Declaration> statement = parse_any_declaration(
 					isMutable,
 					identifier,
 					type_specifier,
-					ent::type::token_type::SEMICOLON,
+					ent::lexer::token_type::SEMICOLON,
 					";",
 					needsSemicolon
 				);
@@ -436,7 +729,7 @@ namespace ent {
 				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 				std::string type = type_specifier.get_value();
 				if(needsSemicolon) {
-					(void)expect(ent::type::token_type::SEMICOLON, ";");
+					(void)expect(ent::lexer::token_type::SEMICOLON, ";");
 				}
 				if(type == "void") {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
@@ -470,22 +763,11 @@ namespace ent {
 				throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 			}
 
-			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isMutable, bool isInFunctionSetup = false) {
+			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isMutable, bool isInFunctionSetup) {
 				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isMutable, isInFunctionSetup);
 			}
 
-			std::vector<std::shared_ptr<ent::front::ast::Statement>> get_child_nodes(std::shared_ptr<ent::front::ast::Statement> statement) {
-				switch(statement->get_type()) {
-					case ent::front::ast::NodeType::functionDeclaration:
-						return std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(statement)->body;
-					case ent::front::ast::NodeType::program:
-						return std::dynamic_pointer_cast<ent::front::ast::Program>(statement)->body;
-					default:
-						return std::vector<std::shared_ptr<ent::front::ast::Statement>>();
-				}
-			}
-
-			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore = true, bool needsSemiColon = true);
+			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemiColon);
 
 			std::vector<std::shared_ptr<ent::front::ast::Declaration>> parse_arguments() {
 
@@ -494,14 +776,14 @@ namespace ent {
 				while(true) {
 					bool isMutable = false;
 
-					if(peek().get_type() == ent::type::token_type::MUTABLE) {
+					if(peek().get_type() == ent::lexer::token_type::MUTABLE) {
 						(void)eat();
 						isMutable = true;
 					}
 
 					std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
-					expect(ent::type::token_type::COLON, ":");
-					ent::type::token type_specifier = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier");
+					(void)expect(ent::lexer::token_type::COLON, ":");
+					ent::lexer::token type_specifier = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier");
 
 					std::shared_ptr<ent::front::ast::Declaration> declaration;
 					
@@ -510,7 +792,7 @@ namespace ent {
 							isMutable,
 							identifier,
 							type_specifier,
-							ent::type::token_type::COMMA,
+							ent::lexer::token_type::COMMA,
 							","
 						);
 					} catch(const std::exception& e) {
@@ -518,7 +800,7 @@ namespace ent {
 							isMutable,
 							identifier,
 							type_specifier,
-							ent::type::token_type::CLOSE_PAREN,
+							ent::lexer::token_type::CLOSE_PAREN,
 							")"
 						);
 						arguments.push_back(declaration);
@@ -535,50 +817,50 @@ namespace ent {
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace at start of " + scopeType);
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace at start of " + scopeType);
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of " + scopeType);
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace at end of " + scopeType);
 
 				return body;
 			}
 
-			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration(std::shared_ptr<ent::front::ast::Identifier> identifier = nullptr) {
+			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration(std::shared_ptr<ent::front::ast::Identifier> identifier) {
 
 				if(identifier == nullptr) {
 					identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 				}
 
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis");
+				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis");
 
 				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
 
-				if(peek().get_type() == ent::type::token_type::CLOSE_PAREN) {
+				if(peek().get_type() == ent::lexer::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				}
-				if(peek().get_type() == ent::type::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
+				if(peek().get_type() == ent::lexer::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
-					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis");
+					(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis");
 				} else {
 					arguments = parse_arguments();
 				}
 
-				(void)expect(ent::type::token_type::COLON, "colon");
+				(void)expect(ent::lexer::token_type::COLON, "colon");
 
-				std::string returnType = expect(ent::type::token_type::TYPE_SPECIFIER, "type specifier").get_value();
+				std::string returnType = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier").get_value();
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace at start of function");
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace at start of function");
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace at end of function");
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace at end of function");
 				
 				std::shared_ptr<ent::front::ast::FunctionDeclaration> function = std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
 
@@ -592,7 +874,7 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 
-				(void)expect(ent::type::token_type::SEMICOLON, "semicolon at the end of line");
+				(void)expect(ent::lexer::token_type::SEMICOLON, "semicolon at the end of line");
 
 				return std::make_shared<ent::front::ast::FunctionReturn>(value);
 			}
@@ -606,31 +888,31 @@ namespace ent {
 				};
 				enum ConditionType conditionType = ConditionType::IF;
 
-				if(peek().get_type() == ent::type::token_type::ELSE) {
+				if(peek().get_type() == ent::lexer::token_type::ELSE) {
 					if(before == nullptr) {
 						throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 					}
 					(void)eat();
-					conditionType = peek().get_type() == ent::type::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
+					conditionType = peek().get_type() == ent::lexer::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
 				}
 
 				std::shared_ptr<ent::front::ast::Expression> condition = nullptr;
 
 				if(conditionType != ConditionType::ELSE) {
-					(void)expect(ent::type::token_type::IF, "if keyword");
+					(void)expect(ent::lexer::token_type::IF, "if keyword");
 
-					if(peek().get_type() == ent::type::token_type::ELSE) {
+					if(peek().get_type() == ent::lexer::token_type::ELSE) {
 						if(before == nullptr) {
 							throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 						}
 						(void)eat();
 					}
 					
-					(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before condition");
+					(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis before condition");
 				
 					condition = parse_expression();
 
-					(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after condition");
+					(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after condition");
 				}
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
@@ -652,7 +934,7 @@ namespace ent {
 
 				std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>> blocks = std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>>();
 
-				while(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
+				while(peek().get_type() == ent::lexer::token_type::IF || peek().get_type() == ent::lexer::token_type::ELSE) {
 					blocks.push_back(parse_conditionnal_block());
 				}
 
@@ -660,15 +942,15 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::ForLoop> parse_for_loop() {
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after for keyword");
+				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis after for keyword");
 
 				std::shared_ptr<ent::front::ast::Statement> initStatement = parse_statement(true, false);
-				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for init statement");
+				(void)expect(ent::lexer::token_type::SEMICOLON, "semicolon after for init statement");
 				std::shared_ptr<ent::front::ast::Expression> loopCondition = parse_expression();
-				(void)expect(ent::type::token_type::SEMICOLON, "semicolon after for condition");
+				(void)expect(ent::lexer::token_type::SEMICOLON, "semicolon after for condition");
 				std::shared_ptr<ent::front::ast::Statement> iterationStatement = parse_statement(true, false);
 
-				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
+				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
@@ -680,19 +962,19 @@ namespace ent {
 			std::shared_ptr<ent::front::ast::WhileLoop> parse_while_loop() {
 				(void)eat();
 
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis after while keyword");
+				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis after while keyword");
 				std::shared_ptr<ent::front::ast::Expression> loopCondition = parse_expression();
-				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after while condition");
+				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after while condition");
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before while body");
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before while body");
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
 					body.push_back(parse_statement());
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after while body");
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace after while body");
 
 				return std::make_shared<ent::front::ast::WhileLoop>(loopCondition, body);
 			}
@@ -701,13 +983,13 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> caseToMatch = nullptr;
 
-				if(peek().get_type() != ent::type::token_type::DEFAULT) {
+				if(peek().get_type() != ent::lexer::token_type::DEFAULT) {
 					caseToMatch = parse_expression();
 				} else {
 					(void)eat();
 				}
 
-				(void)expect(ent::type::token_type::MATCH_ARROW, "match arrow after expression");
+				(void)expect(ent::lexer::token_type::MATCH_ARROW, "match arrow after expression");
 
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
@@ -723,19 +1005,19 @@ namespace ent {
 
 				(void)eat();
 
-				(void)expect(ent::type::token_type::OPEN_PAREN, "open parenthesis before match expression");
+				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis before match expression");
 
 				std::shared_ptr<ent::front::ast::Expression> matchExpression = parse_expression();
 
-				(void)expect(ent::type::token_type::CLOSE_PAREN, "close parenthesis after match expression");
+				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after match expression");
 				
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before match body");
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before match body");
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
 					cases.push_back(parse_match_case());
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after match body");
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace after match body");
 
 				return std::make_shared<ent::front::ast::MatchStructure>(matchExpression, cases);
 			}
@@ -744,7 +1026,7 @@ namespace ent {
 				
 				(void)eat();
 
-				(void)expect(ent::type::token_type::SEMICOLON, "semi colon at the end of line");
+				(void)expect(ent::lexer::token_type::SEMICOLON, "semi colon at the end of line");
 
 				return std::make_shared<ent::front::ast::BreakStatement>();
 			}
@@ -752,23 +1034,23 @@ namespace ent {
 			std::shared_ptr<ent::front::ast::TypeDeclaration> parse_type_declaration() {
 				(void)eat();
 
-				ent::type::token typeName = expect(ent::type::token_type::TYPE_SPECIFIER, "valid type name to implement");
+				ent::lexer::token typeName = expect(ent::lexer::token_type::TYPE_SPECIFIER, "valid type name to implement");
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before type declaration body");
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before type declaration body");
 				
 				std::vector<ent::front::ast::TypeMember> members = std::vector<ent::front::ast::TypeMember>();
 
 				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					if(peek().get_type() == ent::type::token_type::AT) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
+					if(peek().get_type() == ent::lexer::token_type::AT) {
 						(void)eat();
-						if(peek().get_type() == ent::type::PRIVATE) {
+						if(peek().get_type() == ent::lexer::PRIVATE) {
 							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
 							(void)eat();
 							continue;
 						}
-						if(peek().get_type() == ent::type::PUBLIC) {
+						if(peek().get_type() == ent::lexer::PUBLIC) {
 							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 							(void)eat();
 							continue;
@@ -788,7 +1070,7 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_DECLARATION_ERROR, "At least one member is required in a type declaration")).error();
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after type declaration body");
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace after type declaration body");
 
 				std::shared_ptr<ent::front::ast::TypeDeclaration> typeDeclaration = std::make_shared<ent::front::ast::TypeDeclaration>(typeName.get_value(), members);
 
@@ -799,23 +1081,23 @@ namespace ent {
 
 				(void)eat();
 
-				ent::type::token typeName = expect(ent::type::token_type::TYPE_SPECIFIER, "valid type name to implement");
+				ent::lexer::token typeName = expect(ent::lexer::token_type::TYPE_SPECIFIER, "valid type name to implement");
 
-				(void)expect(ent::type::token_type::OPEN_BRACE, "open brace before type implementation body");
+				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before type implementation body");
 				
 				std::vector<ent::front::ast::ImplMethod> methods = std::vector<ent::front::ast::ImplMethod>();
 
 				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 
-				while(peek().get_type() != ent::type::token_type::CLOSE_BRACE) {
-					if(peek().get_type() == ent::type::token_type::AT) {
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
+					if(peek().get_type() == ent::lexer::token_type::AT) {
 						(void)eat();
-						if(peek().get_type() == ent::type::PRIVATE) {
+						if(peek().get_type() == ent::lexer::PRIVATE) {
 							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PRIVATE;
 							(void)eat();
 							continue;
 						}
-						if(peek().get_type() == ent::type::PUBLIC) {
+						if(peek().get_type() == ent::lexer::PUBLIC) {
 							currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 							(void)eat();
 							continue;
@@ -823,7 +1105,7 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
 					}
 
-					(void)expect(ent::type::token_type::FN, "Function in type implementation");
+					(void)expect(ent::lexer::token_type::FN, "Function in type implementation");
 
 					std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
 						parse_function_declaration()
@@ -838,60 +1120,60 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_IMPLEMENTATION_ERROR, "At least one method is required in a type implementation")).error();
 				}
 
-				(void)expect(ent::type::token_type::CLOSE_BRACE, "close brace after class body");
+				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace after class body");
 
 				return std::make_shared<ent::front::ast::TypeImplementation>(typeName.get_value(), methods);
 			}
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
 
-				if(peek().get_type() == ent::type::token_type::LET) {
+				if(peek().get_type() == ent::lexer::token_type::LET) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { before = nullptr; }
 					return declaration;
 				}
-				if(peek().get_type() == ent::type::token_type::FN) {
+				if(peek().get_type() == ent::lexer::token_type::FN) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> function_declaration = parse_function_declaration();
 					if(updateBefore) { before = nullptr; }
 					return function_declaration;
 				}
-				if(peek().get_type() == ent::type::token_type::RETURN) {
+				if(peek().get_type() == ent::lexer::token_type::RETURN) {
 					std::shared_ptr<ent::front::ast::Statement> functionReturn = parse_function_return();
 					if(updateBefore) { before = nullptr; }
 					return functionReturn;
 				}
-				if(peek().get_type() == ent::type::token_type::IF || peek().get_type() == ent::type::token_type::ELSE) {
+				if(peek().get_type() == ent::lexer::token_type::IF || peek().get_type() == ent::lexer::token_type::ELSE) {
 					return parse_conditionnal_structure();
 				}
-				if(peek().get_type() == ent::type::token_type::FOR) {
+				if(peek().get_type() == ent::lexer::token_type::FOR) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> for_loop = parse_for_loop();
 					if(updateBefore) { before = nullptr; }
 					return for_loop;
 				}
-				if(peek().get_type() == ent::type::token_type::WHILE) {
+				if(peek().get_type() == ent::lexer::token_type::WHILE) {
 					std::shared_ptr<ent::front::ast::Statement> whileLoop = parse_while_loop();
 					if(updateBefore) { before = nullptr; }
 					return whileLoop;
 				}
-				if(peek().get_type() == ent::type::token_type::MATCH) {
+				if(peek().get_type() == ent::lexer::token_type::MATCH) {
 					std::shared_ptr<ent::front::ast::Statement> matchStructure = parse_match_structure();
 					if(updateBefore) { before = nullptr; }
 					return matchStructure;
 				}
-				if(peek().get_type() == ent::type::token_type::BREAK) {
+				if(peek().get_type() == ent::lexer::token_type::BREAK) {
 					std::shared_ptr<ent::front::ast::Statement> breakStatement = parse_break_statement();
 					if(updateBefore) { before = nullptr; }
 					return breakStatement;
 				}
-				if(peek().get_type() == ent::type::token_type::TYPE) {
+				if(peek().get_type() == ent::lexer::token_type::TYPE) {
 					std::shared_ptr<ent::front::ast::Statement> typeDeclaration = parse_type_declaration();
 					if(updateBefore) { before = nullptr; }
 					return typeDeclaration;
 				}
-				if(peek().get_type() == ent::type::token_type::IMPL) {
+				if(peek().get_type() == ent::lexer::token_type::IMPL) {
 					std::shared_ptr<ent::front::ast::Statement> typeImplementation = parse_type_implementation();
 					if(updateBefore) { before = nullptr; }
 					return typeImplementation;
@@ -899,16 +1181,17 @@ namespace ent {
 
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
 				if(needsSemicolon) {
-					(void)expect(ent::type::token_type::SEMICOLON, "semi colon at end of line");
+					(void)expect(ent::lexer::token_type::SEMICOLON, "semi colon at end of line");
 				}
 				if(updateBefore) { before = nullptr; }
 
 				return expression;
 			}
 
-			std::shared_ptr<ent::front::ast::Program> parse(std::vector<ent::type::token> tokens) {
+			std::shared_ptr<ent::front::ast::Program> parse(std::vector<ent::lexer::token> tokens) {
 				tks = tokens;
 
+				std::cout << peek().repr() << std::endl;
 				while(!eof()) {
 					program->body.push_back(parse_statement());
 				}

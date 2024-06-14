@@ -540,10 +540,12 @@ try {
 
 The higher an element is, the most prescedence it has (the first it is resolved)
 
-1. Native Expressions (numbers, booleans, characters, strings)
+1. Native Expressions (numbers, booleans, characters, strings, identifiers)
 2. Parenthesis Expressions
 3. Function Calls
-4. Multiplicative Expressions
-5. Additive Expressions
-6. Logical Expressions
-7. Ternary Expressions
+4. Unary Expressions
+5. Multiplicative Expressions
+6. Additive Expressions
+7. Logical Expressions
+8. Ternary Expressions
+9. Assignation Expressions
