@@ -1,5 +1,5 @@
-#ifndef __ENT_TYPES_TOKEN__
-#define __ENT_TYPES_TOKEN__
+#ifndef __ENT_LEXER_TOKEN__
+#define __ENT_LEXER_TOKEN__
 
 #include <iostream>
 #include <string>
@@ -10,7 +10,7 @@ case tk: \
 	break;
 
 namespace ent {
-	namespace type {
+	namespace lexer {
 		enum token_type {
 			LET,
 			MUTABLE,
@@ -204,4 +204,4 @@ namespace ent {
 	}
 }
 
-#endif // __ENT_TYPES_TOKEN__
+#endif // __ENT_LEXER_TOKEN__
