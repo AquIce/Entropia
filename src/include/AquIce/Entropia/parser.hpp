@@ -1,11 +1,16 @@
 #ifndef __ENT_FRONT_PARSER__
 #define __ENT_FRONT_PARSER__
 
+#include <algorithm>
+#include <array>
 #include <set>
 
 #include "token.hpp"
 #include "ast.hpp"
 #include "errors.hpp"
+
+#define IS_VALUE_IN(iterable, value) \
+std::find(iterable.begin(), iterable.end(), value) != iterable.end()
 
 namespace ent {
 	namespace front {
@@ -16,6 +21,80 @@ namespace ent {
 			 * @note This list is provided by the lexer
 			 */
 			std::vector<ent::lexer::token> tks;
+
+			std::array<enum ent::lexer::token_type, 2> post_unary_operators = std::array<enum ent::lexer::token_type, 2>({
+				ent::lexer::token_type::INCREMENT,
+				ent::lexer::token_type::DECREMENT,
+			});
+
+			bool is_post_unary_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(post_unary_operators, type);
+			}
+
+			std::array<enum ent::lexer::token_type, 2> pre_unary_operators = std::array<enum ent::lexer::token_type, 2>({
+				ent::lexer::token_type::NOT,
+				ent::lexer::token_type::BITWISE_NOT,
+			});
+
+			bool is_pre_unary_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(pre_unary_operators, type);
+			}
+
+			std::array<enum ent::lexer::token_type, 2> multiplicative_operators = std::array<enum ent::lexer::token_type, 2>({
+				ent::lexer::token_type::TIMES,
+				ent::lexer::token_type::DIVIDED_BY,
+			});
+
+			bool is_multiplicative_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(multiplicative_operators, type);
+			}
+
+			std::array<enum ent::lexer::token_type, 2> additive_operators = std::array<enum ent::lexer::token_type, 2>({
+				ent::lexer::token_type::PLUS,
+				ent::lexer::token_type::MINUS,
+			});
+
+			bool is_additive_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(additive_operators, type);
+			}
+
+			std::array<enum ent::lexer::token_type, 14> logical_operators = std::array<enum ent::lexer::token_type, 14>({
+				ent::lexer::token_type::EQUAL,
+				ent::lexer::token_type::NOT_EQUAL,
+				ent::lexer::token_type::AND,
+				ent::lexer::token_type::OR,
+				ent::lexer::token_type::GREATER_THAN,
+				ent::lexer::token_type::SMALLER_THAN,
+				ent::lexer::token_type::GREATER_OR_EQUAL,
+				ent::lexer::token_type::SMALLER_OR_EQUAL,
+				ent::lexer::token_type::XOR,
+				ent::lexer::token_type::BITWISE_LEFT_SHIFT,
+				ent::lexer::token_type::BITWISE_RIGHT_SHIFT,
+				ent::lexer::token_type::BITWISE_AND,
+				ent::lexer::token_type::BITWISE_OR,
+				ent::lexer::token_type::BITWISE_XOR,
+			});
+
+			bool is_logical_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(logical_operators, type);
+			}
+
+			std::array<enum ent::lexer::token_type, 9> assignable_operators = std::array<enum ent::lexer::token_type, 9>({
+				ent::lexer::token_type::PLUS,
+				ent::lexer::token_type::MINUS,
+				ent::lexer::token_type::TIMES,
+				ent::lexer::token_type::DIVIDED_BY,
+				ent::lexer::token_type::MODULO,
+				ent::lexer::token_type::BITWISE_AND,
+				ent::lexer::token_type::BITWISE_OR,
+				ent::lexer::token_type::BITWISE_NOT,
+				ent::lexer::token_type::BITWISE_XOR,
+			});
+
+			bool is_assignable_operator(enum ent::lexer::token_type type) {
+				return IS_VALUE_IN(assignable_operators, type);
+			}
+				
 
 			/**
 			 * The list of original identifiers
@@ -52,7 +131,7 @@ namespace ent {
 			 * @note If the last parsed node is not a Conditionnal Block, it will be nullptr
 			 * @note This is used to link `if` and `else` statements
 			 */
-			std::shared_ptr<ent::front::ast::ConditionnalBlock> before = nullptr;
+			std::shared_ptr<ent::front::ast::ConditionnalBlock> previous_conditionnal_block = nullptr;
 
 			/**
 			 * Get the current token
@@ -103,7 +182,7 @@ namespace ent {
 				}
 			}
 
-			// * EXPRESSIONS
+			#pragma region Prototypes
 
 			/**
 			 * Parse an Identifier from the current token
@@ -138,7 +217,7 @@ namespace ent {
 			 * Parse a Unary Expression whose operator is after the term from the current token
 			 * @return The Unary Expression
 			 */
-			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression();
+			std::shared_ptr<ent::front::ast::Expression> parse_post_unary_expression();
 
 			/**
 			 * Parse a Unary Expression from the current token
@@ -218,7 +297,7 @@ namespace ent {
 			 * @param applyExpect Whether to apply `expect` or `eat` on the expectedAfterString
 			 * @return The created Declaration
 			 */
-			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(
+			std::shared_ptr<ent::front::ast::Declaration> parse_non_assignation_declaration(
 				bool isMutable,
 				std::shared_ptr<ent::front::ast::Identifier> identifier,
 				ent::lexer::token type_specifier,
@@ -249,7 +328,7 @@ namespace ent {
 
 			/**
 			 * Parse a Statement from the current token
-			 * @param updateBefore Whether to set before to `nullptr` (false when inside a Conditionnal Block)
+			 * @param updateBefore Whether to set previous_conditionnal_block to `nullptr` (false when inside a Conditionnal Block)
 			 * @param needsSemiColon Whether this Statement needs to end with a semicolon
 			 * @return The Statement
 			 */
@@ -351,8 +430,12 @@ namespace ent {
 				std::vector<ent::lexer::token> tokens
 			);
 
+			#pragma endregion
+
 
 			std::shared_ptr<ent::front::ast::Expression> parse_identifier() {
+
+				// Parse if the current token is an Identifier
 				if(peek().get_type() == ent::lexer::token_type::IDENTIFIER) {
 					std::string value = peek().get_value();
 					(void)eat();
@@ -362,128 +445,185 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_native_expression() {
+
+				// Check if there is a `-` symbol
+				
 				bool isNegative = false;
 				if(peek().get_type() == ent::lexer::token_type::MINUS) {
 					isNegative = true;
 					(void)eat();
 				}
-				// If the current token is a number
+
+				// * Parse the token and return the Expression
+
+				// I8 Expression
 				if(peek().get_type() == ent::lexer::token_type::I8) {
-					// Parse the number
 					i8 value = types::stoi8(peek().get_value());
 					(void)eat();
-					// Return the integer expression
 					return std::make_shared<ent::front::ast::I8Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::lexer::token_type::I16) {
-					// Parse the number
+				}
+				// I16 Expression
+				if(peek().get_type() == ent::lexer::token_type::I16) {
 					i16 value = types::stoi16(peek().get_value());
 					(void)eat();
-					// Return the integer expression
 					return std::make_shared<ent::front::ast::I16Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::lexer::token_type::I32) {
+				}
+				// I32 Expression
+				if(peek().get_type() == ent::lexer::token_type::I32) {
 					// Parse the number
 					i32 value = types::stoi32(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I32Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::lexer::token_type::I64) {
+				}
+				// I64 Expression
+				if(peek().get_type() == ent::lexer::token_type::I64) {
 					// Parse the number
 					i64 value = types::stoi64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::I64Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::lexer::token_type::U64) {
+				}
+				// U64 Expression
+				if(peek().get_type() == ent::lexer::token_type::U64) {
 					check_for_negative(isNegative);
 					// Parse the number
 					u64 value = types::stou64(peek().get_value());
 					(void)eat();
 					// Return the integer expression
 					return std::make_shared<ent::front::ast::U64Expression>(value);
-				} else if(peek().get_type() == ent::lexer::token_type::F32) {
+				}
+				// F32 Expression
+				if(peek().get_type() == ent::lexer::token_type::F32) {
 					// Parse the number
 					float value = types::stof32(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return std::make_shared<ent::front::ast::F32Expression>(isNegative ? -value : value);
-				} else if(peek().get_type() == ent::lexer::token_type::F64) {
+				}
+				// F64 Expression
+				if(peek().get_type() == ent::lexer::token_type::F64) {
 					// Parse the number
 					double value = types::stof64(peek().get_value());
 					(void)eat();
 					// Return the float expression
 					return std::make_shared<ent::front::ast::F64Expression>(value);
-				} else if(peek().get_type() == ent::lexer::token_type::BOOL) {
+				}
+				// Boolean Expression
+				if(peek().get_type() == ent::lexer::token_type::BOOL) {
 					check_for_negative(isNegative);
 					bool value = eat().get_value() == "true";
 					return std::make_shared<ent::front::ast::BooleanExpression>(value);
-				} else if(peek().get_type() == ent::lexer::token_type::CHAR) {
+				}
+				// Character Expression
+				if(peek().get_type() == ent::lexer::token_type::CHAR) {
 					check_for_negative(isNegative);
 					char value = eat().get_value()[0];
 					return std::make_shared<ent::front::ast::CharExpression>(value);
-				} else if(peek().get_type() == ent::lexer::token_type::STR) {
+				}
+				// String Expression
+				if(peek().get_type() == ent::lexer::token_type::STR) {
 					check_for_negative(isNegative);
 					std::string value = eat().get_value();
 					return std::make_shared<ent::front::ast::StrExpression>(value);
 				}
+				// Identifier
 				return parse_identifier();
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_parenthesis_expression() {
+
+				// Parse a native expression if there is no open parenthesis
+
 				if(peek().get_type() != ent::lexer::token_type::OPEN_PAREN) {
 					return parse_native_expression();
 				}
 				(void)eat();
+
+				// Parse the content of the parenthesis
+
 				std::shared_ptr<ent::front::ast::Expression> content = parse_expression();
+
+				// Expect a close parenthesis
+
 				if(peek().get_type() != ent::lexer::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_EXPRESSION_IN_PARENTHESIS, "Invalid expression in parenthesis")).error();
 				}
 				(void)eat();
+
 				return std::make_shared<ent::front::ast::ParenthesisExpression>(content);
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_function_call_expression() {
 
-				std::shared_ptr<ent::front::ast::Expression> call_expr = parse_parenthesis_expression();
+				// Parse the called term as a Parenthesis Expression
 
+				std::shared_ptr<ent::front::ast::Expression> called_term = parse_parenthesis_expression();
+
+				// Check that the called term is followed by an open parenthesis, else, return the term
+	
 				if(peek().get_type() != ent::lexer::token_type::OPEN_PAREN) {
-					return call_expr;
+					return called_term;
 				}
 				(void)eat();
 
-				if(call_expr->get_type() != ent::front::ast::NodeType::identifier) {
+				// Check if the called term is an Identifier
+
+				if(called_term->get_type() != ent::front::ast::NodeType::identifier) {
 					throw (ent::Error(ent::ErrorType::PARSER_CALLING_NON_FN_ERROR, "Trying to call non-function expression")).error();
 				}
 
-				if(ent::front::ast::get_function(std::dynamic_pointer_cast<ent::front::ast::Identifier>(call_expr)) == nullptr) {
+				std::shared_ptr<ent::front::ast::Identifier> called_identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(called_term);
+
+				// Check that the called identifier is a declared function
+
+				if(ent::front::ast::get_function(called_identifier) == nullptr) {
 					throw (ent::Error(ent::ErrorType::PARSER_CALLING_UNDECLARED_FN_ERROR, "Trying to call undeclared function")).error();
 				}
 
+				// * Parse the function arguments
+
 				std::vector<std::shared_ptr<ent::front::ast::Expression>> arguments = std::vector<std::shared_ptr<ent::front::ast::Expression>>();
 
+				// Skip the args if it is an explicit void
 				if(peek().get_type() == ent::lexer::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
-				} else if(peek().get_type() == ent::lexer::token_type::CLOSE_PAREN) {
-					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
-				} else {
-					arguments.push_back(parse_expression());
-
-					while(peek().get_type() != ent::lexer::token_type::CLOSE_PAREN) {
-						(void)expect(ent::lexer::token_type::COMMA, "comma");
-						arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
-					}
 				}
+				// Throw if it is an implicit void
+				else if(peek().get_type() == ent::lexer::token_type::CLOSE_PAREN) {
+					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
+				}
+
+				arguments.push_back(parse_expression());
+
+				while(peek().get_type() != ent::lexer::token_type::CLOSE_PAREN) {
+					(void)expect(ent::lexer::token_type::COMMA, "comma");
+					arguments.push_back(std::dynamic_pointer_cast<ent::front::ast::Expression>(parse_expression()));
+				}
+
+				// Expect a close parenthesis
 
 				(void)expect(ent::lexer::token_type::CLOSE_PAREN, ")");
 
-				return std::make_shared<ent::front::ast::FunctionCallExpression>(std::dynamic_pointer_cast<ent::front::ast::Identifier>(call_expr), arguments);
+				return std::make_shared<ent::front::ast::FunctionCallExpression>(called_identifier, arguments);
 			}
 
-			std::shared_ptr<ent::front::ast::Expression> parse_non_pre_unary_expression() {
+			std::shared_ptr<ent::front::ast::Expression> parse_post_unary_expression() {
+
+				// Parse the term as a Function Call Expression
+
 				std::shared_ptr<ent::front::ast::Expression> term = parse_function_call_expression();
-				if(peek().get_type() == ent::lexer::token_type::INCREMENT || peek().get_type() == ent::lexer::token_type::DECREMENT) {
+
+				// Check if the token is a valid post unary expression
+
+				if(is_post_unary_operator(peek().get_type())) {
 					std::string operator_symbol = eat().get_value();
+
+					// Throw if the term is not an identifier
 					if(term->get_type() != ent::front::ast::NodeType::identifier) {
-						throw (ent::Error(ent::ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR, "Trying to increment non-identifier")).error();
+						throw (ent::Error(ent::ErrorType::PARSER_TRYING_TO_INCREMENT_NON_IDENTIFIER_ERROR, "Trying to increment/decrement non-identifier")).error();
 					}
+
 					return std::make_shared<ent::front::ast::UnaryExpression>(
 						term,
 						operator_symbol
@@ -493,8 +633,10 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_unary_expression() {
-				if(peek().get_type() != ent::lexer::token_type::NOT && peek().get_type() != ent::lexer::token_type::BITWISE_NOT) {
-					return parse_non_pre_unary_expression();
+
+				// If the token is not a valid pre unary expression, parse a post unary expression
+				if(!is_pre_unary_operator(peek().get_type())) {
+					return parse_post_unary_expression();
 				}
 
 				std::string operator_symbol = eat().get_value();
@@ -507,56 +649,69 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_multiplicative_expression() {
-				// Parse the numeric expression first
+
+				// Parse the left member as a Unary Expression
+
 				std::shared_ptr<ent::front::ast::Expression> left = parse_unary_expression();
-				// Parse the rest of the expression
-				while(peek().get_value() == "*" || peek().get_value() == "/" || peek().get_value() == "%") {
+
+				// Parse while the expression is multiplicative
+
+				while(is_multiplicative_operator(peek().get_type())) {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
-					// Parse the next multiplicative expression
+
+					// Parse the next term as a Unary Expression
+
 					std::shared_ptr<ent::front::ast::Expression> right = parse_unary_expression();
-					// Set the left as a binary expression
+
+					// Set the left as a Binary Expression of itself
+					
 					left = std::make_shared<ent::front::ast::BinaryExpression>(
 						left,
 						operator_symbol,
 						right
 					);
 				}
+
 				return left;
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_additive_expression() {
-				// Parse the multiplicative expression first
+
+				// Parse the left member as a Multiplicative Expression
+				
 				std::shared_ptr<ent::front::ast::Expression> left = parse_multiplicative_expression();
-				// Parse the rest of the expression
-				while(peek().get_value() == "+" || peek().get_value() == "-") {
+
+				// Parse while the expression is additive
+
+				while(is_additive_operator(peek().get_type())) {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
-					// Parse the next multiplicative expression
+
+					// Parse the next term as a Multiplicative Expression
+					
 					std::shared_ptr<ent::front::ast::Expression> right = parse_multiplicative_expression();
-					// Set the left as a binary expression
+
+					// Set the left as a Binary Expression of itself
+
 					left = std::make_shared<ent::front::ast::BinaryExpression>(
 						left,
 						operator_symbol,
 						right
 					);
 				}
+
 				return left;
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_logical_expression() {
-				// Parse the multiplicative expression first
+
+				// Parse the left as an Additive Expression
+
 				std::shared_ptr<ent::front::ast::Expression> left = parse_additive_expression();
-				// Parse the rest of the expression
-				while(
-					peek().get_value() == "==" || peek().get_value() == "!=" ||
-					peek().get_value() == "&&" || peek().get_value() == "||" ||
-					peek().get_value() == "<" || peek().get_value() == ">" ||
-					peek().get_value() == "<=" || peek().get_value() == ">=" ||
-					peek().get_value() == "^^" ||
-					peek().get_value() == "<<" || peek().get_value() == ">>" ||
-					peek().get_value() == "&" || peek().get_value() == "|" || peek().get_value() == "^"
-				) {
+
+				// Parse while the expression is logical
+				while(is_logical_operator(peek().get_type())) {
 					std::string operator_symbol = peek().get_value();
 					(void)eat();
 					// Parse the next multiplicative expression
@@ -572,13 +727,20 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Expression> parse_ternary_expression() {
-				// Parse the multiplicative expression first
+
+				// Parse the condition as a Ternary Expression
+				
 				std::shared_ptr<ent::front::ast::Expression> condition = parse_logical_expression();
+
+				// If the next token is not a question mark, return the expression
 
 				if(peek().get_type() != ent::lexer::token_type::QUESTION_MARK) {
 					return condition;
 				}
 				(void)eat();
+
+				// Parse both the true and false value
+
 				std::shared_ptr<ent::front::ast::Expression> true_value = parse_ternary_expression();
 
 				(void)expect(ent::lexer::token_type::COLON, "colon after \"true\" value");
@@ -590,35 +752,46 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Expression> parse_assignation_expression() {
 
+				// Parse  the assignation expression as a Ternary Expression
+
 				std::shared_ptr<ent::front::ast::Expression> assign_expr = parse_ternary_expression();
 
 				ent::lexer::token op = ent::lexer::token(ent::lexer::token_type::EOF_TOKEN, "");
 
-				if(
-					peek().get_type() == ent::lexer::token_type::PLUS || peek().get_type() == ent::lexer::token_type::MINUS ||
-					peek().get_type() == ent::lexer::token_type::TIMES || peek().get_type() == ent::lexer::token_type::DIVIDED_BY ||
-					peek().get_type() == ent::lexer::token_type::MODULO ||
-					peek().get_type() == ent::lexer::token_type::BITWISE_AND || peek().get_type() == ent::lexer::token_type::BITWISE_OR || peek().get_type() == ent::lexer::token_type::BITWISE_XOR
-				) {
+				if(is_assignable_operator(peek().get_type())) {
 					op = eat();
 				}
 
+				// If the current token is not an assign symbol
+
 				if(peek().get_type() != ent::lexer::token_type::ASSIGN) {
+					
+					// If the next token is an operator, re-insert it into the tokens list
+
 					if(op.get_type() != ent::lexer::token_type::EOF_TOKEN) {
 						tks.insert(tks.begin(), op);
 					}
+
+					// Else, return the assignation expression
+
 					return assign_expr;
 				}
 
 				(void)eat();
 
+				// If the expression is not an Identifier, throw an error
+
 				if(assign_expr->get_type() != ent::front::ast::NodeType::identifier) {
-					throw (ent::Error(ent::ErrorType::PARSER_ASSIGNING_NON_IDENTIFIER_ERROR, "Function misses explicit VOID param passing")).error();
+					throw (ent::Error(ent::ErrorType::PARSER_ASSIGNING_NON_IDENTIFIER_ERROR, "Trying to assign to non-identifier expression")).error();
 				}
+
+				// Parse the identifier and the value
 
 				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(assign_expr);
 
 				std::shared_ptr<ent::front::ast::Expression> value = parse_ternary_expression();
+
+				// If the next operator is an identifier, update the assignation value accordingly
 
 				if(op.get_type() != ent::lexer::token_type::EOF_TOKEN) {
 					value = std::make_shared<ent::front::ast::BinaryExpression>(identifier, op.get_value(), value);
@@ -629,26 +802,43 @@ namespace ent {
 			
 
 			std::shared_ptr<ent::front::ast::Expression> parse_expression() {
+
+				// Parse lowest prescedence expression
+
 				return parse_assignation_expression();
 			}
 
 			std::shared_ptr<ent::front::ast::AssignationExpression> expect_type_assignation_expression(ent::front::ast::NodeType type, std::string expected, std::shared_ptr<ent::front::ast::Identifier> identifier, std::shared_ptr<ent::front::ast::Expression> value) {
+				
 				// TODO: Fix casting (unsigned integers impossible to declare)
+				
+				// Check if the cast from the value into the given type is valid
+
 				if(!is_valid_cast(value, type)) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPECTED_OTHER_ERROR, "Expected " + expected + " expression, got " + value->type_id())).error();
 				}
+
+				// Update the identifier type
+
 				identifier->set_identifier_type(type);
+
 				return std::make_shared<ent::front::ast::AssignationExpression>(identifier, value);
 			}
 
-			std::shared_ptr<ent::front::ast::Declaration> parse_any_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::lexer::token type_specifier, ent::lexer::token_type expectedAfter, std::string expectedAfterString, bool applyExpect) {
+			std::shared_ptr<ent::front::ast::Declaration> parse_non_assignation_declaration(bool isMutable, std::shared_ptr<ent::front::ast::Identifier> identifier, ent::lexer::token type_specifier, ent::lexer::token_type expectedAfter, std::string expectedAfterString, bool applyExpect) {
+
 				ent::lexer::token next = peek();
+
+				// If the current token is not an assign token, parse declaration
 
 				if(next.get_type() != ent::lexer::token_type::ASSIGN) {
 					std::string type = type_specifier.get_value();
 					if(applyExpect) {
 						(void)expect(expectedAfter, expectedAfterString);
 					}
+
+					// Parse the type
+					
 					if(type == "void") {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_VOID_VARIABLE_ERROR, "Cannot declare a variable of type void")).error();
 					} else if(type == "i8") {
@@ -694,10 +884,14 @@ namespace ent {
 					throw (ent::Error(ent::ErrorType::PARSER_INVALID_TYPE_SPECIFIER_ERROR, "Invalid type specifier " + type)).error();
 				}
 
+				// Else, return nullptr
+
 				return nullptr;
 			}
 
 			std::shared_ptr<ent::front::ast::Statement> parse_declaration(bool needsSemicolon) {
+
+				// Check if the declaration is supposed to 
 
 				bool isMutable = false;
 
@@ -706,13 +900,18 @@ namespace ent {
 					isMutable = true;
 				}
 
+				// Parse the identifier
+
 				std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
+				
+				// Parse the type specifier
+
 				(void)expect(ent::lexer::token_type::COLON, ":");
 				ent::lexer::token type_specifier = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier");
 
-				ent::lexer::token next = peek();
+				// Try to parse as a non-assignation declaration and return if it succeeds
 
-				std::shared_ptr<ent::front::ast::Declaration> statement = parse_any_declaration(
+				std::shared_ptr<ent::front::ast::Declaration> statement = parse_non_assignation_declaration(
 					isMutable,
 					identifier,
 					type_specifier,
@@ -724,10 +923,16 @@ namespace ent {
 				if(statement != nullptr) {
 					return statement;
 				}
+
 				// Means next.get_type() == ent::type::token_type::ASSIGN
+
 				(void)eat();
+
+				// Parse the value and create the corresponding declaration
+
 				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 				std::string type = type_specifier.get_value();
+
 				if(needsSemicolon) {
 					(void)expect(ent::lexer::token_type::SEMICOLON, ";");
 				}
@@ -764,16 +969,20 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::Declaration> make_declaration(std::shared_ptr<ent::front::ast::Declaration> declarationExpression, std::shared_ptr<ent::front::ast::Expression> value, bool isMutable, bool isInFunctionSetup) {
+				
+				// Create the new declaration
+
 				return std::make_shared<ent::front::ast::Declaration>(declarationExpression->identifier, value, isMutable, isInFunctionSetup);
 			}
-
-			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemiColon);
 
 			std::vector<std::shared_ptr<ent::front::ast::Declaration>> parse_arguments() {
 
 				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
 
 				while(true) {
+
+					// Check if the argument is mutable
+
 					bool isMutable = false;
 
 					if(peek().get_type() == ent::lexer::token_type::MUTABLE) {
@@ -781,22 +990,27 @@ namespace ent {
 						isMutable = true;
 					}
 
+					// Parse the identifier and type specifier
+
 					std::shared_ptr<ent::front::ast::Identifier> identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 					(void)expect(ent::lexer::token_type::COLON, ":");
 					ent::lexer::token type_specifier = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier");
 
 					std::shared_ptr<ent::front::ast::Declaration> declaration;
 					
+					// Try to parse followed by a comma (check for next argument)
 					try {
-						declaration = parse_any_declaration(
+						declaration = parse_non_assignation_declaration(
 							isMutable,
 							identifier,
 							type_specifier,
 							ent::lexer::token_type::COMMA,
 							","
 						);
-					} catch(const std::exception& e) {
-						declaration = parse_any_declaration(
+					}
+					// If it fails, parse followd by close parenthesis (last argument)
+					catch(const std::exception& e) {
+						declaration = parse_non_assignation_declaration(
 							isMutable,
 							identifier,
 							type_specifier,
@@ -815,6 +1029,8 @@ namespace ent {
 
 			std::vector<std::shared_ptr<ent::front::ast::Statement>> parse_scope(std::string scopeType) {
 
+				// Parse open brance, then body, and finally close brace
+
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace at start of " + scopeType);
@@ -830,6 +1046,8 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Statement> parse_function_declaration(std::shared_ptr<ent::front::ast::Identifier> identifier) {
 
+				// If there is no provided Identifier, parse it
+
 				if(identifier == nullptr) {
 					identifier = std::dynamic_pointer_cast<ent::front::ast::Identifier>(parse_identifier());
 				}
@@ -838,9 +1056,12 @@ namespace ent {
 
 				std::vector<std::shared_ptr<ent::front::ast::Declaration>> arguments = std::vector<std::shared_ptr<ent::front::ast::Declaration>>();
 
+				// If the token type is a close parenthesis, throw an error
 				if(peek().get_type() == ent::lexer::token_type::CLOSE_PAREN) {
 					throw (ent::Error(ent::ErrorType::PARSER_EXPLICIT_VOID_MISSING_FN_ERROR, "Function misses explicit VOID param passing")).error();
 				}
+
+				// If the type specifier is void, skip arguments checking, else, parse arguments
 				if(peek().get_type() == ent::lexer::token_type::TYPE_SPECIFIER && peek().get_value() == "void") {
 					(void)eat();
 					(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis");
@@ -848,9 +1069,13 @@ namespace ent {
 					arguments = parse_arguments();
 				}
 
+				// Parse the type specifier
+
 				(void)expect(ent::lexer::token_type::COLON, "colon");
 
 				std::string returnType = expect(ent::lexer::token_type::TYPE_SPECIFIER, "type specifier").get_value();
+
+				// Parse the function body
 
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace at start of function");
 
@@ -861,6 +1086,8 @@ namespace ent {
 				}
 
 				(void)expect(ent::lexer::token_type::CLOSE_BRACE, "close brace at end of function");
+
+				// Parse the function and add it to the functions list
 				
 				std::shared_ptr<ent::front::ast::FunctionDeclaration> function = std::make_shared<ent::front::ast::FunctionDeclaration>(identifier, returnType, arguments, body);
 
@@ -870,7 +1097,12 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::FunctionReturn> parse_function_return() {
+
+				// Eat the return token
+
 				(void)eat();
+
+				// Parse the value to return
 
 				std::shared_ptr<ent::front::ast::Expression> value = parse_expression();
 
@@ -881,32 +1113,54 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_conditionnal_block() {
 
+				/**
+				 * The type of the condition
+				 */
 				enum ConditionType {
 					IF,
 					ELSE_IF,
 					ELSE
 				};
+
+				// Set the default type to be IF
+
 				enum ConditionType conditionType = ConditionType::IF;
 
+				// If the current token is ELSE
 				if(peek().get_type() == ent::lexer::token_type::ELSE) {
-					if(before == nullptr) {
+					// If there is no Conditionnal Block before, throw an error
+					if(previous_conditionnal_block == nullptr) {
 						throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 					}
+
+					// If the next token is ELSE, set the condition type to be ELSE IF
+
 					(void)eat();
 					conditionType = peek().get_type() == ent::lexer::IF ? ConditionType::ELSE_IF : ConditionType::ELSE;
 				}
 
+				// Set the default contion to nullptr
+
 				std::shared_ptr<ent::front::ast::Expression> condition = nullptr;
 
+				// If the condition is not ELSE, parse the condition
+
 				if(conditionType != ConditionType::ELSE) {
-					(void)expect(ent::lexer::token_type::IF, "if keyword");
+					
+					// Eat the IF token
+					
+					(void)eat();
 
 					if(peek().get_type() == ent::lexer::token_type::ELSE) {
-						if(before == nullptr) {
+						// If the current token is ELSE and there is no Condtionnal Block before, throw an error
+						if(previous_conditionnal_block == nullptr) {
 							throw (ent::Error(ent::ErrorType::PARSER_MISSING_IF_STATEMENT_BEFORE_ELSE, "Else keyword misses if clause before it")).error();
 						}
+						// Eat the ELSE token
 						(void)eat();
 					}
+					
+					// Parse the condition
 					
 					(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis before condition");
 				
@@ -915,17 +1169,23 @@ namespace ent {
 					(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after condition");
 				}
 
+				// Parse the body
+
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				body = parse_scope("conditionnal block");
 
+				// Create the Conditionnal Block and set its before to be the previous Conditionnal Block
+
 				std::shared_ptr<ent::front::ast::ConditionnalBlock> conditionnalBlock = std::make_shared<ent::front::ast::ConditionnalBlock>(body, condition, false);
 
 				if(conditionType != ConditionType::IF) {
-					conditionnalBlock->before = before;
+					conditionnalBlock->before = previous_conditionnal_block;
 				}
 
-				before = conditionnalBlock;
+				// Set the previous Conditionnal Block to be the current one
+
+				previous_conditionnal_block = conditionnalBlock;
 
 				return conditionnalBlock;
 			}
@@ -1130,18 +1390,18 @@ namespace ent {
 				if(peek().get_type() == ent::lexer::token_type::LET) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> declaration = parse_declaration(needsSemicolon);
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return declaration;
 				}
 				if(peek().get_type() == ent::lexer::token_type::FN) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> function_declaration = parse_function_declaration();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return function_declaration;
 				}
 				if(peek().get_type() == ent::lexer::token_type::RETURN) {
 					std::shared_ptr<ent::front::ast::Statement> functionReturn = parse_function_return();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return functionReturn;
 				}
 				if(peek().get_type() == ent::lexer::token_type::IF || peek().get_type() == ent::lexer::token_type::ELSE) {
@@ -1150,32 +1410,32 @@ namespace ent {
 				if(peek().get_type() == ent::lexer::token_type::FOR) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> for_loop = parse_for_loop();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return for_loop;
 				}
 				if(peek().get_type() == ent::lexer::token_type::WHILE) {
 					std::shared_ptr<ent::front::ast::Statement> whileLoop = parse_while_loop();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return whileLoop;
 				}
 				if(peek().get_type() == ent::lexer::token_type::MATCH) {
 					std::shared_ptr<ent::front::ast::Statement> matchStructure = parse_match_structure();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return matchStructure;
 				}
 				if(peek().get_type() == ent::lexer::token_type::BREAK) {
 					std::shared_ptr<ent::front::ast::Statement> breakStatement = parse_break_statement();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return breakStatement;
 				}
 				if(peek().get_type() == ent::lexer::token_type::TYPE) {
 					std::shared_ptr<ent::front::ast::Statement> typeDeclaration = parse_type_declaration();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return typeDeclaration;
 				}
 				if(peek().get_type() == ent::lexer::token_type::IMPL) {
 					std::shared_ptr<ent::front::ast::Statement> typeImplementation = parse_type_implementation();
-					if(updateBefore) { before = nullptr; }
+					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return typeImplementation;
 				}
 
@@ -1183,7 +1443,7 @@ namespace ent {
 				if(needsSemicolon) {
 					(void)expect(ent::lexer::token_type::SEMICOLON, "semi colon at end of line");
 				}
-				if(updateBefore) { before = nullptr; }
+				if(updateBefore) { previous_conditionnal_block = nullptr; }
 
 				return expression;
 			}

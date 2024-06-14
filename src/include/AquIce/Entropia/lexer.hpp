@@ -31,7 +31,7 @@ const char ENT__ESCAPE_CHARACTER = '\\';
  * @param value (char) - The value of the token
  * @return The `if` statement for the token
  */
-#define check_for_chr_token(tk_type, value) \
+#define CHECK_FOR_CHR_TOKEN(tk_type, value) \
 if(src.at(0) == value) { \
 	return ent::lexer::token(tk_type, shift(src)); \
 } \
@@ -42,7 +42,7 @@ if(src.at(0) == value) { \
  * @param value (std::string) - The value of the token
  * @return The `if` statement for the token
  */
-#define check_for_str_token(tk_type, value) \
+#define CHECK_FOR_STR_TOKEN(tk_type, value) \
 if(src.rfind(value, 0) == 0) { \
 	(void)shift(src, std::string(value).length()); \
 	return ent::lexer::token(tk_type, value); \
@@ -52,9 +52,9 @@ if(src.rfind(value, 0) == 0) { \
  * Add `if` check for all type specifiers tokens
  * @return The `if` statement for the tokens
  */
-#define check_for_type_specifier_token() \
+#define CHECK_FOR_TYPE_SPECIFIER_TOKEN() \
 for(std::string type : validTypes) { \
-	check_for_str_token(ent::lexer::token_type::TYPE_SPECIFIER, type) \
+	CHECK_FOR_STR_TOKEN(ent::lexer::token_type::TYPE_SPECIFIER, type) \
 } \
 
 /**
@@ -244,57 +244,57 @@ namespace ent {
 
 				// Check for all token types
 
-				check_for_chr_token(ent::lexer::token_type::OPEN_PAREN, '(')
-				check_for_chr_token(ent::lexer::token_type::CLOSE_PAREN, ')')
-				check_for_chr_token(ent::lexer::token_type::OPEN_BRACE, '{')
-				check_for_chr_token(ent::lexer::token_type::CLOSE_BRACE, '}')
-				check_for_chr_token(ent::lexer::token_type::COLON, ':')
-				check_for_chr_token(ent::lexer::token_type::SEMICOLON, ';')
-				check_for_chr_token(ent::lexer::token_type::COMMA, ',')
-				check_for_str_token(ent::lexer::EQUAL, "==")
-				check_for_str_token(ent::lexer::MATCH_ARROW, "=>")
-				check_for_chr_token(ent::lexer::token_type::ASSIGN, '=')
-				check_for_str_token(ent::lexer::token_type::SMALLER_OR_EQUAL, "<=")
-				check_for_str_token(ent::lexer::token_type::GREATER_OR_EQUAL, ">=")
-				check_for_str_token(ent::lexer::token_type::BITWISE_LEFT_SHIFT, "<<")
-				check_for_chr_token(ent::lexer::token_type::SMALLER_THAN, '<')
-				check_for_str_token(ent::lexer::token_type::BITWISE_RIGHT_SHIFT, ">>")
-				check_for_chr_token(ent::lexer::token_type::GREATER_THAN, '>')
-				check_for_str_token(ent::lexer::token_type::NOT_EQUAL, "!=")
-				check_for_chr_token(ent::lexer::token_type::NOT, '!')
-				check_for_str_token(ent::lexer::token_type::INCREMENT, "++")
-				check_for_chr_token(ent::lexer::token_type::PLUS, '+')
-				check_for_str_token(ent::lexer::token_type::DECREMENT, "--")
-				check_for_chr_token(ent::lexer::token_type::MINUS, '-')
-				check_for_chr_token(ent::lexer::token_type::TIMES, '*')
-				check_for_chr_token(ent::lexer::token_type::DIVIDED_BY, '/')
-				check_for_chr_token(ent::lexer::token_type::MODULO, '%')
-				check_for_str_token(ent::lexer::token_type::AND, "&&")
-				check_for_chr_token(ent::lexer::token_type::BITWISE_AND, '&')
-				check_for_str_token(ent::lexer::token_type::OR, "||")
-				check_for_chr_token(ent::lexer::token_type::BITWISE_OR, '|')
-				check_for_str_token(ent::lexer::token_type::XOR, "^^")
-				check_for_chr_token(ent::lexer::token_type::BITWISE_XOR, '^')
-				check_for_chr_token(ent::lexer::token_type::BITWISE_NOT, '~')
-				check_for_chr_token(ent::lexer::token_type::QUESTION_MARK, '?')
-				check_for_str_token(ent::lexer::token_type::LET, "let")
-				check_for_str_token(ent::lexer::token_type::MUTABLE, "mut")
-				check_for_type_specifier_token()
-				check_for_str_token(ent::lexer::token_type::BOOL, "true")
-				check_for_str_token(ent::lexer::token_type::BOOL, "false")
-				check_for_str_token(ent::lexer::token_type::FN, "fn")
-				check_for_str_token(ent::lexer::token_type::RETURN, "return")
-				check_for_str_token(ent::lexer::token_type::IF, "if")
-				check_for_str_token(ent::lexer::token_type::ELSE, "else")
-				check_for_str_token(ent::lexer::token_type::FOR, "for")
-				check_for_str_token(ent::lexer::token_type::WHILE, "while")
-				check_for_str_token(ent::lexer::token_type::MATCH, "match")
-				check_for_str_token(ent::lexer::token_type::DEFAULT, "default")
-				check_for_str_token(ent::lexer::token_type::BREAK, "break")
-				check_for_str_token(ent::lexer::token_type::IMPL, "impl")
-				check_for_chr_token(ent::lexer::token_type::AT, '@')
-				check_for_str_token(ent::lexer::token_type::PRIVATE, "private")
-				check_for_str_token(ent::lexer::token_type::PUBLIC, "public")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::OPEN_PAREN, '(')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::CLOSE_PAREN, ')')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::OPEN_BRACE, '{')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::CLOSE_BRACE, '}')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::COLON, ':')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::SEMICOLON, ';')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::COMMA, ',')
+				CHECK_FOR_STR_TOKEN(ent::lexer::EQUAL, "==")
+				CHECK_FOR_STR_TOKEN(ent::lexer::MATCH_ARROW, "=>")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::ASSIGN, '=')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::SMALLER_OR_EQUAL, "<=")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::GREATER_OR_EQUAL, ">=")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::BITWISE_LEFT_SHIFT, "<<")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::SMALLER_THAN, '<')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::BITWISE_RIGHT_SHIFT, ">>")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::GREATER_THAN, '>')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::NOT_EQUAL, "!=")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::NOT, '!')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::INCREMENT, "++")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::PLUS, '+')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::DECREMENT, "--")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::MINUS, '-')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::TIMES, '*')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::DIVIDED_BY, '/')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::MODULO, '%')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::AND, "&&")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::BITWISE_AND, '&')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::OR, "||")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::BITWISE_OR, '|')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::XOR, "^^")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::BITWISE_XOR, '^')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::BITWISE_NOT, '~')
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::QUESTION_MARK, '?')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::LET, "let")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::MUTABLE, "mut")
+				CHECK_FOR_TYPE_SPECIFIER_TOKEN()
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::BOOL, "true")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::BOOL, "false")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::FN, "fn")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::RETURN, "return")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::IF, "if")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::ELSE, "else")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::FOR, "for")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::WHILE, "while")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::MATCH, "match")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::DEFAULT, "default")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::BREAK, "break")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::IMPL, "impl")
+				CHECK_FOR_CHR_TOKEN(ent::lexer::token_type::AT, '@')
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::PRIVATE, "private")
+				CHECK_FOR_STR_TOKEN(ent::lexer::token_type::PUBLIC, "public")
 
 				// Check for `type` token (set `isLastToken` to true)
 

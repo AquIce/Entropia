@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#define token_switch_case(tk) \
+#define TOKEN_SWITCH_CASE(tk) \
 case tk: \
 	type = #tk; \
 	break;
@@ -119,82 +119,82 @@ namespace ent {
 			std::string repr() {
 				std::string type = "";
 				switch(this->type) {
-					token_switch_case(LET)
-					token_switch_case(MUTABLE)
-					token_switch_case(TYPE_SPECIFIER)
-					token_switch_case(FN)
-					token_switch_case(RETURN)
+					TOKEN_SWITCH_CASE(LET)
+					TOKEN_SWITCH_CASE(MUTABLE)
+					TOKEN_SWITCH_CASE(TYPE_SPECIFIER)
+					TOKEN_SWITCH_CASE(FN)
+					TOKEN_SWITCH_CASE(RETURN)
 
-					token_switch_case(IF)
-					token_switch_case(ELSE)
-					token_switch_case(FOR)
-					token_switch_case(WHILE)
-					token_switch_case(MATCH)
-					token_switch_case(DEFAULT)
-					token_switch_case(BREAK)
+					TOKEN_SWITCH_CASE(IF)
+					TOKEN_SWITCH_CASE(ELSE)
+					TOKEN_SWITCH_CASE(FOR)
+					TOKEN_SWITCH_CASE(WHILE)
+					TOKEN_SWITCH_CASE(MATCH)
+					TOKEN_SWITCH_CASE(DEFAULT)
+					TOKEN_SWITCH_CASE(BREAK)
 
-					token_switch_case(OPEN_PAREN)
-					token_switch_case(CLOSE_PAREN)
-					token_switch_case(OPEN_BRACE)
-					token_switch_case(CLOSE_BRACE)
-					token_switch_case(COLON)
-					token_switch_case(SEMICOLON)
-					token_switch_case(COMMA)
-					token_switch_case(ASSIGN)
-					token_switch_case(MATCH_ARROW)
+					TOKEN_SWITCH_CASE(OPEN_PAREN)
+					TOKEN_SWITCH_CASE(CLOSE_PAREN)
+					TOKEN_SWITCH_CASE(OPEN_BRACE)
+					TOKEN_SWITCH_CASE(CLOSE_BRACE)
+					TOKEN_SWITCH_CASE(COLON)
+					TOKEN_SWITCH_CASE(SEMICOLON)
+					TOKEN_SWITCH_CASE(COMMA)
+					TOKEN_SWITCH_CASE(ASSIGN)
+					TOKEN_SWITCH_CASE(MATCH_ARROW)
 
-					token_switch_case(PLUS)
-					token_switch_case(MINUS)
-					token_switch_case(TIMES)
-					token_switch_case(DIVIDED_BY)
+					TOKEN_SWITCH_CASE(PLUS)
+					TOKEN_SWITCH_CASE(MINUS)
+					TOKEN_SWITCH_CASE(TIMES)
+					TOKEN_SWITCH_CASE(DIVIDED_BY)
 
-					token_switch_case(EQUAL)
-					token_switch_case(NOT_EQUAL)
-					token_switch_case(AND)
-					token_switch_case(OR)
-					token_switch_case(XOR)
-					token_switch_case(SMALLER_THAN)
-					token_switch_case(GREATER_THAN)
-					token_switch_case(SMALLER_OR_EQUAL)
-					token_switch_case(GREATER_OR_EQUAL)
-					token_switch_case(NOT)
+					TOKEN_SWITCH_CASE(EQUAL)
+					TOKEN_SWITCH_CASE(NOT_EQUAL)
+					TOKEN_SWITCH_CASE(AND)
+					TOKEN_SWITCH_CASE(OR)
+					TOKEN_SWITCH_CASE(XOR)
+					TOKEN_SWITCH_CASE(SMALLER_THAN)
+					TOKEN_SWITCH_CASE(GREATER_THAN)
+					TOKEN_SWITCH_CASE(SMALLER_OR_EQUAL)
+					TOKEN_SWITCH_CASE(GREATER_OR_EQUAL)
+					TOKEN_SWITCH_CASE(NOT)
 
-					token_switch_case(MODULO)
-					token_switch_case(BITWISE_LEFT_SHIFT)
-					token_switch_case(BITWISE_RIGHT_SHIFT)
-					token_switch_case(BITWISE_AND)
-					token_switch_case(BITWISE_OR)
-					token_switch_case(BITWISE_XOR)
+					TOKEN_SWITCH_CASE(MODULO)
+					TOKEN_SWITCH_CASE(BITWISE_LEFT_SHIFT)
+					TOKEN_SWITCH_CASE(BITWISE_RIGHT_SHIFT)
+					TOKEN_SWITCH_CASE(BITWISE_AND)
+					TOKEN_SWITCH_CASE(BITWISE_OR)
+					TOKEN_SWITCH_CASE(BITWISE_XOR)
 
-					token_switch_case(INCREMENT)
-					token_switch_case(DECREMENT)
+					TOKEN_SWITCH_CASE(INCREMENT)
+					TOKEN_SWITCH_CASE(DECREMENT)
 					
-					token_switch_case(BITWISE_NOT)
+					TOKEN_SWITCH_CASE(BITWISE_NOT)
 
-					token_switch_case(QUESTION_MARK)
+					TOKEN_SWITCH_CASE(QUESTION_MARK)
 
-					token_switch_case(BOOL)
+					TOKEN_SWITCH_CASE(BOOL)
 
-					token_switch_case(CHAR)
-					token_switch_case(STR)
+					TOKEN_SWITCH_CASE(CHAR)
+					TOKEN_SWITCH_CASE(STR)
 
-					token_switch_case(I8)
-					token_switch_case(I16)
-					token_switch_case(I32)
-					token_switch_case(I64)
-					token_switch_case(U64)
-					token_switch_case(F32)
-					token_switch_case(F64)
+					TOKEN_SWITCH_CASE(I8)
+					TOKEN_SWITCH_CASE(I16)
+					TOKEN_SWITCH_CASE(I32)
+					TOKEN_SWITCH_CASE(I64)
+					TOKEN_SWITCH_CASE(U64)
+					TOKEN_SWITCH_CASE(F32)
+					TOKEN_SWITCH_CASE(F64)
 
-					token_switch_case(TYPE)
-					token_switch_case(IMPL)
-					token_switch_case(AT)
-					token_switch_case(PUBLIC)
-					token_switch_case(PRIVATE)
+					TOKEN_SWITCH_CASE(TYPE)
+					TOKEN_SWITCH_CASE(IMPL)
+					TOKEN_SWITCH_CASE(AT)
+					TOKEN_SWITCH_CASE(PUBLIC)
+					TOKEN_SWITCH_CASE(PRIVATE)
 
-					token_switch_case(IDENTIFIER)
+					TOKEN_SWITCH_CASE(IDENTIFIER)
 
-					token_switch_case(EOF_TOKEN)
+					TOKEN_SWITCH_CASE(EOF_TOKEN)
 				}
 				type += ": ";
 				type += this->value;

@@ -14,7 +14,7 @@
  * @param expressionType The type of the expression to cast
  * @param destinationType The destination type
  */
-#define is_valid_cast_expression_type(expressionType, destinationType) \
+#define IS_VALID_CAST_EXPRESSION_TYPE(expressionType, destinationType) \
 ( \
 	std::dynamic_pointer_cast<expressionType>(value)->get()->value >= std::numeric_limits<destinationType>::min() && \
 	std::dynamic_pointer_cast<expressionType>(value)->get()->value <= std::numeric_limits<destinationType>::max() && \
@@ -26,28 +26,28 @@
  * @param destinationType The destination type
  * @return Whether the cast is valid
  */
-#define switch_expression_type(destinationType) \
+#define SWITCH_EXPRESSION_TYPE(destinationType) \
 switch(value->get_type()) { \
 	case NodeType::i8Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<I8Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<I8Expression>, destinationType); \
 	case NodeType::i16Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<I16Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<I16Expression>, destinationType); \
 	case NodeType::i32Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<I32Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<I32Expression>, destinationType); \
 	case NodeType::i64Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<I64Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<I64Expression>, destinationType); \
 	case NodeType::u8Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<U8Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<U8Expression>, destinationType); \
 	case NodeType::u16Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<U16Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<U16Expression>, destinationType); \
 	case NodeType::u32Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<U32Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<U32Expression>, destinationType); \
 	case NodeType::u64Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<U64Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<U64Expression>, destinationType); \
 	case NodeType::f32Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<F32Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<F32Expression>, destinationType); \
 	case NodeType::f64Expression: \
-		return is_valid_cast_expression_type(std::shared_ptr<F64Expression>, destinationType); \
+		return IS_VALID_CAST_EXPRESSION_TYPE(std::shared_ptr<F64Expression>, destinationType); \
 	default: \
 		return false; \
 }
