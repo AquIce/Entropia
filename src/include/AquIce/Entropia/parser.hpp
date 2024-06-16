@@ -1192,6 +1192,8 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::ConditionnalStructure> parse_conditionnal_structure() {
 
+				// Parse all the blocks while they start with IF or ELSE
+
 				std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>> blocks = std::vector<std::shared_ptr<ent::front::ast::ConditionnalBlock>>();
 
 				while(peek().get_type() == ent::lexer::token_type::IF || peek().get_type() == ent::lexer::token_type::ELSE) {
@@ -1202,6 +1204,9 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::ForLoop> parse_for_loop() {
+
+				// Parse the FOR parameters (init statement, loop condition and iteration statement)
+
 				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis after for keyword");
 
 				std::shared_ptr<ent::front::ast::Statement> initStatement = parse_statement(true, false);
@@ -1212,6 +1217,8 @@ namespace ent {
 
 				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after for iteration statement");
 
+				// Parse the body
+
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
 				body = parse_scope("for loop");
@@ -1220,11 +1227,16 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::WhileLoop> parse_while_loop() {
+
 				(void)eat();
+
+				// Parse the while condition
 
 				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis after while keyword");
 				std::shared_ptr<ent::front::ast::Expression> loopCondition = parse_expression();
 				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after while condition");
+
+				// Parse the body
 
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before while body");
 
@@ -1241,16 +1253,22 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::ConditionnalBlock> parse_match_case() {
 
+				// Parse the value to match to enter the case
+
 				std::shared_ptr<ent::front::ast::Expression> caseToMatch = nullptr;
 
-				if(peek().get_type() != ent::lexer::token_type::DEFAULT) {
-					caseToMatch = parse_expression();
-				} else {
+				// Leave the condition to nullptr if the case is default
+				if(peek().get_type() == ent::lexer::token_type::DEFAULT) {
 					(void)eat();
+				}
+				// Else, parse the match expression
+				else {
+					caseToMatch = parse_expression();
 				}
 
 				(void)expect(ent::lexer::token_type::MATCH_ARROW, "match arrow after expression");
 
+				// Parse the body
 
 				std::vector<std::shared_ptr<ent::front::ast::Statement>> body = std::vector<std::shared_ptr<ent::front::ast::Statement>>();
 
@@ -1265,11 +1283,15 @@ namespace ent {
 
 				(void)eat();
 
+				// Parse the expression to match
+
 				(void)expect(ent::lexer::token_type::OPEN_PAREN, "open parenthesis before match expression");
 
 				std::shared_ptr<ent::front::ast::Expression> matchExpression = parse_expression();
 
 				(void)expect(ent::lexer::token_type::CLOSE_PAREN, "close parenthesis after match expression");
+
+				// Parse the body while there is no close brace
 				
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before match body");
 
@@ -1292,17 +1314,25 @@ namespace ent {
 			}
 
 			std::shared_ptr<ent::front::ast::TypeDeclaration> parse_type_declaration() {
+
 				(void)eat();
 
-				ent::lexer::token typeName = expect(ent::lexer::token_type::TYPE_SPECIFIER, "valid type name to implement");
+				// Parse the type specifier
+
+				ent::lexer::token typeName = expect(ent::lexer::token_type::TYPE_SPECIFIER, "valid type name to declare");
+
+				// * Parse the body
 
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before type declaration body");
 				
 				std::vector<ent::front::ast::TypeMember> members = std::vector<ent::front::ast::TypeMember>();
 
+				// Set the current access specifier as public
+
 				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 
 				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
+					// Parse a new access specifier
 					if(peek().get_type() == ent::lexer::token_type::AT) {
 						(void)eat();
 						if(peek().get_type() == ent::lexer::PRIVATE) {
@@ -1317,6 +1347,9 @@ namespace ent {
 						}
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
 					}
+
+					// Add the declaration to the members
+
 					std::shared_ptr<ent::front::ast::Declaration> declaration = std::dynamic_pointer_cast<ent::front::ast::Declaration>(
 						parse_declaration(true)
 					);
@@ -1326,6 +1359,7 @@ namespace ent {
 					});
 				}
 
+				// Throw an error if there are no members
 				if(members.size() == 0) {
 					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_DECLARATION_ERROR, "At least one member is required in a type declaration")).error();
 				}
@@ -1341,15 +1375,22 @@ namespace ent {
 
 				(void)eat();
 
+				// Parse the type specifier
+
 				ent::lexer::token typeName = expect(ent::lexer::token_type::TYPE_SPECIFIER, "valid type name to implement");
+
+				// * Parse the body
 
 				(void)expect(ent::lexer::token_type::OPEN_BRACE, "open brace before type implementation body");
 				
 				std::vector<ent::front::ast::ImplMethod> methods = std::vector<ent::front::ast::ImplMethod>();
 
+				// Set the current access specifier as public
+
 				enum ent::front::ast::ClassAccessSpecifier currentAccessSpecifier = ent::front::ast::ClassAccessSpecifier::PUBLIC;
 
 				while(peek().get_type() != ent::lexer::token_type::CLOSE_BRACE) {
+					// Parse a new access specifier
 					if(peek().get_type() == ent::lexer::token_type::AT) {
 						(void)eat();
 						if(peek().get_type() == ent::lexer::PRIVATE) {
@@ -1365,6 +1406,8 @@ namespace ent {
 						throw (ent::Error(ent::ErrorType::PARSER_INVALID_ACCESS_SPECIFIER_ERROR, "Expected valid access specifier, got " + peek().get_value())).error();
 					}
 
+					// Add the function declaration to the methods
+
 					(void)expect(ent::lexer::token_type::FN, "Function in type implementation");
 
 					std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
@@ -1376,6 +1419,7 @@ namespace ent {
 					});
 				}
 
+				// Throw an error if there are no methods
 				if(methods.size() == 0) {
 					throw (ent::Error(ent::ErrorType::PARSER_EMPTY_TYPE_IMPLEMENTATION_ERROR, "At least one method is required in a type implementation")).error();
 				}
@@ -1387,58 +1431,69 @@ namespace ent {
 
 			std::shared_ptr<ent::front::ast::Statement> parse_statement(bool updateBefore, bool needsSemicolon) {
 
+				// Parse a Declaration
 				if(peek().get_type() == ent::lexer::token_type::LET) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> declaration = parse_declaration(needsSemicolon);
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return declaration;
 				}
+				// Parse a Function Declaration
 				if(peek().get_type() == ent::lexer::token_type::FN) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> function_declaration = parse_function_declaration();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return function_declaration;
 				}
+				// Parse a Function Return
 				if(peek().get_type() == ent::lexer::token_type::RETURN) {
 					std::shared_ptr<ent::front::ast::Statement> functionReturn = parse_function_return();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return functionReturn;
 				}
+				// Parse a Conditionnal Structure
 				if(peek().get_type() == ent::lexer::token_type::IF || peek().get_type() == ent::lexer::token_type::ELSE) {
 					return parse_conditionnal_structure();
 				}
+				// Parse a For Loop
 				if(peek().get_type() == ent::lexer::token_type::FOR) {
 					(void)eat();
 					std::shared_ptr<ent::front::ast::Statement> for_loop = parse_for_loop();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return for_loop;
 				}
+				// Parse a While Loop
 				if(peek().get_type() == ent::lexer::token_type::WHILE) {
 					std::shared_ptr<ent::front::ast::Statement> whileLoop = parse_while_loop();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return whileLoop;
 				}
+				// Parse a Match Structure
 				if(peek().get_type() == ent::lexer::token_type::MATCH) {
 					std::shared_ptr<ent::front::ast::Statement> matchStructure = parse_match_structure();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return matchStructure;
 				}
+				// Parse a Break Statement
 				if(peek().get_type() == ent::lexer::token_type::BREAK) {
 					std::shared_ptr<ent::front::ast::Statement> breakStatement = parse_break_statement();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return breakStatement;
 				}
+				// Parse a Type Declaration
 				if(peek().get_type() == ent::lexer::token_type::TYPE) {
 					std::shared_ptr<ent::front::ast::Statement> typeDeclaration = parse_type_declaration();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return typeDeclaration;
 				}
+				// Parse a Type Implemenation
 				if(peek().get_type() == ent::lexer::token_type::IMPL) {
 					std::shared_ptr<ent::front::ast::Statement> typeImplementation = parse_type_implementation();
 					if(updateBefore) { previous_conditionnal_block = nullptr; }
 					return typeImplementation;
 				}
 
+				// Parse an Expression
 				std::shared_ptr<ent::front::ast::Expression> expression = parse_expression();
 				if(needsSemicolon) {
 					(void)expect(ent::lexer::token_type::SEMICOLON, "semi colon at end of line");
@@ -1451,7 +1506,8 @@ namespace ent {
 			std::shared_ptr<ent::front::ast::Program> parse(std::vector<ent::lexer::token> tokens) {
 				tks = tokens;
 
-				std::cout << peek().repr() << std::endl;
+				// Iterate through the tokens
+
 				while(!eof()) {
 					program->body.push_back(parse_statement());
 				}
