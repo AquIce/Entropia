@@ -9,6 +9,11 @@
 #include "ast.hpp"
 #include "errors.hpp"
 
+/**
+ * Check if a value is in an iterable
+ * @param iterable The iterable to check
+ * @param value The value to look for
+ */
 #define IS_VALUE_IN(iterable, value) \
 std::find(iterable.begin(), iterable.end(), value) != iterable.end()
 
@@ -1413,7 +1418,7 @@ namespace ent {
 					std::shared_ptr<ent::front::ast::FunctionDeclaration> functionDeclaration = std::dynamic_pointer_cast<ent::front::ast::FunctionDeclaration>(
 						parse_function_declaration()
 					);
-					methods.push_back({
+					methods.push_back(ent::front::ast::ImplMethod{
 						functionDeclaration,
 						currentAccessSpecifier
 					});

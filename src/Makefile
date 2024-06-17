@@ -1,7 +1,7 @@
 default: run
 
 build:
-	g++ -I include -Wall -Wpedantic -Werror -o entropia main.cpp
+	g++ -Iinclude -Wall -Wpedantic -Werror Entropia/types/numbers.cpp Entropia/lexer/token.cpp Entropia/lexer/lexer.cpp Entropia/parser/ast.cpp main.cpp Entropia/interpreter/values.cpp Entropia/interpreter/env.cpp main.cpp -o entropia
 
 test_build:
 	g++ -I include -Wall -Wpedantic -Werror -o entropia_test test.cpp

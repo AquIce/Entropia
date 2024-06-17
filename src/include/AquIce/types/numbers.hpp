@@ -20,138 +20,76 @@
 #define f64 double
 
 namespace types {
-	i8 stoi8(std::string str) {
-		int tmp = std::stoi(str);
-		if(tmp > _I8_MIN && tmp < _I8_MAX) {
-			return (i8)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for i8");
-		}
-	}
 
-	i16 stoi16(std::string str) {
-		int tmp = std::stoi(str);
-		if(tmp > _I16_MIN && tmp < _I16_MAX) {
-			return (i16)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for i16");
-		}
-	}
+	/**
+	 * Extract an I8 from a string
+	 * @param str The source string
+	 * @return The I8 value
+	 */
+	i8 stoi8(std::string str);
 
-	i32 stoi32(std::string str) {
-		int tmp = std::stoi(str);
-		if(tmp > _I32_MIN && tmp < _I32_MAX) {
-			return (i32)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for i32");
-		}
-	}
+	/**
+	 * Extract an I16 from a string
+	 * @param str The source string
+	 * @return The I16 value
+	 */
+	i16 stoi16(std::string str);
 
-	i64 stoi64(std::string str) {
-		long long tmp = std::stoll(str);
-		if(tmp > _I64_MIN && tmp < _I64_MAX) {
-			return (i64)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for i64");
-		}
-	}
+	/**
+	 * Extract an I32 from a string
+	 * @param str The source string
+	 * @return The I32 value
+	 */
+	i32 stoi32(std::string str);
 
-	u8 stou8(std::string str) {
-		unsigned int tmp = std::stoul(str);
-		if(tmp > _UI8_MAX && tmp < _UI8_MAX) {
-			return (u8)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for u8");
-		}
-	}
+	/**
+	 * Extract an I64 from a string
+	 * @param str The source string
+	 * @return The I8 value
+	 */
+	i64 stoi64(std::string str);
 
-	u16 stou16(std::string str) {
-		unsigned int tmp = std::stoul(str);
-		if(tmp > 0 && tmp < _UI16_MAX) {
-			return (u16)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for u16");
-		}
-	}
+	/**
+	 * Extract an U8 from a string
+	 * @param str The source string
+	 * @return The U8 value
+	 */
+	u8 stou8(std::string str);
 
-	u32 stou32(std::string str) {
-		unsigned int tmp = std::stoul(str);
-		if(tmp > 0 && tmp < _UI32_MAX) {
-			return (u32)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for u32");
-		}
-	}
+	/**
+	 * Extract an U16 from a string
+	 * @param str The source string
+	 * @return The U16 value
+	 */
+	u16 stou16(std::string str);
 
-	u64 stou64(std::string str) {
-		unsigned long long tmp = std::stoull(str);
-		if(tmp > 0 && tmp < _UI64_MAX) {
-			return (u64)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for u64");
-		}
-	}
+	/**
+	 * Extract an U32 from a string
+	 * @param str The source string
+	 * @return The U32 value
+	 */
+	u32 stou32(std::string str);
 
-	f32 stof32(std::string str) {
-		float tmp = std::stof(str);
-		if(tmp > FLT_MIN && tmp < FLT_MAX) {
-			return (f32)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for f32");
-		}
-	}
+	/**
+	 * Extract an U64 from a string
+	 * @param str The source string
+	 * @return The U64 value
+	 */
+	u64 stou64(std::string str);
 
-	f64 stof64(std::string str) {
-		double tmp = std::stod(str);
-		if(tmp > DBL_MIN && tmp < DBL_MAX) {
-			return (f64)tmp;
-		} else {
-			throw std::out_of_range("Value out of range for f64");
-		}
-	}
+	/**
+	 * Extract an F32 from a string
+	 * @param str The source string
+	 * @return The F32 value
+	 */
+	f32 stof32(std::string str);
 
-	template <typename T>
-	bool is_i8(T value) {
-		return value > _I8_MIN && value < _I8_MAX;
-	}
-	template <typename T>
-	bool is_i16(T value) {
-		return value > _I16_MIN && value < _I16_MAX;
-	}
-	template <typename T>
-	bool is_i32(T value) {
-		return value > _I32_MIN && value < _I32_MAX;
-	}
-	template <typename T>
-	bool is_i64(T value) {
-		return value > _I64_MIN && value < _I64_MAX;
-	}
-
-	template <typename T>
-	bool is_u8(T value) {
-		return value > 0 && value < _UI8_MAX;
-	}
-	template <typename T>
-	bool is_u16(T value) {
-		return value > 0 && value < _UI16_MAX;
-	}
-	template <typename T>
-	bool is_u32(T value) {
-		return value > 0 && value < _UI32_MAX;
-	}
-	template <typename T>
-	bool is_u64(T value) {
-		return value > 0 && value < _UI64_MAX;
-	}
-
-	template <typename T>
-	bool is_f32(T value) {
-		return value > FLT_MIN && value < FLT_MAX;
-	}
-	template <typename T>
-	bool is_f64(T value) {
-		return value > DBL_MIN && value < DBL_MAX;
-	}
+	/**
+	 * Extract an F64 from a string
+	 * @param str The source string
+	 * @return The F64 value
+	 */
+	f64 stof64(std::string str);
 }
 
 #endif

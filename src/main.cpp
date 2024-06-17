@@ -2,10 +2,10 @@
 #include <string>
 #include <fstream>
 
-#include <AquIce/Entropia/lexer.hpp>
 #include <AquIce/Entropia/token.hpp>
-#include <AquIce/Entropia/parser.hpp>
+#include <AquIce/Entropia/lexer.hpp>
 #include <AquIce/Entropia/ast.hpp>
+#include <AquIce/Entropia/parser.hpp>
 #include <AquIce/Entropia/interpreter.hpp>
 
 #include <AquIce/unit/assert.hpp>

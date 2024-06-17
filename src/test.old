@@ -76,7 +76,7 @@ int main() {
 			ASSERT_EQUAL("Fourteenth token value is 3", tokens[13].get_value(), "3");
 		});
 		ASSERT_BLOCK("Token 14", {
-			ASSERT_EQUAL("Fifteenth token is an EOF token", tokens[14].get_type(), ent::lexer::token_type::EOF_TOKEN);
+			ASSERT_EQUAL("Fifteenth token is an EOF token", tokens[14].get_type(), ent::lexer::token_type::EOF);
 		});
 	});
 

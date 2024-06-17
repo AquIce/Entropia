@@ -3,9 +3,16 @@
 
 #include <string>
 
+#include "../types/numbers.hpp"
+
 namespace ent {
 	namespace runtime {
 
+		#pragma region Enums
+
+		/**
+		 * The runtime value types
+		 */
 		enum ValueType {
 			NULL_VAL,
 
@@ -28,364 +35,459 @@ namespace ent {
 			STR,
 		};
 
+		#pragma endregion
+
+		#pragma region Functions
+
+		bool IsSignedIntegerType(ValueType type);
+
+		bool IsIntegerType(ValueType type);
+
+		bool IsNumericType(ValueType type);
+
+		bool IsFloatType(ValueType type);
+
+		#pragma endregion
+
+		#pragma region Classes
+
+		/**
+		 * RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class RuntimeValue {
 		public:
-			virtual ValueType type() {
-				return ValueType::NULL_VAL;
-			};
-			virtual std::string repr() {
-				return "RuntimeValue";
-			}
-			virtual bool IsTrue() {
-				return false;
-			}
+			/**
+			 * Get the type of the value
+			 * @return The type
+			 */
+			virtual ValueType type();
+
+			/**
+			 * Get the string representation of the value
+			 * @return The string representation
+			 */
+			virtual std::string repr();
+			
+			/**
+			 * Checks whether the value is true or false
+			 */
+			virtual bool IsTrue();
 		};
 
+		/**
+		 * NullValue < RuntimeValue
+		 */
 		class NullValue: public RuntimeValue {
 		public:
+			// TODO check why shit here
 			bool visible = true;
-			NullValue(bool visible = true) {
-				this->visible = visible;
-			}
-			virtual ValueType type() override {
-				return ValueType::NULL_VAL;
-			}
-			virtual std::string repr() override {
-				return this->visible ? "null" : "";
-			}
-			virtual bool IsTrue() {
-				return false;
-			}
+			/**
+			 * Create a new Null Value
+			 */
+			NullValue(bool visible = true);
+			
+			virtual ValueType type() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
 		};
 
+		/**
+		 * NumberValue < RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class NumberValue: public RuntimeValue {
 		public:
-			virtual int magnitude() {
-				return -1;
-			}
+			/**
+			 * Get the magnitude of a NumberValue
+			 */
+			virtual int magnitude();
 		};
 
+		/**
+		 * IntegerValue < NumberValue < RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class IntegerValue: public NumberValue {};
 
-		bool IsSignedIntegerType(ValueType type) {
-			return type == ValueType::I8 || type == ValueType::I16 || type == ValueType::I32 || type == ValueType::I64 ;
-		}
-
-		bool IsIntegerType(ValueType type) {
-			return
-				IsSignedIntegerType(type) ||
-				type == ValueType::U8 || type == ValueType::U16 || type == ValueType::U32 || type == ValueType::U64;
-		}
-
-		bool IsNumericType(ValueType type) {
-			return
-				IsIntegerType(type) ||
-				type == ValueType::F32 || type == ValueType::F64;
-		}
-
+		/**
+		 * SignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class SignedIntegerValue: public IntegerValue {};
 
+		/**
+		 * I8Value < SignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class I8Value: public SignedIntegerValue {
+		public:
+			/**
+			 * Create a new I8 Value
+			 */
+			I8Value(i8 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			i8 get_value();
+			
+			virtual int magnitude() override;
+
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			i8 value;
-		public:
-			I8Value(i8 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::I8;
-			}
-			i8 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 7;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": i8";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
 
+		/**
+		 * I16Value < SignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class I16Value: public SignedIntegerValue {
+		public:
+			I16Value(i16 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			i16 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			i16 value;
-		public:
-			I16Value(i16 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::I16;
-			}
-			i16 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 15;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": i16";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
 
+		/**
+		 * I32Value < SignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class I32Value: public SignedIntegerValue {
+		public:
+			I32Value(i32 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			i32 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			i32 value;
-		public:
-			I32Value(i32 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::I32;
-			}
-			i32 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 31;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": i32";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
-
+		
+		/**
+		 * I64Value < SignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class I64Value: public SignedIntegerValue {
-		private:
-			i64 value;
 		public:
-			I64Value(i64 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::I64;
-			}
-			i64 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 63;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": i64";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
+			I64Value(i64 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			i64 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
+		private:
+			/**
+			 * The value held by the class
+			 */
+			i64 value;
 		};
-
+		
+		/**
+		 * UnsignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class UnsignedIntegerValue: public IntegerValue {};
 
+		/**
+		 * U8Value < UnsignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class U8Value: public UnsignedIntegerValue {
+		public:
+			U8Value(u8 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			u8 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			u8 value;
-		public:
-			U8Value(u8 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::U8;
-			}
-			u8 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 8;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": u8";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
+		
+		/**
+		 * U16Value < UnsignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class U16Value: public UnsignedIntegerValue {
+		public:
+			U16Value(u16 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			u16 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			u16 value;
-		public:
-			U16Value(u16 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::U16;
-			}
-			u16 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 16;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": u16";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
+		
+		/**
+		 * U32Value < UnsignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class U32Value: public UnsignedIntegerValue {
+		public:
+			U32Value(u32 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			u32 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			u32 value;
-		public:
-			U32Value(u32 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::U32;
-			}
-			u32 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 32;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": u32";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
+		
+		/**
+		 * U64Value < UnsignedIntegerValue < IntegerValue < NumberValue < RuntimeValue
+		 */
 		class U64Value: public UnsignedIntegerValue {
-		private:
-			u64 value;
 		public:
-			U64Value(u64 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::U64;
-			}
-			u64 get_value() {
-				return this->value;
-			}
-			virtual int magnitude() {
-				return 64;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": u64";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
+			U64Value(u64 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			u64 get_value();
+			
+			virtual int magnitude() override;
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
+		private:
+			/**
+			 * The value held by the class
+			 */
+			u64 value;
 		};
 
+		/**
+		 * FloatValue < NumberValue < RuntimeValue
+		 * @note This class is only used for inheritance purpose, never as a value
+		 */
 		class FloatValue: public NumberValue {};
 
-		bool IsFloatType(ValueType type) {
-			return type == ValueType::F32 || type == ValueType::F64;
-		}
-
+		/**
+		 * F32Value < FloatValue < NumberValue < RuntimeValue
+		 */
 		class F32Value: public FloatValue {
+		public:
+			F32Value(f32 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			float get_value();
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			f32 value;
-		public:
-			F32Value(f32 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::F32;
-			}
-			float get_value() {
-				return this->value;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": f32";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
 
+		/**
+		 * F64Value < FloatValue < NumberValue < RuntimeValue
+		 */
 		class F64Value: public FloatValue {
+		public:
+			F64Value(f64 value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			double get_value();
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			f64 value;
-		public:
-			F64Value(f64 value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::F64;
-			}
-			double get_value() {
-				return this->value;
-			}
-			virtual std::string repr() override {
-				return std::to_string(this->value) + ": f64";
-			}
-			virtual bool IsTrue() {
-				return value != 0;
-			}
 		};
 
+		/**
+		 * BooleanValue < RuntimeValue
+		 */
 		class BooleanValue : public RuntimeValue {
+		public:
+			BooleanValue(bool value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			bool get_value();
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
 		private:
+			/**
+			 * The value held by the class
+			 */
 			bool value;
-		public:
-			BooleanValue(bool value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::BOOL;
-			}
-			bool get_value() {
-				return this->value;
-			}
-			virtual std::string repr() override {
-				return this->value ? "true" : "false";
-			}
-			virtual bool IsTrue() {
-				return value;
-			}
 		};
 
+		/**
+		 * CharValue < RuntimeValue
+		 */
 		class CharValue : public RuntimeValue {
-		private:
-			char value;
 		public:
-			CharValue(char value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::CHAR;
-			}
-			char get_value() {
-				return this->value;
-			}
-			virtual std::string repr() override {
-				return std::string(1, this->value);
-			}
-			virtual bool IsTrue() {
-				return value != '\0';
-			}
+			CharValue(char value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			char get_value();
+			
+			virtual std::string repr() override;
+			
+			virtual bool IsTrue();
+			
+		private:
+			/**
+			 * The value held by the class
+			 */
+			char value;
 		};
 
+		/**
+		 * StrValue < RuntimeValue
+		 */
 		class StrValue : public RuntimeValue {
-		private:
-			std::string value;
 		public:
-			StrValue(std::string value) {
-				this->value = value;
-			}
-			virtual ValueType type() override {
-				return ValueType::STR;
-			}
-			std::string get_value() {
-				return this->value;
-			}
-			virtual std::string repr() override {
-				return this->value;
-			}
-			virtual bool IsTrue() {
-				return value.size() > 0;
-			}
+			StrValue(std::string value);
+			
+			virtual ValueType type() override;
+			
+			/**
+			 * Get the value held by the class
+			 * @return The value
+			 */
+			std::string get_value();
+			
+			virtual std::string repr();
+			
+			virtual bool IsTrue();
+			
+		private:
+			/**
+			 * The value held by the class
+			 */
+			std::string value;
 		};
+
+		#pragma endregion
 	}
 }
 
