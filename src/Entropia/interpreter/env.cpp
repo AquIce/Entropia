@@ -57,7 +57,7 @@ std::shared_ptr<ent::runtime::RuntimeValue> ent::runtime::get_sample_value(enum 
 	}
 }
 
-std::shared_ptr<ent::runtime::RuntimeValue> check_type_compatibility(
+std::shared_ptr<ent::runtime::RuntimeValue> ent::runtime::check_type_compatibility(
 	std::shared_ptr<ent::runtime::RuntimeValue> dest,
 	std::shared_ptr<ent::runtime::RuntimeValue> source,
 	std::string key
